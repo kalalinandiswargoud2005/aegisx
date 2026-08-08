@@ -1,0 +1,16 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: windows-agent
+
+aegisx:
+  backend:
+    url: http://localhost:8080
+    ws-url: ws://localhost:8080/ws-endpoint
+
+agent:
+  device-id: LAPTOP-001
+  hostname: AEGIS-PC
+  version: 1.0.0

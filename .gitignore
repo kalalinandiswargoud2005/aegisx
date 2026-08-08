@@ -1,0 +1,17 @@
+# IDEs
+.idea/
+.vscode/
+
+# Node
+node_modules/
+dist/
+build/
+.env
+
+# Maven/Java
+target/
+*.class
+
+# OS
+.DS_Store
+Thumbs.db

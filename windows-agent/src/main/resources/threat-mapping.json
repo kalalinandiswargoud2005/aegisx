@@ -1,0 +1,19 @@
+{
+  "FirewallDisabled": "THREAT-2026-018",
+  "AntivirusDisabled": "THREAT-2026-019",
+  "HighCPU": "THREAT-2026-021",
+  "MemoryExhaustion": "THREAT-2026-022",
+  "SuspiciousProcess": "THREAT-2026-010",
+  "CriticalServiceStopped": "THREAT-2026-023",
+  "USBInserted": "THREAT-2026-017",
+  "SuspiciousStartup": "THREAT-2026-028",
+  "SuspiciousScheduledTask": "THREAT-2026-028",
+  "NewAdministrator": "THREAT-2026-025",
+  "DNSChanged": "THREAT-2026-011",
+  "HostsFileChanged": "THREAT-2026-024",
+  "VPNDisconnected": "THREAT-2026-020",
+  "RDPEnabled": "THREAT-2026-016",
+  "FileIntegrityViolation": "THREAT-2026-024",
+  "EventLogCleared": "THREAT-2026-016",
+  "SecurityCenterAlert": "THREAT-2026-029"
+}

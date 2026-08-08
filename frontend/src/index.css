@@ -1,0 +1,95 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;500;600;700&family=Share+Tech+Mono&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-inter: "Inter", sans-serif;
+  --font-outfit: "Outfit", sans-serif;
+  --font-mono: "Share Tech Mono", monospace;
+
+  --color-background: #020204;
+  --color-surface: #0a0a0c;
+  --color-glass: rgba(10, 10, 12, 0.85);
+  --color-primary: #05D9E8;
+  --color-secondary: #FF007F;
+  --color-accent: #F3E600;
+  --color-success: #01FF07;
+  --color-warning: #F3E600;
+  --color-danger: #FF2A6D;
+  --color-border-color: rgba(5, 217, 232, 0.2);
+  --color-glow: rgba(5, 217, 232, 0.4);
+
+  --animate-float: float 6s ease-in-out infinite;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@layer base {
+  :root {
+    color-scheme: dark;
+  }
+  
+  body {
+    @apply bg-background text-white font-inter antialiased overflow-x-hidden min-h-screen selection:bg-primary/30 selection:text-primary;
+    background-color: var(--color-background);
+    background-image: 
+      radial-gradient(circle at 50% 0%, rgba(255, 0, 127, 0.05), transparent 60%);
+    background-attachment: fixed;
+  }
+
+  /* Custom scrollbar for cyber feel */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-primary/20 hover:bg-primary/50 transition-colors rounded-none;
+  }
+}
+
+@layer utilities {
+  .glass-panel {
+    @apply bg-surface/80 backdrop-blur-md border border-primary/20 shadow-[0_0_15px_rgba(5,217,232,0.1)] relative overflow-hidden;
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  }
+  .glass-panel::before {
+    content: '';
+    @apply absolute inset-0 bg-gradient-to-br from-primary/5 to-secondary/5 opacity-0 transition-opacity duration-500 pointer-events-none;
+  }
+  .glass-panel:hover::before {
+    @apply opacity-100;
+  }
+
+  .text-glow {
+    text-shadow: 0 0 8px var(--color-glow);
+  }
+  
+  .box-glow {
+    box-shadow: 0 0 15px var(--color-glow);
+  }
+
+  /* Cyber Grid Background */
+  .cyber-grid {
+    background-image: 
+      linear-gradient(to right, rgba(5, 217, 232, 0.05) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(5, 217, 232, 0.05) 1px, transparent 1px);
+    background-size: 30px 30px;
+    mask-image: radial-gradient(ellipse at center, black 50%, transparent 90%);
+    -webkit-mask-image: radial-gradient(ellipse at center, black 50%, transparent 90%);
+  }
+
+  .cyber-cut {
+    clip-path: polygon(10px 0, 100% 0, 100% calc(100% - 10px), calc(100% - 10px) 100%, 0 100%, 0 10px);
+  }
+  
+  .cyber-cut-reverse {
+    clip-path: polygon(0 0, calc(100% - 10px) 0, 100% 10px, 100% 100%, 10px 100%, 0 calc(100% - 10px));
+  }
+}
+
+@keyframes float {
+  0% { transform: translateY(0px); }
+  50% { transform: translateY(-10px); }
+  100% { transform: translateY(0px); }
+}

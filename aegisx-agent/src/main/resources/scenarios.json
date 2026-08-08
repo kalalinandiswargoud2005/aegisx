@@ -1,0 +1,502 @@
+[
+  {
+    "threatId": "THREAT-2026-001",
+    "category": "Malware",
+    "severity": "MEDIUM",
+    "description": "Simulated enterprise threat scenario 1",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 1. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":1,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-002",
+    "category": "Credential Access",
+    "severity": "HIGH",
+    "description": "Simulated enterprise threat scenario 2",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 2. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":2,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-003",
+    "category": "Privilege Escalation",
+    "severity": "CRITICAL",
+    "description": "Simulated enterprise threat scenario 3",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 3. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":3,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-004",
+    "category": "Exfiltration",
+    "severity": "LOW",
+    "description": "Simulated enterprise threat scenario 4",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 4. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":4,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-005",
+    "category": "Network",
+    "severity": "MEDIUM",
+    "description": "Simulated enterprise threat scenario 5",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 5. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":5,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-006",
+    "category": "Malware",
+    "severity": "HIGH",
+    "description": "Simulated enterprise threat scenario 6",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 6. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":6,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-007",
+    "category": "Credential Access",
+    "severity": "CRITICAL",
+    "description": "Simulated enterprise threat scenario 7",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 7. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":7,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-008",
+    "category": "Privilege Escalation",
+    "severity": "LOW",
+    "description": "Simulated enterprise threat scenario 8",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 8. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":8,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-009",
+    "category": "Exfiltration",
+    "severity": "MEDIUM",
+    "description": "Simulated enterprise threat scenario 9",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 9. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":9,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-010",
+    "category": "Network",
+    "severity": "HIGH",
+    "description": "Simulated enterprise threat scenario 10",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 10. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":10,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-011",
+    "category": "Malware",
+    "severity": "CRITICAL",
+    "description": "Simulated enterprise threat scenario 11",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 11. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":11,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-012",
+    "category": "Credential Access",
+    "severity": "LOW",
+    "description": "Simulated enterprise threat scenario 12",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 12. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":12,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-013",
+    "category": "Privilege Escalation",
+    "severity": "MEDIUM",
+    "description": "Simulated enterprise threat scenario 13",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 13. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":13,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-014",
+    "category": "Exfiltration",
+    "severity": "HIGH",
+    "description": "Simulated enterprise threat scenario 14",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 14. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":14,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-015",
+    "category": "Network",
+    "severity": "CRITICAL",
+    "description": "Simulated enterprise threat scenario 15",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 15. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":15,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-016",
+    "category": "Malware",
+    "severity": "LOW",
+    "description": "Simulated enterprise threat scenario 16",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 16. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":16,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-017",
+    "category": "Credential Access",
+    "severity": "MEDIUM",
+    "description": "Simulated enterprise threat scenario 17",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 17. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":17,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-018",
+    "category": "Privilege Escalation",
+    "severity": "HIGH",
+    "description": "Simulated enterprise threat scenario 18",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 18. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":18,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-019",
+    "category": "Exfiltration",
+    "severity": "CRITICAL",
+    "description": "Simulated enterprise threat scenario 19",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 19. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":19,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-020",
+    "category": "Network",
+    "severity": "LOW",
+    "description": "Simulated enterprise threat scenario 20",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 20. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":20,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-021",
+    "category": "Malware",
+    "severity": "MEDIUM",
+    "description": "Simulated enterprise threat scenario 21",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 21. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":21,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-022",
+    "category": "Credential Access",
+    "severity": "HIGH",
+    "description": "Simulated enterprise threat scenario 22",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 22. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":22,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-023",
+    "category": "Privilege Escalation",
+    "severity": "CRITICAL",
+    "description": "Simulated enterprise threat scenario 23",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 23. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":23,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-024",
+    "category": "Exfiltration",
+    "severity": "LOW",
+    "description": "Simulated enterprise threat scenario 24",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 24. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":24,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-025",
+    "category": "Network",
+    "severity": "MEDIUM",
+    "description": "Simulated enterprise threat scenario 25",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 25. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":25,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-026",
+    "category": "Malware",
+    "severity": "HIGH",
+    "description": "Simulated enterprise threat scenario 26",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 26. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":26,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-027",
+    "category": "Credential Access",
+    "severity": "CRITICAL",
+    "description": "Simulated enterprise threat scenario 27",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 27. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":27,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-028",
+    "category": "Privilege Escalation",
+    "severity": "LOW",
+    "description": "Simulated enterprise threat scenario 28",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 28. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":28,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-029",
+    "category": "Exfiltration",
+    "severity": "MEDIUM",
+    "description": "Simulated enterprise threat scenario 29",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 29. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":29,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-030",
+    "category": "Network",
+    "severity": "HIGH",
+    "description": "Simulated enterprise threat scenario 30",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 30. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":30,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-031",
+    "category": "Malware",
+    "severity": "CRITICAL",
+    "description": "Simulated enterprise threat scenario 31",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 31. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":31,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-032",
+    "category": "Credential Access",
+    "severity": "LOW",
+    "description": "Simulated enterprise threat scenario 32",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 32. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":32,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-033",
+    "category": "Privilege Escalation",
+    "severity": "MEDIUM",
+    "description": "Simulated enterprise threat scenario 33",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 33. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":33,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-034",
+    "category": "Exfiltration",
+    "severity": "HIGH",
+    "description": "Simulated enterprise threat scenario 34",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 34. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":34,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-035",
+    "category": "Network",
+    "severity": "CRITICAL",
+    "description": "Simulated enterprise threat scenario 35",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 35. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":35,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-036",
+    "category": "Malware",
+    "severity": "LOW",
+    "description": "Simulated enterprise threat scenario 36",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 36. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":36,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-037",
+    "category": "Credential Access",
+    "severity": "MEDIUM",
+    "description": "Simulated enterprise threat scenario 37",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 37. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":37,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-038",
+    "category": "Privilege Escalation",
+    "severity": "HIGH",
+    "description": "Simulated enterprise threat scenario 38",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 38. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":38,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-039",
+    "category": "Exfiltration",
+    "severity": "CRITICAL",
+    "description": "Simulated enterprise threat scenario 39",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 39. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":39,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-040",
+    "category": "Network",
+    "severity": "LOW",
+    "description": "Simulated enterprise threat scenario 40",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 40. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":40,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-041",
+    "category": "Malware",
+    "severity": "MEDIUM",
+    "description": "Simulated enterprise threat scenario 41",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 41. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":41,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-042",
+    "category": "Credential Access",
+    "severity": "HIGH",
+    "description": "Simulated enterprise threat scenario 42",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 42. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":42,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-043",
+    "category": "Privilege Escalation",
+    "severity": "CRITICAL",
+    "description": "Simulated enterprise threat scenario 43",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 43. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":43,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-044",
+    "category": "Exfiltration",
+    "severity": "LOW",
+    "description": "Simulated enterprise threat scenario 44",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 44. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":44,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-045",
+    "category": "Network",
+    "severity": "MEDIUM",
+    "description": "Simulated enterprise threat scenario 45",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 45. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":45,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-046",
+    "category": "Malware",
+    "severity": "HIGH",
+    "description": "Simulated enterprise threat scenario 46",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 46. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":46,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-047",
+    "category": "Credential Access",
+    "severity": "CRITICAL",
+    "description": "Simulated enterprise threat scenario 47",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 47. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":47,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-048",
+    "category": "Privilege Escalation",
+    "severity": "LOW",
+    "description": "Simulated enterprise threat scenario 48",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 48. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":48,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-049",
+    "category": "Exfiltration",
+    "severity": "MEDIUM",
+    "description": "Simulated enterprise threat scenario 49",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 49. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":49,\"type\":\"SIMULATION\"}"
+  },
+  {
+    "threatId": "THREAT-2026-050",
+    "category": "Network",
+    "severity": "HIGH",
+    "description": "Simulated enterprise threat scenario 50",
+    "timeline": "Detected at T-0. Escalated at T+5m.",
+    "recoverySteps": "Isolate host, reset credentials, run full AV scan.",
+    "aiSummary": "This is an AI generated summary for threat scenario 50. The anomaly was detected in standard telemetry.",
+    "dashboardPayload": "{\"eventId\":50,\"type\":\"SIMULATION\"}"
+  }
+]

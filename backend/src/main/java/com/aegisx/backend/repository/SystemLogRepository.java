@@ -1,0 +1,9 @@
+package com.aegisx.backend.repository;
+
+import com.aegisx.backend.entity.SystemLog;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+import java.util.UUID;
+
+public interface SystemLogRepository extends JpaRepository<SystemLog, UUID> {
+}

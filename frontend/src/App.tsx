@@ -5,6 +5,7 @@ import { Toaster } from 'sonner';
 import { ThemeProvider } from './providers/theme-provider';
 import { AuthProvider } from './features/auth/AuthContext';
 import { WebSocketProvider } from './providers/WebSocketProvider';
+import { ThreatSystemProvider } from './providers/ThreatSystemProvider';
 import { AppRoutes } from './routes';
 
 // Providers
@@ -16,15 +17,17 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <WebSocketProvider>
-            <BrowserRouter>
-              <div className="relative flex min-h-screen bg-background text-white">
-                <div className="absolute inset-0 cyber-grid opacity-30 pointer-events-none"></div>
-                <div className="relative flex flex-col flex-1 w-full min-w-0">
-                  <AppRoutes />
+            <ThreatSystemProvider>
+              <BrowserRouter>
+                <div className="relative flex min-h-screen bg-background text-white">
+                  <div className="absolute inset-0 cyber-grid opacity-30 pointer-events-none"></div>
+                  <div className="relative flex flex-col flex-1 w-full min-w-0">
+                    <AppRoutes />
+                  </div>
                 </div>
-              </div>
-              <Toaster theme="dark" position="bottom-right" />
-            </BrowserRouter>
+                <Toaster theme="dark" position="bottom-right" />
+              </BrowserRouter>
+            </ThreatSystemProvider>
           </WebSocketProvider>
         </AuthProvider>
       </QueryClientProvider>

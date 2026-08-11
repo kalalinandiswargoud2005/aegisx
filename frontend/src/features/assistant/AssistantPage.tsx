@@ -19,7 +19,12 @@ import {
   Sparkles,
   ChevronDown,
   Key,
+  Bell,
+  BellOff,
+  SlidersHorizontal,
 } from 'lucide-react';
+
+import { useAudioAlerts } from '@/hooks/useAudioAlerts';
 
 import { useWebSocket } from '@/providers/WebSocketProvider';
 import { GoogleGenAI } from '@google/genai';
@@ -124,6 +129,28 @@ export default function AssistantPage() {
   >('auto');
 
   /* =======================================================
+     AUDIO ALERTS (declared early so triggerThreatAlert is
+     available to the WebSocket subscription effect below)
+  ======================================================= */
+
+  // speakTextRef is populated after speakText is defined (see below).
+  // Using a ref here avoids a forward-reference TypeScript error.
+  const speakTextRef = useRef<(text: string) => void>(() => { /* placeholder */ });
+
+  const {
+    audioEnabled,
+    voiceEnabled,
+    volume: alertVolume,
+    audioAvailable,
+    setAudioEnabled,
+    setVoiceEnabled,
+    setVolume: setAlertVolume,
+    triggerThreatAlert,
+    playTestAlert,
+    unlockAudio,
+  } = useAudioAlerts(speakTextRef);
+
+  /* =======================================================
      WEBSOCKET THREAT SUBSCRIPTION
   ======================================================= */
 
@@ -133,11 +160,13 @@ export default function AssistantPage() {
     const unsubscribe = subscribe(
       'threats',
       (incident: any) => {
+        const incidentId =
+          incident.id ||
+          Date.now().toString();
+
         setActiveThreats((prev) => [
           {
-            id:
-              incident.id ||
-              Date.now().toString(),
+            id: incidentId,
 
             type:
               incident.severity === 'CRITICAL'
@@ -158,11 +187,17 @@ export default function AssistantPage() {
 
           ...prev,
         ].slice(0, 50));
+
+        /* Trigger audio alert for this incident */
+        triggerThreatAlert({
+          id: incidentId,
+          severity: incident.severity,
+        });
       }
     );
 
     return () => unsubscribe();
-  }, [subscribe, isConnected]);
+  }, [subscribe, isConnected, triggerThreatAlert]);
 
   /* =======================================================
      CHAT HISTORY
@@ -389,6 +424,9 @@ What would you like to know?`,
     },
     []
   );
+
+  // Sync speakTextRef so the audio hook always calls the latest speakText.
+  speakTextRef.current = speakText;
 
   /* =======================================================
      SEND MESSAGE TO GEMINI
@@ -1489,6 +1527,7 @@ Please check:
                   )
                 }
                 onKeyDown={(event) => {
+                  unlockAudio();
                   if (
                     event.key ===
                       'Enter' &&
@@ -1532,11 +1571,12 @@ Please check:
               {/* Send */}
 
               <button
-                onClick={() =>
+                onClick={() => {
+                  unlockAudio();
                   sendMessage(
                     input
-                  )
-                }
+                  );
+                }}
                 disabled={
                   !input.trim() ||
                   isThinking
@@ -1724,6 +1764,132 @@ Please check:
                 </div>
               )
             )}
+
+          </div>
+
+          {/* =================================================
+              AUDIO CONTROLS
+          ================================================= */}
+
+          <div className="mx-3 mb-2 rounded-none border border-border-color bg-surface/60 flex-shrink-0 cyber-cut">
+
+            {/* Panel header */}
+
+            <div className="flex items-center gap-2 px-3 py-2 border-b border-border-color">
+
+              <SlidersHorizontal className="w-3 h-3 text-primary" />
+
+              <span className="text-[10px] font-bold text-primary tracking-widest font-mono uppercase">
+                Audio Controls
+              </span>
+
+              {!audioAvailable && (
+                <span className="ml-auto text-[9px] font-mono text-danger/80 tracking-widest uppercase">
+                  UNAVAILABLE
+                </span>
+              )}
+
+            </div>
+
+            <div className="px-3 py-2 space-y-2">
+
+              {/* Audio Alerts toggle */}
+
+              <div className="flex items-center justify-between">
+
+                <span className="text-[10px] font-mono text-white/60 tracking-widest uppercase">
+                  Audio Alerts
+                </span>
+
+                <button
+                  id="aegisx-audio-alerts-toggle"
+                  onClick={() => {
+                    unlockAudio();
+                    setAudioEnabled(!audioEnabled);
+                  }}
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-none text-[10px] font-bold font-mono tracking-widest uppercase border transition-all cyber-cut ${
+                    audioEnabled
+                      ? 'bg-primary/10 border-primary text-primary'
+                      : 'bg-surface border-border-color text-white/40 hover:text-white/70'
+                  }`}
+                >
+                  {audioEnabled ? (
+                    <><Bell className="w-3 h-3" /> ON</>
+                  ) : (
+                    <><BellOff className="w-3 h-3" /> OFF</>
+                  )}
+                </button>
+
+              </div>
+
+              {/* Voice Alerts toggle */}
+
+              <div className="flex items-center justify-between">
+
+                <span className="text-[10px] font-mono text-white/60 tracking-widest uppercase">
+                  Voice Alerts
+                </span>
+
+                <button
+                  id="aegisx-voice-alerts-toggle"
+                  onClick={() => {
+                    unlockAudio();
+                    setVoiceEnabled(!voiceEnabled);
+                  }}
+                  className={`flex items-center gap-1 px-2.5 py-1 rounded-none text-[10px] font-bold font-mono tracking-widest uppercase border transition-all cyber-cut ${
+                    voiceEnabled
+                      ? 'bg-primary/10 border-primary text-primary'
+                      : 'bg-surface border-border-color text-white/40 hover:text-white/70'
+                  }`}
+                >
+                  {voiceEnabled ? (
+                    <><Volume2 className="w-3 h-3" /> ON</>
+                  ) : (
+                    <><VolumeX className="w-3 h-3" /> OFF</>
+                  )}
+                </button>
+
+              </div>
+
+              {/* Volume slider */}
+
+              <div className="flex items-center gap-2">
+
+                <span className="text-[10px] font-mono text-white/60 tracking-widest uppercase w-12 flex-shrink-0">
+                  Volume
+                </span>
+
+                <input
+                  id="aegisx-alert-volume"
+                  type="range"
+                  min={0}
+                  max={1}
+                  step={0.05}
+                  value={alertVolume}
+                  onChange={(e) => setAlertVolume(parseFloat(e.target.value))}
+                  className="flex-1 h-1 accent-primary cursor-pointer"
+                />
+
+                <span className="text-[10px] font-mono text-white/40 w-8 text-right">
+                  {Math.round(alertVolume * 100)}%
+                </span>
+
+              </div>
+
+              {/* Test Alert button */}
+
+              <button
+                id="aegisx-test-alert-btn"
+                onClick={() => {
+                  unlockAudio();
+                  playTestAlert();
+                }}
+                className="w-full py-1.5 rounded-none border border-border-color bg-surface text-[10px] font-bold font-mono tracking-widest uppercase text-white/60 hover:text-primary hover:border-primary/50 transition-all cyber-cut"
+              >
+                ⚡ Test Alert
+              </button>
+
+            </div>
 
           </div>
 

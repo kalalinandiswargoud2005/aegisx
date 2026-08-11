@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { RotateCcw, CheckCircle, Circle, ArrowRight, ShieldAlert, AlertTriangle } from 'lucide-react';
+import { RotateCcw, CheckCircle, Circle, ShieldAlert, AlertTriangle } from 'lucide-react';
 import { Card, Button, Badge, PageContainer, PageHeader, PageSection } from '@/components/ui';
 import { useWebSocket } from '@/providers/WebSocketProvider';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -116,10 +116,8 @@ export function Recovery() {
     }
   }, [activeIncident?.id, fetchSteps]);
 
-  // ── Auto-advance steps if in Fully Automated Mode ─────────────────────────
+  // ── Auto-advance steps (ALWAYS runs — no manual mode) ───────────────────
   useEffect(() => {
-    const mode = localStorage.getItem('aegisx_response_mode') || 'AUTOMATED';
-    if (mode !== 'AUTOMATED') return;
     if (!activeIncident || steps.length === 0 || isResolving) return;
 
     const timer = setInterval(() => {
@@ -211,7 +209,7 @@ export function Recovery() {
             Threats in Queue
             <Badge variant={queue.length > 0 ? 'danger' : 'default'}>{queue.length}</Badge>
           </h3>
-          <p className="text-xs text-white/30 mb-3 italic">Click a threat to load its recovery steps</p>
+          <p className="text-xs text-white/30 mb-3 italic">Threats are auto-resolved by severity. Highest priority first.</p>
           <div className="space-y-3 overflow-y-auto flex-1 pr-1">
             {queue.length === 0 ? (
               <p className="text-white/50 text-sm">No active threats.</p>
@@ -330,28 +328,30 @@ export function Recovery() {
           </div>
 
           <div className="mt-6 pt-5 border-t border-border-color">
-            <Button
-              variant="primary"
-              className="w-full"
-              disabled={steps.length === 0 || isResolving || stepsError}
-              onClick={() => {
-                if (currentStep <= steps.length) {
-                  setCurrentStep(prev => prev + 1);
-                } else {
-                  handleResolve();
-                }
-              }}
-            >
-              {isResolving
-                ? 'Resolving...'
-                : allWizardDone
-                ? 'Finalize & Resolve Threat'
-                : (
-                  <>
-                    Proceed to Next Step <ArrowRight size={15} className="ml-2" />
-                  </>
-                )}
-            </Button>
+            {isResolving ? (
+              <div className="flex items-center justify-center gap-2 py-2 text-sm font-mono text-accent animate-pulse">
+                <RotateCcw size={14} className="animate-spin" />
+                Resolving threat...
+              </div>
+            ) : allWizardDone ? (
+              <div className="flex items-center justify-center gap-2 py-2 text-sm font-mono text-success">
+                <CheckCircle size={14} />
+                Finalizing — threat will be marked resolved
+              </div>
+            ) : steps.length > 0 ? (
+              <div className="flex items-center justify-center gap-2 py-2 text-sm font-mono text-accent">
+                <RotateCcw size={14} className="animate-spin" />
+                Auto-advancing recovery steps...
+              </div>
+            ) : (
+              <div className="flex items-center justify-center gap-2 py-2 text-sm font-mono text-white/30">
+                Waiting for recovery steps...
+              </div>
+            )}
+            <div className="mt-2 flex items-center justify-center gap-1.5 text-[10px] font-mono tracking-widest uppercase text-success/70">
+              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+              AUTONOMOUS RECOVERY ACTIVE
+            </div>
           </div>
         </Card>
 

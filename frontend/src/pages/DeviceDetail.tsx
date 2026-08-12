@@ -5,7 +5,7 @@ import {
   ShieldAlert, Activity, Terminal, Trash2, ArrowLeft, RefreshCw, 
   Lock, AlertTriangle, Zap, Play, Pause, Monitor, CheckCircle, XCircle
 } from 'lucide-react';
-import { Card, Button, Badge, PageContainer, PageSection } from '@/components/ui';
+import { Card, Button, Badge, PageContainer, PageSection, PageHeader } from '@/components/ui';
 import { useWebSocket } from '@/providers/WebSocketProvider';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';

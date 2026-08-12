@@ -16,7 +16,10 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   const subscriptionsRef = useRef<Map<string, Set<(message: any) => void>>>(new Map());
 
   useEffect(() => {
-    const wsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8080/ws';
+    const rawWsUrl = import.meta.env.VITE_WS_URL || 'ws://localhost:8080/ws';
+    const wsUrl = rawWsUrl.endsWith('/ws')
+      ? rawWsUrl
+      : `${rawWsUrl.replace(/\/+$/, '')}/ws`;
     
     const client = new Client({
       brokerURL: wsUrl,

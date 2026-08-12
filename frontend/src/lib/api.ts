@@ -1,8 +1,13 @@
 import axios from 'axios';
 import { toast } from 'sonner';
 
+const rawApiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1';
+const baseURL = rawApiUrl.includes('/api/v1') 
+  ? rawApiUrl 
+  : `${rawApiUrl.replace(/\/+$/, '')}/api/v1`;
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:8080/api/v1',
+  baseURL,
   headers: {
     'Content-Type': 'application/json',
   },

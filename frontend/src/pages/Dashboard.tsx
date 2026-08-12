@@ -145,34 +145,90 @@ const itemVariants: Variants = {
       </motion.div>
 
       <motion.div variants={itemVariants} className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-        <Card className="lg:col-span-2 flex flex-col group relative overflow-hidden">
+        <Card className="lg:col-span-2 flex flex-col group relative overflow-hidden border border-primary/30 shadow-[0_0_30px_rgba(5,217,232,0.1)] p-5">
           <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out pointer-events-none" />
-          <h3 className="mb-4 text-lg font-mono font-bold tracking-widest uppercase text-white flex items-center">
-            <span className="text-primary mr-2 animate-pulse">{'>'}</span> Threat Activity (24h)
-          </h3>
-          <div className="flex-1 min-h-[300px] w-full relative z-10">
+          
+          {/* Header Controls */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-4 gap-3">
+            <div>
+              <h3 className="text-lg font-mono font-bold tracking-widest uppercase text-white flex items-center gap-2">
+                <span className="text-primary animate-pulse">{'>'}</span> Threat Activity Spectrum (24h)
+              </h3>
+              <p className="text-xs text-white/50 font-mono mt-0.5">Real-time incident detection vs. autonomous mitigation rate</p>
+            </div>
+
+            <div className="flex items-center gap-2 font-mono">
+              <span className="flex items-center gap-1.5 px-3 py-1 bg-primary/10 border border-primary/40 text-xs font-bold text-primary shadow-[0_0_10px_rgba(5,217,232,0.2)]">
+                <span className="h-2 w-2 rounded-full bg-primary animate-ping" />
+                99.8% PROTECTION RATE
+              </span>
+            </div>
+          </div>
+
+          {/* Metrics Bar */}
+          <div className="grid grid-cols-3 gap-3 mb-4 p-3 bg-surface/40 border border-white/5 font-mono text-xs">
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-8 bg-danger" />
+              <div>
+                <div className="text-[10px] text-white/40 uppercase">Total Threats</div>
+                <div className="text-sm font-bold text-danger">272 Incidents</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-8 bg-primary" />
+              <div>
+                <div className="text-[10px] text-white/40 uppercase">Auto-Mitigated</div>
+                <div className="text-sm font-bold text-primary">271 (99.8%)</div>
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <div className="w-1 h-8 bg-emerald-400" />
+              <div>
+                <div className="text-[10px] text-white/40 uppercase">Avg Response</div>
+                <div className="text-sm font-bold text-emerald-400">&lt; 3.2 ms</div>
+              </div>
+            </div>
+          </div>
+
+          {/* High-Tech Glowing Area Chart Graph */}
+          <div className="flex-1 min-h-[260px] w-full relative z-10">
             <ResponsiveContainer width="100%" height="100%">
               <AreaChart data={activityData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                 <defs>
                   <linearGradient id="colorThreats" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-danger)" stopOpacity={0.5}/>
+                    <stop offset="5%" stopColor="var(--color-danger)" stopOpacity={0.6}/>
                     <stop offset="95%" stopColor="var(--color-danger)" stopOpacity={0}/>
                   </linearGradient>
                   <linearGradient id="colorBlocked" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.5}/>
+                    <stop offset="5%" stopColor="var(--color-primary)" stopOpacity={0.6}/>
                     <stop offset="95%" stopColor="var(--color-primary)" stopOpacity={0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="rgba(5,217,232,0.1)" vertical={false} />
-                <XAxis dataKey="time" stroke="rgba(255,255,255,0.3)" fontSize={12} tickLine={false} axisLine={false} fontFamily="monospace" />
-                <YAxis stroke="rgba(255,255,255,0.3)" fontSize={12} tickLine={false} axisLine={false} fontFamily="monospace" />
+                <CartesianGrid strokeDasharray="2 4" stroke="rgba(5,217,232,0.15)" vertical={false} />
+                <XAxis dataKey="time" stroke="rgba(255,255,255,0.4)" fontSize={11} tickLine={false} axisLine={false} fontFamily="monospace" />
+                <YAxis stroke="rgba(255,255,255,0.4)" fontSize={11} tickLine={false} axisLine={false} fontFamily="monospace" />
                 <RechartsTooltip 
-                  contentStyle={{ backgroundColor: 'var(--color-surface)', border: '1px solid var(--color-primary)', borderRadius: '0', boxShadow: '0 0 10px rgba(5,217,232,0.3)' }}
-                  itemStyle={{ color: '#fff', fontFamily: 'monospace' }}
-                  labelStyle={{ fontFamily: 'monospace', color: 'var(--color-primary)' }}
+                  content={({ active, payload, label }) => {
+                    if (active && payload && payload.length) {
+                      return (
+                        <div className="bg-[#020617] border border-primary/50 p-3 shadow-[0_0_20px_rgba(5,217,232,0.4)] font-mono text-xs">
+                          <div className="text-primary font-bold mb-1 border-b border-primary/20 pb-1">TIME: {label}</div>
+                          <div className="text-danger flex items-center justify-between gap-4">
+                            <span>Detected Threats:</span>
+                            <span className="font-bold">{payload[0]?.value}</span>
+                          </div>
+                          <div className="text-primary flex items-center justify-between gap-4">
+                            <span>Auto-Blocked:</span>
+                            <span className="font-bold">{payload[1]?.value}</span>
+                          </div>
+                        </div>
+                      );
+                    }
+                    return null;
+                  }}
                 />
-                <Area type="monotone" dataKey="threats" stroke="var(--color-danger)" strokeWidth={2} fillOpacity={1} fill="url(#colorThreats)" activeDot={{ r: 6, fill: "var(--color-danger)", stroke: "#fff" }} />
-                <Area type="monotone" dataKey="blocked" stroke="var(--color-primary)" strokeWidth={2} fillOpacity={1} fill="url(#colorBlocked)" activeDot={{ r: 6, fill: "var(--color-primary)", stroke: "#fff" }} />
+                <Area type="monotone" dataKey="threats" stroke="var(--color-danger)" strokeWidth={2.5} fillOpacity={1} fill="url(#colorThreats)" activeDot={{ r: 6, fill: "var(--color-danger)", stroke: "#fff" }} />
+                <Area type="monotone" dataKey="blocked" stroke="var(--color-primary)" strokeWidth={2.5} fillOpacity={1} fill="url(#colorBlocked)" activeDot={{ r: 6, fill: "var(--color-primary)", stroke: "#fff" }} />
               </AreaChart>
             </ResponsiveContainer>
           </div>

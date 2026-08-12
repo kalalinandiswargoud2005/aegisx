@@ -19,6 +19,7 @@ import React, {
   useRef,
   useCallback,
 } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useWebSocket } from '@/providers/WebSocketProvider';
 import {
   ThreatAlertModal,
@@ -78,6 +79,7 @@ interface Props {
 
 export function ThreatSystemProvider({ children }: Props) {
   const { subscribe } = useWebSocket();
+  const navigate = useNavigate();
 
   // ── Modal state ──────────────────────────────────────────────────────────
   const [activeThreat, setActiveThreat] = useState<ThreatAlertPayload | null>(null);
@@ -89,73 +91,12 @@ export function ThreatSystemProvider({ children }: Props) {
   const seenIdsRef        = useRef<Set<string>>(new Set());
   const resolvedIdsRef    = useRef<Set<string>>(new Set());
 
-  // ── Background recovery queue ────────────────────────────────────────────
-  // Sorted by priority (CRITICAL first).
-  const recoveryQueueRef  = useRef<any[]>([]);
-  const isRecoveringRef   = useRef(false);
-
   // ── Count (for context) ──────────────────────────────────────────────────
   const [activeThreatCount, setActiveThreatCount] = useState(0);
 
   // ── Toast close handler ──────────────────────────────────────────────────
   const closeToast = useCallback((id: string) => {
     setResolvedToasts((prev) => prev.filter((t) => t.id !== id));
-  }, []);
-
-  // ── Background recovery runner ────────────────────────────────────────────
-  const runRecovery = useCallback(async () => {
-    if (isRecoveringRef.current) return;
-    if (recoveryQueueRef.current.length === 0) return;
-
-    isRecoveringRef.current = true;
-
-    // Take highest-priority incident
-    recoveryQueueRef.current.sort(
-      (a, b) => (SEVERITY_RANK[b.severity] || 0) - (SEVERITY_RANK[a.severity] || 0)
-    );
-    const incident = recoveryQueueRef.current.shift()!;
-
-    // Skip if already resolved
-    if (resolvedIdsRef.current.has(incident.id)) {
-      isRecoveringRef.current = false;
-      runRecovery();
-      return;
-    }
-
-    // Fetch steps
-    const steps = await fetchRecoverySteps(incident.id);
-    const stepCount = steps.length;
-
-    // Step through (simulate progress even with no steps)
-    const totalSteps = Math.max(stepCount, 1);
-    for (let i = 0; i < totalSteps; i++) {
-      await new Promise<void>((resolve) => setTimeout(resolve, STEP_DELAY_MS));
-    }
-
-    // Resolve on backend
-    const ok = await resolveOnBackend(incident.id);
-
-    if (ok) {
-      resolvedIdsRef.current.add(incident.id);
-
-      // Show "resolved" toast
-      const toastPayload: ResolvedToastPayload = {
-        id: `${incident.id}-resolved-${Date.now()}`,
-        name: incident.name || incident.type || 'Unknown Threat',
-      };
-      setResolvedToasts((prev) => [...prev, toastPayload]);
-      setActiveThreatCount((prev) => Math.max(0, prev - 1));
-
-      // Play success sound if available
-      try { AudioAlertService.playSuccessSound(); } catch { /* */ }
-    }
-
-    isRecoveringRef.current = false;
-
-    // Process next in queue
-    if (recoveryQueueRef.current.length > 0) {
-      runRecovery();
-    }
   }, []);
 
   // ── WebSocket: new threat ─────────────────────────────────────────────────
@@ -199,16 +140,10 @@ export function ThreatSystemProvider({ children }: Props) {
           );
         })
         .catch(() => { /* audio unavailable */ });
-
-      // Enqueue for background auto-recovery
-      if (!resolvedIdsRef.current.has(id)) {
-        recoveryQueueRef.current.push({ ...incident, id });
-        runRecovery();
-      }
     });
 
     return () => unsubscribe();
-  }, [subscribe, runRecovery]);
+  }, [subscribe]);
 
   // ── WebSocket: timeline (resolved externally, e.g. from Recovery page) ────
   useEffect(() => {
@@ -242,7 +177,10 @@ export function ThreatSystemProvider({ children }: Props) {
       {/* ── Full-screen threat modal ── */}
       <ThreatAlertModal
         threat={activeThreat}
-        onDismiss={() => setActiveThreat(null)}
+        onDismiss={() => {
+          setActiveThreat(null);
+          navigate('/recovery');
+        }}
       />
 
       {/* ── Small resolved toasts (bottom-right) ── */}

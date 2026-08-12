@@ -25,7 +25,7 @@ export function ImmediateActionOverlay() {
     return () => unsubscribe();
   }, [subscribe]);
 
-  // ── Countdown timer — dismisses when it reaches 0 ──────────────────────
+  // ── Countdown timer — dismisses & navigates to recovery ──────────────────────
   useEffect(() => {
     if (!activeAlert) return;
 
@@ -33,7 +33,8 @@ export function ImmediateActionOverlay() {
       setAutoCloseTimer((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          setActiveAlert(null); // ← actually dismiss
+          setActiveAlert(null);
+          navigate('/recovery');
           return 0;
         }
         return prev - 1;
@@ -41,7 +42,7 @@ export function ImmediateActionOverlay() {
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [activeAlert]);
+  }, [activeAlert, navigate]);
 
   if (!activeAlert) return null;
 
@@ -75,8 +76,12 @@ export function ImmediateActionOverlay() {
             </div>
           </div>
           <button
-            onClick={() => setActiveAlert(null)}
-            className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-lg transition-colors"
+            onClick={() => {
+              setActiveAlert(null);
+              navigate('/recovery');
+            }}
+            className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
+            title="Dismiss to Recovery Page"
           >
             <X size={20} />
           </button>

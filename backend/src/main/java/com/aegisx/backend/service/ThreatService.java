@@ -5,6 +5,7 @@ import com.aegisx.backend.repository.IncidentRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.UUID;
 
@@ -25,6 +26,7 @@ public class ThreatService {
     public void resolveThreat(UUID id) {
         incidentRepository.findById(id).ifPresent(incident -> {
             incident.setStatus("RESOLVED");
+            incident.setResolvedAt(LocalDateTime.now());
             incidentRepository.save(incident);
         });
     }

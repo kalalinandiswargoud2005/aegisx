@@ -8,7 +8,6 @@ import { ImmediateActionOverlay } from '@/components/ImmediateActionOverlay';
 export function MainLayout() {
   return (
     <div className="relative flex h-screen w-full overflow-hidden bg-background text-white">
-      {/* Global Immediate Response Alert Overlay */}
       <ImmediateActionOverlay />
 
       {/* Background Layer */}

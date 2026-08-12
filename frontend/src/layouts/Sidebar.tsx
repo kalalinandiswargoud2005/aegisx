@@ -3,7 +3,7 @@ import { NavLink, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { 
-  LayoutDashboard, ShieldAlert, Laptop, 
+  LayoutDashboard, ShieldAlert, Laptop, Eye,
   RotateCcw, Activity, FileText, 
   Bot, BookOpen, Settings, Info, Zap,
   PanelLeftClose, PanelLeftOpen
@@ -12,6 +12,7 @@ import {
 const menuItems = [
   { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
   { icon: Laptop, label: 'Devices', path: '/devices' },
+  { icon: Eye, label: 'Watch Deck', path: '/watch' },
   { icon: Zap, label: 'Simulation', path: '/simulation' },
   { icon: ShieldAlert, label: 'Threat Center', path: '/threats' },
   { icon: RotateCcw, label: 'Recovery', path: '/recovery' },
@@ -63,7 +64,7 @@ export function Sidebar() {
                 >
                   <ShieldAlert size={20} />
                 </motion.div>
-                <span className="font-mono font-bold text-lg text-glow text-primary tracking-widest group-hover:text-white transition-colors duration-300">AEGISX</span>
+                <span className="font-mono font-bold text-lg text-glow text-primary tracking-widest group-hover:text-white transition-colors duration-300">ASTRA</span>
               </Link>
             </motion.div>
           )}

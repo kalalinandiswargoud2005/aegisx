@@ -21,4 +21,10 @@ public class DeviceController {
     public ResponseEntity<List<Device>> getDevices() {
         return ResponseEntity.ok(deviceService.getAllDevices());
     }
+
+    @org.springframework.web.bind.annotation.DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteDevice(@org.springframework.web.bind.annotation.PathVariable java.util.UUID id) {
+        deviceService.deleteDevice(id);
+        return ResponseEntity.noContent().build();
+    }
 }

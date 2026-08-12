@@ -9,6 +9,8 @@ import { Landing } from '@/pages/Landing';
 import { Dashboard } from '@/pages/Dashboard';
 import { Threats } from '@/pages/Threats';
 import { Devices } from '@/pages/Devices';
+import { DeviceDetail } from '@/pages/DeviceDetail';
+import { Watch } from '@/pages/Watch';
 import { Recovery } from '@/pages/Recovery';
 import { Analytics } from '@/pages/Analytics';
 import { Reports } from '@/pages/Reports';
@@ -29,6 +31,8 @@ export function AppRoutes() {
           <Route path="/dashboard" element={<Dashboard />} />
           <Route path="/threats" element={<Threats />} />
           <Route path="/devices" element={<Devices />} />
+          <Route path="/devices/:id" element={<DeviceDetail />} />
+          <Route path="/watch" element={<Watch />} />
           <Route path="/recovery" element={<Recovery />} />
           <Route path="/analytics" element={<Analytics />} />
           <Route path="/reports" element={<Reports />} />

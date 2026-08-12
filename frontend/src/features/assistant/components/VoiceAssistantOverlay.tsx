@@ -108,96 +108,6 @@ export const VoiceAssistantOverlay: React.FC<VoiceAssistantOverlayProps> = ({
   const finalRef       = useRef('');
   const sendTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  // ── Derived state from parent ─────────────────────────────────────────────
-  useEffect(() => {
-    if (isThinking)     { setVoiceState('thinking'); return; }
-    if (isSpeaking)     { setVoiceState('speaking'); return; }
-    if (isListeningRef.current) { setVoiceState('listening'); return; }
-    setVoiceState('idle');
-  }, [isThinking, isSpeaking]);
-
-  // ── Mount animation ───────────────────────────────────────────────────────
-  useEffect(() => {
-    if (isOpen) setTimeout(() => setVisible(true), 20);
-    else {
-      setVisible(false);
-      stopListening();
-    }
-  }, [isOpen]);
-
-  // ── Keyboard: Escape to close ─────────────────────────────────────────────
-  useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && isOpen) onClose(); };
-    window.addEventListener('keydown', onKey);
-    return () => window.removeEventListener('keydown', onKey);
-  }, [isOpen, onClose]);
-
-  // ── Init recognition ──────────────────────────────────────────────────────
-  useEffect(() => {
-    const SR = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
-    if (!SR) return;
-
-    const rec = new SR();
-    rec.continuous       = true;
-    rec.interimResults   = true;
-    rec.lang             = 'en-US';
-
-    rec.onstart = () => {
-      isListeningRef.current = true;
-      setVoiceState('listening');
-    };
-
-    rec.onresult = (event: any) => {
-      let interim = '';
-      let final   = '';
-
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-        const t = event.results[i][0].transcript;
-        if (event.results[i].isFinal) final += t;
-        else interim += t;
-      }
-
-      if (final) finalRef.current += final + ' ';
-      setTranscript(finalRef.current + interim);
-
-      // Auto-send after 1.8 s silence
-      if (final) {
-        if (sendTimeoutRef.current) clearTimeout(sendTimeoutRef.current);
-        sendTimeoutRef.current = setTimeout(() => {
-          const text = finalRef.current.trim();
-          if (text) {
-            // Strip wake word if present
-            const cleaned = stripWakeWord(text) || text;
-            stopListening();
-            setTranscript('');
-            finalRef.current = '';
-            onSend(cleaned);
-          }
-        }, 1800);
-      }
-    };
-
-    rec.onerror = (e: any) => {
-      if (e.error !== 'no-speech') console.warn('[Voice]', e.error);
-    };
-
-    rec.onend = () => {
-      // Restart if still supposed to be listening
-      if (isListeningRef.current) {
-        try { rec.start(); } catch (_) {}
-      } else {
-        setVoiceState('idle');
-      }
-    };
-
-    recognitionRef.current = rec;
-
-    return () => {
-      isListeningRef.current = false;
-      try { rec.abort(); } catch (_) {}
-    };
-  }, [onSend]);
-
   // ── Start / stop helpers ──────────────────────────────────────────────────
   const startListening = useCallback(() => {
     if (isListeningRef.current) return;
@@ -221,6 +131,44 @@ export const VoiceAssistantOverlay: React.FC<VoiceAssistantOverlayProps> = ({
     if (isListeningRef.current) stopListening();
     else startListening();
   }, [startListening, stopListening]);
+
+  // ── Derived state from parent ─────────────────────────────────────────────
+  useEffect(() => {
+    if (isThinking)     { setVoiceState('thinking'); return; }
+    if (isSpeaking)     { setVoiceState('speaking'); return; }
+    if (isListeningRef.current) { setVoiceState('listening'); return; }
+    setVoiceState('idle');
+  }, [isThinking, isSpeaking]);
+
+  // ── Mount animation & auto start listening ────────────────────────────────
+  useEffect(() => {
+    if (isOpen) {
+      setTimeout(() => setVisible(true), 20);
+      startListening();
+    } else {
+      setVisible(false);
+      stopListening();
+    }
+  }, [isOpen, startListening, stopListening]);
+
+  // ── Keyboard: Escape to close ─────────────────────────────────────────────
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape' && isOpen) onClose(); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [isOpen, onClose]);
+
+  // ── Listen to live stream from AlwaysOnVoiceListener ──────────────────────
+  useEffect(() => {
+    const handleStream = (e: any) => {
+      if (e.detail && e.detail.text) {
+        setTranscript(e.detail.text);
+        setVoiceState('listening');
+      }
+    };
+    window.addEventListener('jarvis-transcript-stream', handleStream);
+    return () => window.removeEventListener('jarvis-transcript-stream', handleStream);
+  }, []);
 
   if (!isOpen) return null;
 

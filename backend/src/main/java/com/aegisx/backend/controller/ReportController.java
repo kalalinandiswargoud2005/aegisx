@@ -21,6 +21,7 @@ import java.time.LocalDate;
 public class ReportController {
 
     private final ThreatLibraryService threatLibraryService;
+    private final com.aegisx.backend.repository.IncidentReportRepository reportRepository;
     private final ObjectMapper objectMapper;
 
     @GetMapping
@@ -42,5 +43,12 @@ public class ReportController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=aegisx-report.json")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(jsonData);
+    }
+
+    @GetMapping("/incident/{incidentId}")
+    public ResponseEntity<com.aegisx.backend.entity.IncidentReport> getIncidentReport(@org.springframework.web.bind.annotation.PathVariable java.util.UUID incidentId) {
+        return reportRepository.findByIncidentId(incidentId)
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
     }
 }

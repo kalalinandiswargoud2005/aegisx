@@ -1,10 +1,14 @@
 package com.aegisx.windowsagent.monitor;
 
 import com.aegisx.windowsagent.dispatcher.ThreatDispatcher;
+import com.aegisx.windowsagent.util.CommandRunner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+
+import java.util.Arrays;
+import java.util.List;
 import java.util.Random;
 
 @Slf4j
@@ -14,14 +18,31 @@ public class ProcessMonitor {
 
     private final ThreatDispatcher dispatcher;
     private final Random random = new Random();
+    private final List<String> maliciousProcesses = Arrays.asList("mimikatz", "nc", "nmap", "ransomware_sim", "netcat");
 
-    @Scheduled(fixedRateString = "${agent.monitor.rate:60000}")
+    @Scheduled(fixedRateString = "${agent.monitor.rate:10000}")
     public void check() {
-        // Lightweight Mock Implementation
-        // In a real scenario, this would query WMI, PowerShell, or OSHI
-        if (random.nextDouble() < 0.05) { // 5% chance to trigger an anomaly for demonstration
-            log.warn("ProcessMonitor detected an anomaly!");
-            dispatcher.dispatch("ProcessAlert", "ProcessMonitor detected suspicious activity");
+        try {
+            String output = CommandRunner.runPowerShell("Get-Process | Select-Object -ExpandProperty Name");
+            if (output != null && !output.isEmpty()) {
+                String[] runningProcesses = output.split("\\r?\\n");
+                for (String process : runningProcesses) {
+                    process = process.trim().toLowerCase();
+                    for (String malicious : maliciousProcesses) {
+                        if (process.equals(malicious) || process.startsWith(malicious + ".")) {
+                            log.warn("Malicious process detected: {}", process);
+                            dispatcher.dispatch("SuspiciousProcess", "Detected known malicious process: " + process);
+                        }
+                    }
+                }
+            }
+
+            if (random.nextDouble() < 0.02) { 
+                log.info("ProcessMonitor triggered mock anomaly for demonstration");
+                dispatcher.dispatch("SuspiciousProcess", "Mock malicious process detected");
+            }
+        } catch (Exception e) {
+            log.error("Failed to check processes", e);
         }
     }
 }

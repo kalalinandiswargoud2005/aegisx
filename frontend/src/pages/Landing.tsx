@@ -57,7 +57,7 @@ export function Landing() {
           </div>
 
           <h1 className="text-7xl md:text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-white to-primary tracking-[0.2em] uppercase mb-4" style={{ WebkitTextStroke: '2px rgba(5,217,232,0.5)', textShadow: '0 0 20px rgba(5,217,232,0.4)' }}>
-            AEGISX
+            ASTRA
           </h1>
           
           <motion.p 
@@ -67,7 +67,7 @@ export function Landing() {
             className="text-xl md:text-2xl text-primary/80 font-mono tracking-widest mb-16 uppercase flex items-center gap-3"
           >
             <span className="text-secondary animate-pulse">{'>'}</span> 
-            Enterprise Threat Intelligence
+            Vigilance Beyond Boundaries
             <span className="text-secondary animate-pulse">_</span>
           </motion.p>
 

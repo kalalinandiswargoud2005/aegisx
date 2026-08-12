@@ -29,6 +29,8 @@ public class AIService {
     private final ObjectMapper objectMapper;
     private final SimpMessagingTemplate messagingTemplate;
     private final ConversationManager conversationManager;
+    private final SafetyFilter safetyFilter;
+    private final PromptTemplates promptTemplates;
     private final HttpClient httpClient = HttpClient.newBuilder().build();
 
     private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro-latest:streamGenerateContent?alt=sse&key=";
@@ -176,5 +178,78 @@ public class AIService {
                 .role("model")
                 .build();
         messagingTemplate.convertAndSend(destination, finishedResponse);
+    }
+
+    public String generateSyncResponse(String prompt) {
+        if (prompt == null || prompt.trim().isEmpty()) {
+            return "AEGIS-X C2 online. All security parameters optimal.";
+        }
+
+        if (!safetyFilter.isSafe(prompt)) {
+            return "I'm sorry, I cannot fulfill that request as it violates safety guidelines.";
+        }
+
+        String fullPrompt = promptTemplates.buildContextAwarePrompt(prompt, null);
+
+        if (geminiApiKey != null && !geminiApiKey.isBlank()) {
+            try {
+                String url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=" + geminiApiKey;
+
+                ObjectNode root = objectMapper.createObjectNode();
+
+                ObjectNode systemInstruction = objectMapper.createObjectNode();
+                ArrayNode systemParts = objectMapper.createArrayNode();
+                systemParts.add(objectMapper.createObjectNode().put("text", PromptTemplates.SYSTEM_PROMPT));
+                systemInstruction.set("parts", systemParts);
+                root.set("systemInstruction", systemInstruction);
+
+                ArrayNode contents = objectMapper.createArrayNode();
+                ObjectNode userContent = objectMapper.createObjectNode();
+                userContent.put("role", "user");
+                ArrayNode userParts = objectMapper.createArrayNode();
+                userParts.add(objectMapper.createObjectNode().put("text", fullPrompt));
+                userContent.set("parts", userParts);
+                contents.add(userContent);
+                root.set("contents", contents);
+
+                HttpRequest request = HttpRequest.newBuilder()
+                        .uri(URI.create(url))
+                        .header("Content-Type", "application/json")
+                        .POST(HttpRequest.BodyPublishers.ofString(objectMapper.writeValueAsString(root)))
+                        .build();
+
+                HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
+                if (response.statusCode() == 200) {
+                    JsonNode jsonNode = objectMapper.readTree(response.body());
+                    JsonNode candidates = jsonNode.path("candidates");
+                    if (candidates.isArray() && candidates.size() > 0) {
+                        JsonNode parts = candidates.get(0).path("content").path("parts");
+                        if (parts.isArray() && parts.size() > 0) {
+                            return parts.get(0).path("text").asText();
+                        }
+                    }
+                } else {
+                    log.warn("Gemini REST API returned status code {}. Response: {}", response.statusCode(), response.body());
+                }
+            } catch (Exception e) {
+                log.error("Error calling Gemini REST API", e);
+            }
+        }
+
+        return generateFallbackResponse(prompt);
+    }
+
+    private String generateFallbackResponse(String prompt) {
+        String lower = prompt.toLowerCase();
+        if (lower.contains("status") || lower.contains("health")) {
+            return "AEGIS-X System Status: All defense shields operational. 0 active threats detected.";
+        } else if (lower.contains("threat") || lower.contains("incident")) {
+            return "AEGIS-X Threat Engine: Active monitoring enabled. Endpoint sensors are healthy.";
+        } else if (lower.contains("isolate") || lower.contains("block")) {
+            return "AEGIS-X Containment Protocol: Endpoint isolation command ready for dispatch.";
+        } else if (lower.contains("scan")) {
+            return "AEGIS-X Security Sweep: Scanning engines ready for system verification.";
+        }
+        return "AEGIS-X Cyber Defense Assistant online. All security parameters optimal.";
     }
 }

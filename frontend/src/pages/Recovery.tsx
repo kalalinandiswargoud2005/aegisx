@@ -30,6 +30,12 @@ export function Recovery() {
   const { subscribe } = useWebSocket();
   const queryClient = useQueryClient();
 
+  // Response mode: AUTOMATED or MANUAL (from Settings)
+  const [responseMode] = useState<'AUTOMATED' | 'MANUAL'>(
+    () => (localStorage.getItem('aegisx_response_mode') as 'AUTOMATED' | 'MANUAL') || 'AUTOMATED'
+  );
+  const isManual = responseMode === 'MANUAL';
+
   // All active threats in queue (sorted by severity desc)
   const [queue, setQueue] = useState<any[]>([]);
   // The one currently being resolved (top of queue)
@@ -116,8 +122,9 @@ export function Recovery() {
     }
   }, [activeIncident?.id, fetchSteps]);
 
-  // ── Auto-advance steps (ALWAYS runs — no manual mode) ───────────────────
+  // ── Auto-advance steps (only in AUTOMATED mode) ───────────────────────
   useEffect(() => {
+    if (isManual) return;                              // ← skip in manual mode
     if (!activeIncident || steps.length === 0 || isResolving) return;
 
     const timer = setInterval(() => {
@@ -133,7 +140,14 @@ export function Recovery() {
     }, 2500);
 
     return () => clearInterval(timer);
-  }, [activeIncident?.id, steps.length, isResolving]);
+  }, [activeIncident?.id, steps.length, isResolving, isManual]);
+
+  // ── Manual: advance one step at a time ────────────────────────────────
+  const handleNextStep = () => {
+    if (currentStep <= steps.length) {
+      setCurrentStep(prev => prev + 1);
+    }
+  };
 
   // ── Resolve current threat, advance to next ───────────────────────────────
   const handleResolve = async () => {
@@ -333,6 +347,32 @@ export function Recovery() {
                 <RotateCcw size={14} className="animate-spin" />
                 Resolving threat...
               </div>
+            ) : isManual ? (
+              // ── Manual mode controls ──────────────────────────────────
+              <div className="flex flex-col gap-2">
+                {!allWizardDone && steps.length > 0 && (
+                  <button
+                    onClick={handleNextStep}
+                    disabled={currentStep > steps.length}
+                    className="w-full py-2 rounded-lg bg-accent/10 border border-accent/40 text-accent text-sm font-mono font-semibold hover:bg-accent/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                  >
+                    ▶ Next Step ({currentStep - 1} / {steps.length - 1})
+                  </button>
+                )}
+                {allWizardDone && (
+                  <button
+                    onClick={handleResolve}
+                    className="w-full py-2 rounded-lg bg-success/10 border border-success/40 text-success text-sm font-mono font-semibold hover:bg-success/20 transition-all"
+                  >
+                    <CheckCircle size={14} className="inline mr-1" />
+                    Mark as Resolved
+                  </button>
+                )}
+                <div className="flex items-center justify-center gap-1.5 text-[10px] font-mono tracking-widest uppercase text-yellow-500/70">
+                  <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
+                  MANUAL CONFIRMATION MODE
+                </div>
+              </div>
             ) : allWizardDone ? (
               <div className="flex items-center justify-center gap-2 py-2 text-sm font-mono text-success">
                 <CheckCircle size={14} />
@@ -348,10 +388,12 @@ export function Recovery() {
                 Waiting for recovery steps...
               </div>
             )}
-            <div className="mt-2 flex items-center justify-center gap-1.5 text-[10px] font-mono tracking-widest uppercase text-success/70">
-              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-              AUTONOMOUS RECOVERY ACTIVE
-            </div>
+            {!isManual && (
+              <div className="mt-2 flex items-center justify-center gap-1.5 text-[10px] font-mono tracking-widest uppercase text-success/70">
+                <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+                AUTONOMOUS RECOVERY ACTIVE
+              </div>
+            )}
           </div>
         </Card>
 

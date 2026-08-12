@@ -1,5 +1,5 @@
 import React from 'react';
-import { Search, Bell, Moon, Sun, User } from 'lucide-react';
+import { Search, Bell, Moon, Sun, Globe, Mic } from 'lucide-react';
 import { Input, Avatar, Tooltip } from '@/components/ui';
 import { useTheme } from '@/providers/theme-provider';
 import { motion } from 'framer-motion';
@@ -25,6 +25,21 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-4">
+        {/* Manual World Threat Map Button */}
+        <Tooltip content="Launch World Threat Map War Room">
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={(e) => {
+              e.stopPropagation();
+              window.dispatchEvent(new CustomEvent('trigger-idle-screensaver'));
+            }}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono font-bold bg-primary/20 text-primary border border-primary/40 hover:bg-primary/30 transition-all shadow-[0_0_15px_rgba(5,217,232,0.25)]"
+          >
+            <Globe size={15} className="animate-spin text-primary" style={{ animationDuration: '12s' }} />
+            <span>WORLD THREAT MAP</span>
+          </motion.button>
+        </Tooltip>
         <div className="text-sm text-white/50 hidden md:block">
           {new Date().toLocaleTimeString(navigator.language, {
             hour: '2-digit',

@@ -10,4 +10,8 @@ export default defineConfig({
       '@': path.resolve(__dirname, './src'),
     },
   },
+  server: {
+    host: true,   // expose on all network interfaces (WiFi, LAN)
+    port: 5173,
+  },
 });

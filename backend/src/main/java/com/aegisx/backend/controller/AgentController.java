@@ -21,6 +21,8 @@ public class AgentController {
     private final IncidentRepository incidentRepository;
     private final WebSocketPublisher webSocketPublisher;
     private final com.aegisx.backend.service.ThreatCatalogService threatCatalogService;
+    private final com.aegisx.backend.service.CommandDispatchService commandDispatchService;
+    private final com.aegisx.backend.repository.DeviceCommandRepository commandRepository;
 
     @PostMapping("/register")
     public ResponseEntity<Map<String, String>> register(@RequestBody Map<String, Object> payload) {
@@ -77,7 +79,28 @@ public class AgentController {
 
         incidentRepository.save(incident);
         webSocketPublisher.broadcastNewThreat(incident);
+        commandDispatchService.dispatchCommandsForIncident(incident);
 
         return ResponseEntity.ok(Map.of("status", "reported"));
+    }
+
+    @GetMapping("/commands/{deviceId}")
+    public ResponseEntity<java.util.List<com.aegisx.backend.entity.DeviceCommand>> getPendingCommands(@PathVariable UUID deviceId) {
+        return ResponseEntity.ok(commandRepository.findByDeviceIdAndStatus(deviceId, "PENDING"));
+    }
+
+    @PostMapping("/commands/{commandId}/result")
+    public ResponseEntity<Map<String, String>> reportCommandResult(
+            @PathVariable UUID commandId, 
+            @RequestBody Map<String, String> payload) {
+        
+        commandRepository.findById(commandId).ifPresent(cmd -> {
+            cmd.setStatus(payload.getOrDefault("status", "EXECUTED"));
+            cmd.setResult(payload.getOrDefault("result", ""));
+            cmd.setExecutedAt(java.time.LocalDateTime.now());
+            commandRepository.save(cmd);
+        });
+        
+        return ResponseEntity.ok(Map.of("status", "updated"));
     }
 }

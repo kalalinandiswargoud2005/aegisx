@@ -4,9 +4,9 @@ spring:
   profiles:
     active: dev
   datasource:
-    url: jdbc:postgresql://aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres?user=postgres.brubyjknecmleyrlnhbd&password=SU7198UD5BJyJtJ4&stringtype=unspecified&stringtype=unspecified
-    username: postgres
-    password: SU7198UD5BJyJtJ4
+    url: ${SPRING_DATASOURCE_URL:jdbc:postgresql://aws-1-ap-northeast-2.pooler.supabase.com:5432/postgres?stringtype=unspecified}
+    username: ${SPRING_DATASOURCE_USERNAME:postgres.brubyjknecmleyrlnhbd}
+    password: ${SPRING_DATASOURCE_PASSWORD:SU7198UD5BJyJtJ4}
     driver-class-name: org.postgresql.Driver
   flyway:
     baseline-on-migrate: true

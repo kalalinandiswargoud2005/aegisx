@@ -58,106 +58,105 @@ export interface TeamMember {
 const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'team-1',
-    name: 'Kalalin Nandi Swar Goud',
-    title: 'Chief Cybersecurity Architect & Core Lead',
+    name: 'K. Nandiswar',
+    title: 'Software Team Lead & Core Architect (2311cs040073)',
     photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'FOUNDER / ARCHITECT',
-    specialty: 'Autonomous Threat Mitigation & Distributed Core Systems',
-    email: 'kalalin@astra-defense.org',
-    github: 'https://github.com',
+    roleTag: 'SOFTWARE LEAD',
+    specialty: 'Core EDR Software Architecture, C2 Backend & Autonomous Remediation Engine',
+    email: 'nandiswar.2311cs040073@astra-defense.org',
+    github: 'https://github.com/kalalinandiswargoud2005',
     linkedin: 'https://linkedin.com'
   },
   {
     id: 'team-2',
-    name: 'Dr. Elena Vance',
-    title: 'Head of Neural AI & Threat Research',
+    name: 'G. Nishma',
+    title: 'Software Lead & Full Stack Engineer (2311cs040060)',
     photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'AI RESEARCH LEAD',
-    specialty: 'Deep Learning Anomaly Detection & Aegis Agent',
-    email: 'elena.vance@astra-defense.org',
+    roleTag: 'SOFTWARE LEAD',
+    specialty: 'Full Stack Dashboard Systems, Real-Time WebSockets & Agent Telemetry',
+    email: 'nishma.2311cs040060@astra-defense.org',
     github: 'https://github.com',
     linkedin: 'https://linkedin.com'
   },
   {
     id: 'team-3',
-    name: 'Marcus Sterling',
-    title: 'Senior Kernel & eBPF Telemetry Engineer',
+    name: 'D. Kowshik',
+    title: 'Hardware Team Lead & Embedded EDR Lead (2311cs040045)',
     photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'KERNEL CORE',
-    specialty: 'Low-Overhead Packet Filtering & Linux Kernel Telemetry',
-    email: 'marcus@astra-defense.org',
+    roleTag: 'HARDWARE LEAD',
+    specialty: 'Hardware Agent Deployment, USB Target Provisioning & Sensor Appliances',
+    email: 'kowshik.2311cs040045@astra-defense.org',
     github: 'https://github.com'
   },
   {
     id: 'team-4',
-    name: 'Sophia Chen',
-    title: 'Quantum Cryptography & Mesh Specialist',
+    name: 'K. Jyothi',
+    title: 'Hardware Lead & IoT Security Specialist (2311cs040076)',
     photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'QUANTUM FABRIC',
-    specialty: 'Hardware Key Enclaves & PQC Kyber1024 Integration',
-    email: 'sophia@astra-defense.org',
+    roleTag: 'HARDWARE LEAD',
+    specialty: 'Tamper-Resistant Enclaves, Edge Sensor Hardware & IoT Security',
+    email: 'jyothi.2311cs040076@astra-defense.org',
     linkedin: 'https://linkedin.com'
   },
   {
     id: 'team-5',
-    name: 'David Miller',
-    title: 'Security Operations Center (SOC) Director',
+    name: 'A. Rakesh',
+    title: 'Software Team — Threat Intelligence Analyst (2311cs040005)',
     photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'SOC DIRECTOR',
-    specialty: '24/7 Incident Dispatching & Threat Intelligence Matrix',
-    email: 'david.miller@astra-defense.org',
-    github: 'https://github.com',
-    linkedin: 'https://linkedin.com'
+    roleTag: 'SOFTWARE TEAM',
+    specialty: 'Threat Catalog Research, Zero-Day Heuristics & Incident Analytics',
+    email: 'rakesh.2311cs040005@astra-defense.org',
+    github: 'https://github.com'
   },
   {
     id: 'team-6',
-    name: 'Aisha Patel',
-    title: 'Autonomous Remediation Engine Lead',
+    name: 'B. Bhavana',
+    title: 'Software Team — UI/UX & Frontend Developer (2311cs040020)',
     photoUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'AUTOMATION LEAD',
-    specialty: 'Self-Healing System Recovery & Process Isolation',
-    email: 'aisha.patel@astra-defense.org',
+    roleTag: 'SOFTWARE TEAM',
+    specialty: 'Cyberpunk Glassmorphism UI, Responsive Layouts & Interactive Visuals',
+    email: 'bhavana.2311cs040020@astra-defense.org',
     linkedin: 'https://linkedin.com'
   },
   {
     id: 'team-7',
-    name: 'Viktor Kozlov',
-    title: 'Reverse Engineering & Malware Analyst',
-    photoUrl: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'MALWARE RESEARCH',
-    specialty: 'Zero-Day Heuristics & Dynamic Memory Sandbox',
-    email: 'viktor@astra-defense.org',
+    name: 'B. Sathvika',
+    title: 'Software Team — Cloud & DevOps Specialist (2311cs040025)',
+    photoUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&auto=format&fit=crop&q=80',
+    roleTag: 'SOFTWARE TEAM',
+    specialty: 'Vercel & Render CI/CD Deployment Pipelines, Database Pooler & Infrastructure',
+    email: 'sathvika.2311cs040025@astra-defense.org',
     github: 'https://github.com'
   },
   {
     id: 'team-8',
-    name: 'Maya Lin',
-    title: 'Zero-Trust Protocol Architect',
-    photoUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'ZERO-TRUST ARCHITECT',
-    specialty: 'Continuous Microsegmentation & WireGuard Peer Mesh',
-    email: 'maya.lin@astra-defense.org',
+    name: 'B. Navya',
+    title: 'Software Team — AI & Behavioral Model Analyst (2311cs040028)',
+    photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80',
+    roleTag: 'SOFTWARE TEAM',
+    specialty: 'Aegis AI Threat Assistant, Anomaly Detection & Machine Learning',
+    email: 'navya.2311cs040028@astra-defense.org',
     linkedin: 'https://linkedin.com'
   },
   {
     id: 'team-9',
-    name: 'James Thorne',
-    title: 'Embedded IoT & Firmware Security Lead',
+    name: 'Ch. HariKrishna',
+    title: 'Software Team — Backend & Security Engine Engineer (2311cs040029)',
     photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'FIRMWARE SECURITY',
-    specialty: 'Tamper-Resistant Hardware Security Modules (HSM)',
-    email: 'james.thorne@astra-defense.org',
+    roleTag: 'SOFTWARE TEAM',
+    specialty: 'Spring Boot REST Controllers, Security Handlers & Command Dispatching',
+    email: 'harikrishna.2311cs040029@astra-defense.org',
     github: 'https://github.com'
   },
   {
     id: 'team-10',
-    name: 'Olivia Taylor',
-    title: 'Enterprise Compliance & Security Auditor',
-    photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'COMPLIANCE OFFICER',
-    specialty: 'ISO 27001, NIST CSF 2.0, SOC 2 & FIPS 140-3 Validation',
-    email: 'olivia.taylor@astra-defense.org',
-    linkedin: 'https://linkedin.com'
+    name: 'G. Vaishnav Kumar',
+    title: 'Hardware Team — Network & Sensor Hardware Specialist (2311cs040053)',
+    photoUrl: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=400&auto=format&fit=crop&q=80',
+    roleTag: 'HARDWARE TEAM',
+    specialty: 'Network Packet Telemetry Hardware, Sensor Controllers & Peripheral Devices',
+    email: 'vaishnav.2311cs040053@astra-defense.org',
+    github: 'https://github.com'
   }
 ];
 
@@ -268,7 +267,7 @@ export function About() {
       const saved = localStorage.getItem('astra_team_members');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed.some((m: any) => m.name && m.name.includes('Nandiswar'))) return parsed;
       }
     } catch (e) {
       console.error('Failed to parse saved team members', e);

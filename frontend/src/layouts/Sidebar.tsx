@@ -17,10 +17,8 @@ const menuItems = [
   { icon: ShieldAlert, label: 'Threat Center', path: '/threats' },
   { icon: RotateCcw, label: 'Recovery', path: '/recovery' },
   { icon: Bot, label: 'AI Assistant', path: '/ai-assistant' },
-  { icon: FileText, label: 'Reports', path: '/reports' },
-  { icon: Activity, label: 'Analytics', path: '/analytics' },
+  { icon: FileText, label: 'Analytics & Reports', path: '/reports' },
   { icon: Settings, label: 'Settings', path: '/settings' },
-  { icon: BookOpen, label: 'Documentation', path: '/docs' },
   { icon: Info, label: 'About', path: '/about' },
 ];
 

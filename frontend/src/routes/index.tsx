@@ -12,12 +12,10 @@ import { Devices } from '@/pages/Devices';
 import { DeviceDetail } from '@/pages/DeviceDetail';
 import { Watch } from '@/pages/Watch';
 import { Recovery } from '@/pages/Recovery';
-import { Analytics } from '@/pages/Analytics';
 import { Reports } from '@/pages/Reports';
 import { AIAssistant } from '@/pages/AIAssistant';
 import { Settings } from '@/pages/Settings';
 import { Simulation } from '@/pages/Simulation';
-import { Documentation } from '@/pages/Documentation';
 import { About } from '@/pages/About';
 
 export function AppRoutes() {
@@ -34,12 +32,12 @@ export function AppRoutes() {
           <Route path="/devices/:id" element={<DeviceDetail />} />
           <Route path="/watch" element={<Watch />} />
           <Route path="/recovery" element={<Recovery />} />
-          <Route path="/analytics" element={<Analytics />} />
+          <Route path="/analytics" element={<Reports />} />
           <Route path="/reports" element={<Reports />} />
           <Route path="/ai-assistant" element={<AIAssistant />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/simulation" element={<Simulation />} />
-          <Route path="/docs" element={<Documentation />} />
+          <Route path="/docs" element={<Navigate to="/reports" replace />} />
           <Route path="/about" element={<About />} />
           
           {/* Fallback */}

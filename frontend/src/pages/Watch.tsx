@@ -3,9 +3,10 @@ import {
   Eye, Laptop, Server, Activity, ShieldAlert, Cpu, Terminal, 
   Search, Lock, Play, Pause, AlertOctagon, ArrowUpRight, Wifi, 
   ArrowLeft, RefreshCw, CheckCircle2, AlertTriangle, Trash2, 
-  RotateCcw, Monitor, CheckCircle, XCircle, ShieldCheck, Zap, HardDrive, Filter, ChevronRight, CornerDownLeft
+  RotateCcw, Monitor, CheckCircle, XCircle, ShieldCheck, Zap, HardDrive, Filter, ChevronRight, CornerDownLeft, Usb
 } from 'lucide-react';
 import { Card, Button, Badge, PageContainer, PageHeader, PageSection } from '@/components/ui';
+import { UsbDeployModal } from '@/components/UsbDeployModal';
 import { useWebSocket } from '@/providers/WebSocketProvider';
 import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
@@ -194,6 +195,7 @@ export function Watch() {
   const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'THREATS' | 'PROCESSES' | 'TERMINAL' | 'RECOVERY'>('OVERVIEW');
   const [searchQuery, setSearchQuery] = useState('');
   const [filterRisk, setFilterRisk] = useState<string>('ALL');
+  const [isUsbModalOpen, setIsUsbModalOpen] = useState(false);
 
   // Per-Device State Data
   const [deviceProcesses, setDeviceProcesses] = useState<Record<string, any[]>>({
@@ -445,6 +447,15 @@ export function Watch() {
                   </button>
                 ))}
               </div>
+
+              <Button
+                variant="primary"
+                onClick={() => setIsUsbModalOpen(true)}
+                className="font-mono text-xs font-bold text-black bg-primary hover:bg-cyan-300 shadow-[0_0_15px_rgba(5,217,232,0.4)] flex items-center gap-1.5 px-3 py-1.5 cursor-pointer"
+              >
+                <Usb size={15} />
+                <span>Deploy Agent via USB</span>
+              </Button>
 
               <span className="flex items-center gap-2 px-3 py-1.5 bg-primary/10 border border-primary/40 text-xs font-mono font-bold text-primary shadow-[0_0_10px_rgba(5,217,232,0.2)]">
                 <span className="h-2 w-2 rounded-full bg-primary animate-ping" />
@@ -983,6 +994,9 @@ export function Watch() {
 
         </div>
       )}
+
+      {/* USB Agent Deployment Modal */}
+      <UsbDeployModal isOpen={isUsbModalOpen} onClose={() => setIsUsbModalOpen(false)} />
 
     </PageContainer>
   );

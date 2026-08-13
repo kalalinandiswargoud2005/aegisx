@@ -117,6 +117,16 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
     github: 'https://github.com'
   },
   {
+    id: 'team-10',
+    name: 'G. Vaishnav Kumar',
+    title: 'Network Packet Telemetry & Hardware Specialist (2311cs040053)',
+    photoUrl: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=400&auto=format&fit=crop&q=80',
+    roleTag: 'HARDWARE TEAM',
+    specialty: 'Network Packet Telemetry Hardware, Sensor Controllers & Peripheral Devices',
+    email: 'vaishnav.2311cs040053@astra-defense.org',
+    github: 'https://github.com'
+  },
+  {
     id: 'team-2',
     name: 'G. Nishma',
     title: 'Full Stack Engineer & WebSockets Developer (2311cs040060)',
@@ -128,14 +138,15 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
     linkedin: 'https://linkedin.com'
   },
   {
-    id: 'team-10',
-    name: 'G. Vaishnav Kumar',
-    title: 'Network Packet Telemetry & Hardware Specialist (2311cs040053)',
-    photoUrl: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'HARDWARE TEAM',
-    specialty: 'Network Packet Telemetry Hardware, Sensor Controllers & Peripheral Devices',
-    email: 'vaishnav.2311cs040053@astra-defense.org',
-    github: 'https://github.com'
+    id: 'team-1',
+    name: 'K. Nandeeshwar',
+    title: 'Core Software Architect & Security Engine Developer (2311cs040073)',
+    photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
+    roleTag: 'SOFTWARE TEAM',
+    specialty: 'Core EDR Software Architecture, C2 Backend & Autonomous Remediation Engine',
+    email: 'nandiswar.2311cs040073@astra-defense.org',
+    github: 'https://github.com/kalalinandiswargoud2005',
+    linkedin: 'https://linkedin.com'
   },
   {
     id: 'team-4',
@@ -145,17 +156,6 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
     roleTag: 'HARDWARE TEAM',
     specialty: 'Tamper-Resistant Enclaves, Edge Sensor Hardware & IoT Security',
     email: 'jyothi.2311cs040076@astra-defense.org',
-    linkedin: 'https://linkedin.com'
-  },
-  {
-    id: 'team-1',
-    name: 'K. Nandeeshwar',
-    title: 'Core Software Architect & Security Engine Developer (2311cs040073)',
-    photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'SOFTWARE TEAM',
-    specialty: 'Core EDR Software Architecture, C2 Backend & Autonomous Remediation Engine',
-    email: 'nandiswar.2311cs040073@astra-defense.org',
-    github: 'https://github.com/kalalinandiswargoud2005',
     linkedin: 'https://linkedin.com'
   }
 ];
@@ -639,7 +639,7 @@ export function About() {
         {/* BIG SIZE TEAM CARDS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <AnimatePresence mode="popLayout">
-            {[...teamMembers].sort((a, b) => a.name.localeCompare(b.name)).map((member) => (
+            {teamMembers.map((member) => (
               <motion.div
                 key={member.id}
                 layout

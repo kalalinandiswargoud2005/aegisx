@@ -426,6 +426,14 @@ What would you like to know?`,
           completedChunks++;
           if (completedChunks >= validChunks.length) {
             setIsSpeaking(false);
+            // Auto-resume Always-On Mic listening when AI finishes speaking
+            setTimeout(() => {
+              isListeningRef.current = true;
+              setIsListening(true);
+              try {
+                recognitionRef.current?.start();
+              } catch (_) {}
+            }, 500);
           }
           const index =
             globalUtterances.indexOf(
@@ -1011,6 +1019,13 @@ Please check:
 
     recognitionRef.current =
       recognition;
+
+    // Auto-start Always-On mic listening on mount (no button touch needed)
+    isListeningRef.current = true;
+    setIsListening(true);
+    try {
+      recognition.start();
+    } catch (_) {}
 
     return () => {
       isListeningRef.current =

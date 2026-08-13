@@ -22,6 +22,7 @@ import {
   Bell,
   BellOff,
   SlidersHorizontal,
+  Square,
 } from 'lucide-react';
 
 import { useAudioAlerts } from '@/hooks/useAudioAlerts';
@@ -247,6 +248,16 @@ What would you like to know?`,
   const [speechEnabled, setSpeechEnabled] =
     useState(true);
 
+  const [isSpeaking, setIsSpeaking] =
+    useState(false);
+
+  const stopSpeaking = useCallback(() => {
+    if (typeof window !== 'undefined' && window.speechSynthesis) {
+      window.speechSynthesis.cancel();
+      setIsSpeaking(false);
+    }
+  }, []);
+
   /* =======================================================
      GEMINI
   ======================================================= */
@@ -358,7 +369,12 @@ What would you like to know?`,
           /[^.!?\n]+[.!?\n]+/g
         ) || [cleanText];
 
-      chunks.forEach((chunk) => {
+      setIsSpeaking(true);
+
+      const validChunks = chunks.filter(c => c.trim().length > 0);
+      let completedChunks = 0;
+
+      validChunks.forEach((chunk) => {
         if (!chunk.trim()) return;
 
         const utterance =
@@ -404,6 +420,10 @@ What would you like to know?`,
         );
 
         utterance.onend = () => {
+          completedChunks++;
+          if (completedChunks >= validChunks.length) {
+            setIsSpeaking(false);
+          }
           const index =
             globalUtterances.indexOf(
               utterance
@@ -415,6 +435,10 @@ What would you like to know?`,
               1
             );
           }
+        };
+
+        utterance.onerror = () => {
+          setIsSpeaking(false);
         };
 
         window.speechSynthesis.speak(
@@ -1192,8 +1216,7 @@ Please check:
 
             </div>
 
-            {/* Voice */}
-
+            {/* Voice Toggle */}
             <button
               onClick={
                 toggleSpeech
@@ -1225,6 +1248,18 @@ Please check:
               </span>
 
             </button>
+
+            {/* Stop Speaking Button */}
+            {isSpeaking && (
+              <button
+                onClick={stopSpeaking}
+                className="flex items-center gap-1.5 px-3 py-2 rounded-none text-xs font-bold bg-danger/20 border border-danger text-danger hover:bg-danger hover:text-white transition-all animate-pulse cyber-cut shadow-[0_0_15px_rgba(255,42,109,0.5)]"
+                title="Stop AI voice speech immediately"
+              >
+                <Square className="w-3.5 h-3.5 fill-current" />
+                <span className="font-mono uppercase tracking-wider">STOP SPEAKING</span>
+              </button>
+            )}
 
             {/* Defense mode */}
 

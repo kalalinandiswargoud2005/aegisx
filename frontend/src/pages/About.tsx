@@ -831,70 +831,74 @@ export function About() {
               initial={{ opacity: 0, scale: 0.9, y: 20 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-lg overflow-hidden rounded-2xl border border-primary/40 bg-surface p-6 shadow-[0_0_50px_rgba(5,217,232,0.25)]"
+              className="relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-xl border border-primary/40 bg-surface p-4 sm:p-5 shadow-[0_0_40px_rgba(5,217,232,0.3)] text-white font-mono"
             >
               {/* Modal Header */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-4 mb-4">
+              <div className="flex items-center justify-between border-b border-white/10 pb-3 mb-3">
                 <div className="flex items-center gap-2">
-                  <UserPlus className="text-primary" size={20} />
-                  <h3 className="text-lg font-space font-bold text-white">
-                    {editingMember ? 'Edit Team Member' : 'Add New Team Member'}
+                  <UserPlus className="text-primary" size={18} />
+                  <h3 className="text-base font-space font-bold text-white">
+                    {editingMember ? 'Edit Member' : 'Add Member'}
                   </h3>
                 </div>
                 <button
                   onClick={() => setIsModalOpen(false)}
                   className="p-1 rounded-lg text-white/50 hover:text-white hover:bg-white/10 transition-colors"
                 >
-                  <X size={18} />
+                  <X size={16} />
                 </button>
               </div>
 
               {/* Form Content */}
-              <form onSubmit={handleSaveTeamMember} className="space-y-4">
-                <div className="space-y-1">
-                  <label className="text-xs font-mono text-white/70">Full Name *</label>
+              <form onSubmit={handleSaveTeamMember} className="space-y-3">
+                <div className="space-y-0.5">
+                  <label className="text-[11px] font-mono text-white/70">Full Name *</label>
                   <Input
                     value={formData.name || ''}
                     onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                    placeholder="e.g. Alex Mercer"
+                    placeholder="e.g. K. Nandeeshwar"
                     required
+                    className="h-8 text-xs"
                   />
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-mono text-white/70">Title / Role *</label>
+                <div className="space-y-0.5">
+                  <label className="text-[11px] font-mono text-white/70">Title / Role *</label>
                   <Input
                     value={formData.title || ''}
                     onChange={(e) => setFormData({ ...formData, title: e.target.value })}
-                    placeholder="e.g. Senior Security Engineer"
+                    placeholder="e.g. Core Software Architect"
                     required
+                    className="h-8 text-xs"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-mono text-white/70">Role Badge</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-0.5">
+                    <label className="text-[11px] font-mono text-white/70">Role Badge</label>
                     <Input
                       value={formData.roleTag || ''}
                       onChange={(e) => setFormData({ ...formData, roleTag: e.target.value.toUpperCase() })}
-                      placeholder="e.g. ARCHITECT"
+                      placeholder="e.g. SOFTWARE TEAM"
+                      className="h-8 text-xs"
                     />
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-mono text-white/70">Email Address</label>
+                  <div className="space-y-0.5">
+                    <label className="text-[11px] font-mono text-white/70">Email Address</label>
                     <Input
                       type="email"
                       value={formData.email || ''}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                      placeholder="alex@astra-defense.org"
+                      placeholder="nandiswar@astra-defense.org"
+                      className="h-8 text-xs"
                     />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="text-xs font-mono text-white/70 flex items-center justify-between">
-                    <span>Photo Avatar Image *</span>
-                    <span className="text-[10px] text-primary font-mono font-semibold">Upload from PC or enter URL</span>
+                <div className="space-y-1">
+                  <label className="text-[11px] font-mono text-white/70 flex items-center justify-between">
+                    <span>Photo Avatar</span>
+                    <span className="text-[9px] text-primary">Upload file or pick avatar</span>
                   </label>
 
                   {/* Drag and Drop Zone */}
@@ -903,10 +907,10 @@ export function About() {
                     onDragLeave={handleDragLeave}
                     onDrop={handleDrop}
                     onClick={() => fileInputRef.current?.click()}
-                    className={`relative cursor-pointer p-4 rounded-xl border-2 border-dashed transition-all duration-300 flex flex-col items-center justify-center gap-2 ${
+                    className={`relative cursor-pointer p-2 rounded-lg border border-dashed transition-all flex flex-col items-center justify-center gap-1 ${
                       isDragging 
-                        ? 'border-primary bg-primary/20 scale-[1.02] shadow-[0_0_20px_rgba(5,217,232,0.4)]' 
-                        : 'border-white/20 bg-surface-light/30 hover:border-primary/50 hover:bg-surface-light/60'
+                        ? 'border-primary bg-primary/20 scale-[1.01]' 
+                        : 'border-white/20 bg-surface-light/30 hover:border-primary/50'
                     }`}
                   >
                     <input
@@ -922,55 +926,47 @@ export function About() {
                     />
 
                     {formData.photoUrl ? (
-                      <div className="flex items-center gap-4 w-full">
-                        <div className="w-16 h-16 rounded-xl overflow-hidden border border-primary/50 shrink-0 shadow-md">
+                      <div className="flex items-center gap-3 w-full">
+                        <div className="w-10 h-10 rounded-lg overflow-hidden border border-primary/50 shrink-0">
                           <img src={formData.photoUrl} alt="Preview" className="w-full h-full object-cover" />
                         </div>
-                        <div className="flex-1 min-w-0">
-                          <p className="text-xs font-mono text-emerald-400 font-semibold flex items-center gap-1">
-                            <Check size={14} /> Image Selected
+                        <div className="flex-1 min-w-0 text-left">
+                          <p className="text-[11px] font-mono text-emerald-400 font-semibold flex items-center gap-1">
+                            <Check size={12} /> Image Ready
                           </p>
-                          <p className="text-[11px] text-white/60 truncate mt-0.5">
-                            {formData.photoUrl.startsWith('data:') ? 'Custom file from computer' : formData.photoUrl}
-                          </p>
-                          <span className="text-[10px] text-primary hover:underline mt-1 block">
-                            Click or drag another image file to replace
+                          <span className="text-[9px] text-primary hover:underline block truncate">
+                            Click to replace photo
                           </span>
                         </div>
                       </div>
                     ) : (
-                      <div className="text-center py-2">
-                        <div className="w-10 h-10 mx-auto rounded-full bg-primary/10 text-primary flex items-center justify-center mb-1">
-                          <Upload size={20} />
-                        </div>
-                        <p className="text-xs font-medium text-white">
-                          Drag & drop photo here, or <span className="text-primary font-semibold underline">Browse Computer</span>
-                        </p>
-                        <p className="text-[10px] text-white/50 mt-0.5">PNG, JPG, WEBP, GIF up to 8MB</p>
+                      <div className="text-center py-1 flex items-center gap-2">
+                        <Upload size={14} className="text-primary" />
+                        <span className="text-[11px] text-white/80">Click or drag image file</span>
                       </div>
                     )}
                   </div>
 
                   {/* Manual URL Input */}
-                  <div className="pt-1">
+                  <div className="pt-0.5">
                     <Input
                       value={formData.photoUrl || ''}
                       onChange={(e) => setFormData({ ...formData, photoUrl: e.target.value })}
                       placeholder="Or paste image URL (https://...)"
+                      className="h-7 text-[11px]"
                     />
                   </div>
 
                   {/* Preset Avatar Selection */}
-                  <div className="pt-1">
-                    <span className="text-[11px] text-white/50 block mb-1.5">Or choose a preset avatar:</span>
-                    <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                  <div className="pt-0.5">
+                    <div className="flex items-center gap-1.5 overflow-x-auto pb-0.5">
                       {PRESET_AVATARS.map((url, i) => (
                         <button
                           type="button"
                           key={i}
                           onClick={() => setFormData({ ...formData, photoUrl: url })}
-                          className={`w-9 h-9 rounded-lg overflow-hidden shrink-0 border-2 transition-all ${
-                            formData.photoUrl === url ? 'border-primary scale-110 shadow-[0_0_10px_#05d9e8]' : 'border-white/20 opacity-60 hover:opacity-100'
+                          className={`w-7 h-7 rounded-md overflow-hidden shrink-0 border transition-all ${
+                            formData.photoUrl === url ? 'border-primary scale-105 shadow-[0_0_8px_#05d9e8]' : 'border-white/20 opacity-50 hover:opacity-100'
                           }`}
                         >
                           <img src={url} alt={`Preset ${i}`} className="w-full h-full object-cover" />
@@ -980,55 +976,57 @@ export function About() {
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-xs font-mono text-white/70">Specialty / Short Bio</label>
+                <div className="space-y-0.5">
+                  <label className="text-[11px] font-mono text-white/70">Specialty / Short Bio</label>
                   <textarea
                     value={formData.specialty || ''}
                     onChange={(e) => setFormData({ ...formData, specialty: e.target.value })}
-                    placeholder="e.g. Zero-trust networking and threat detection models..."
+                    placeholder="e.g. Core EDR Software Architecture & C2 Backend..."
                     rows={2}
-                    className="flex w-full rounded-md border border-border-color bg-surface/50 px-3 py-2 text-sm text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all resize-none"
+                    className="flex w-full rounded-md border border-border-color bg-surface/50 px-2.5 py-1.5 text-xs text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all resize-none"
                   />
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div className="space-y-1">
-                    <label className="text-xs font-mono text-white/70">GitHub URL</label>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-0.5">
+                    <label className="text-[11px] font-mono text-white/70">GitHub URL</label>
                     <Input
                       value={formData.github || ''}
                       onChange={(e) => setFormData({ ...formData, github: e.target.value })}
                       placeholder="https://github.com/..."
+                      className="h-7 text-xs"
                     />
                   </div>
-                  <div className="space-y-1">
-                    <label className="text-xs font-mono text-white/70">LinkedIn URL</label>
+                  <div className="space-y-0.5">
+                    <label className="text-[11px] font-mono text-white/70">LinkedIn URL</label>
                     <Input
                       value={formData.linkedin || ''}
                       onChange={(e) => setFormData({ ...formData, linkedin: e.target.value })}
-                      placeholder="https://linkedin.com/in/..."
+                      placeholder="https://linkedin.com/..."
+                      className="h-7 text-xs"
                     />
                   </div>
                 </div>
 
                 {/* Modal Actions */}
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10 mt-4">
+                <div className="flex items-center justify-end gap-2 pt-3 border-t border-white/10 mt-3">
                   <Button
                     type="button"
                     variant="ghost"
-                    size="md"
+                    size="sm"
                     onClick={() => setIsModalOpen(false)}
-                    className="text-white/60 hover:text-white font-mono text-xs uppercase"
+                    className="text-white/60 hover:text-white font-mono text-xs uppercase h-8 px-3"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
                     variant="primary"
-                    size="md"
-                    className="flex items-center gap-2 font-mono font-bold text-xs uppercase text-black bg-primary hover:bg-cyan-300 shadow-[0_0_20px_rgba(5,217,232,0.5)] px-6 cursor-pointer"
+                    size="sm"
+                    className="flex items-center gap-1.5 font-mono font-bold text-xs uppercase text-black bg-primary hover:bg-cyan-300 shadow-[0_0_15px_rgba(5,217,232,0.4)] px-4 h-8 cursor-pointer"
                   >
-                    <Check size={18} />
-                    <span>{editingMember ? 'SAVE CHANGES' : 'SAVE TEAM MEMBER'}</span>
+                    <Check size={15} />
+                    <span>{editingMember ? 'SAVE' : 'SAVE MEMBER'}</span>
                   </Button>
                 </div>
               </form>

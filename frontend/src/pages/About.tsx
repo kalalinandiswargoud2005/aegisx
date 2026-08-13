@@ -261,19 +261,148 @@ export function About() {
   const [isRunningDiagnostics, setIsRunningDiagnostics] = useState(false);
   const [diagnosticProgress, setDiagnosticProgress] = useState(0);
 
-  // Team Members State with localStorage persistence
+  // IndexedDB Storage Helpers for infinite storage capacity & zero quota errors
+  const IDB_STORE_KEY = 'astra_team_members_roster';
+
+  const saveToIndexedDB = (members: TeamMember[]): Promise<boolean> => {
+    return new Promise((resolve) => {
+      try {
+        const request = indexedDB.open('AstraTeamDB', 1);
+        request.onupgradeneeded = (e: any) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('roster')) {
+            db.createObjectStore('roster');
+          }
+        };
+        request.onsuccess = (e: any) => {
+          const db = e.target.result;
+          const tx = db.transaction('roster', 'readwrite');
+          const store = tx.objectStore('roster');
+          store.put(members, IDB_STORE_KEY);
+          tx.oncomplete = () => resolve(true);
+          tx.onerror = () => resolve(false);
+        };
+        request.onerror = () => resolve(false);
+      } catch {
+        resolve(false);
+      }
+    });
+  };
+
+  const loadFromIndexedDB = (): Promise<TeamMember[] | null> => {
+    return new Promise((resolve) => {
+      try {
+        const request = indexedDB.open('AstraTeamDB', 1);
+        request.onupgradeneeded = (e: any) => {
+          const db = e.target.result;
+          if (!db.objectStoreNames.contains('roster')) {
+            db.createObjectStore('roster');
+          }
+        };
+        request.onsuccess = (e: any) => {
+          const db = e.target.result;
+          const tx = db.transaction('roster', 'readonly');
+          const store = tx.objectStore('roster');
+          const getReq = store.get(IDB_STORE_KEY);
+          getReq.onsuccess = () => {
+            if (Array.isArray(getReq.result) && getReq.result.length > 0) {
+              resolve(getReq.result);
+            } else {
+              resolve(null);
+            }
+          };
+          getReq.onerror = () => resolve(null);
+        };
+        request.onerror = () => resolve(null);
+      } catch {
+        resolve(null);
+      }
+    });
+  };
+
+  // Helper to compress and resize images so they fit in browser storage easily
+  const compressAndResizeImage = (dataUrl: string, maxWidth: number = 360, maxHeight: number = 360): Promise<string> => {
+    return new Promise((resolve) => {
+      if (!dataUrl || typeof dataUrl !== 'string') {
+        resolve(dataUrl);
+        return;
+      }
+      
+      // If it's a short URL (not data:), return immediately
+      if (!dataUrl.startsWith('data:') && dataUrl.length < 500) {
+        resolve(dataUrl);
+        return;
+      }
+
+      const img = new Image();
+      // CRITICAL: Do NOT set crossOrigin for data: URLs because Chrome/Edge blocks CORS on data URIs
+      if (dataUrl.startsWith('http://') || dataUrl.startsWith('https://')) {
+        img.crossOrigin = 'anonymous';
+      }
+
+      img.onload = () => {
+        try {
+          let width = img.width || 360;
+          let height = img.height || 360;
+
+          if (width > maxWidth || height > maxHeight) {
+            if (width > height) {
+              height = Math.round((height * maxWidth) / width);
+              width = maxWidth;
+            } else {
+              width = Math.round((width * maxHeight) / height);
+              height = maxHeight;
+            }
+          }
+
+          const canvas = document.createElement('canvas');
+          canvas.width = width;
+          canvas.height = height;
+
+          const ctx = canvas.getContext('2d');
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressed = canvas.toDataURL('image/jpeg', 0.75);
+            resolve(compressed);
+          } else {
+            resolve(dataUrl);
+          }
+        } catch (e) {
+          console.warn('Canvas compression error, using raw URL', e);
+          resolve(dataUrl);
+        }
+      };
+
+      img.onerror = () => {
+        resolve(dataUrl);
+      };
+
+      img.src = dataUrl;
+    });
+  };
+
+  // Team Members State with Synchronous LocalStorage & Async IndexedDB persistence
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(() => {
     try {
       const saved = localStorage.getItem('astra_team_members');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0 && parsed.some((m: any) => m.name && m.name.includes('Nandiswar'))) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
       }
     } catch (e) {
       console.error('Failed to parse saved team members', e);
     }
     return DEFAULT_TEAM_MEMBERS;
   });
+
+  // Load from IndexedDB asynchronously on mount to restore any saved custom images
+  useEffect(() => {
+    loadFromIndexedDB().then((idbMembers) => {
+      if (idbMembers && idbMembers.length > 0) {
+        setTeamMembers(idbMembers);
+      }
+    });
+  }, []);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingMember, setEditingMember] = useState<TeamMember | null>(null);
@@ -298,16 +427,18 @@ export function About() {
       toast.error('Please upload a valid image file (PNG, JPG, WEBP, etc.).');
       return;
     }
-    if (file.size > 8 * 1024 * 1024) {
-      toast.error('File size exceeds 8MB limit.');
+    if (file.size > 20 * 1024 * 1024) {
+      toast.error('File size exceeds 20MB limit.');
       return;
     }
 
     const reader = new FileReader();
-    reader.onload = () => {
+    reader.onload = async () => {
       if (reader.result) {
-        setFormData(prev => ({ ...prev, photoUrl: reader.result as string }));
-        toast.success('Custom avatar photo loaded from computer');
+        const rawResult = reader.result as string;
+        const optimizedImage = await compressAndResizeImage(rawResult, 360, 360);
+        setFormData(prev => ({ ...prev, photoUrl: optimizedImage }));
+        toast.success('Custom avatar photo loaded and optimized');
       }
     };
     reader.readAsDataURL(file);
@@ -331,12 +462,14 @@ export function About() {
     }
   };
 
+  // Sync to both LocalStorage & IndexedDB whenever teamMembers state updates
   useEffect(() => {
     try {
       localStorage.setItem('astra_team_members', JSON.stringify(teamMembers));
     } catch (e) {
-      console.error('Failed to save team members to localStorage', e);
+      console.warn('LocalStorage quota limit reached, saving to IndexedDB store', e);
     }
+    saveToIndexedDB(teamMembers);
   }, [teamMembers]);
 
   const filteredTech = activeCategory === 'all' 
@@ -385,31 +518,32 @@ export function About() {
     setIsModalOpen(true);
   };
 
-  const handleSaveTeamMember = (e: React.FormEvent) => {
+  const handleSaveTeamMember = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.name?.trim() || !formData.title?.trim()) {
       toast.error('Please fill in both Name and Title.');
       return;
     }
 
-    const photo = formData.photoUrl?.trim() || PRESET_AVATARS[0];
+    const rawPhoto = formData.photoUrl?.trim() || PRESET_AVATARS[0];
+    const photo = await compressAndResizeImage(rawPhoto, 360, 360);
 
+    let updatedMembers: TeamMember[];
     if (editingMember) {
       // Update existing
-      setTeamMembers(prev => prev.map(m => m.id === editingMember.id ? {
+      updatedMembers = teamMembers.map(m => m.id === editingMember.id ? {
         ...m,
         ...formData,
         photoUrl: photo,
         name: formData.name!.trim(),
         title: formData.title!.trim()
-      } as TeamMember : m));
-      toast.success(`Updated details for ${formData.name}`);
+      } as TeamMember : m);
     } else {
       // Create new
       const newMember: TeamMember = {
         id: `team-${Date.now()}`,
-        name: formData.name.trim(),
-        title: formData.title.trim(),
+        name: formData.name!.trim(),
+        title: formData.title!.trim(),
         photoUrl: photo,
         roleTag: formData.roleTag?.trim() || 'SECURITY MEMBER',
         specialty: formData.specialty?.trim() || 'Cybersecurity Engineering',
@@ -417,21 +551,38 @@ export function About() {
         github: formData.github?.trim() || '',
         linkedin: formData.linkedin?.trim() || ''
       };
-      setTeamMembers(prev => [...prev, newMember]);
-      toast.success(`Added ${newMember.name} to ASTRA Team`);
+      updatedMembers = [...teamMembers, newMember];
     }
 
+    // Immediately persist to state, IndexedDB and LocalStorage
+    setTeamMembers(updatedMembers);
+    saveToIndexedDB(updatedMembers);
+    try {
+      localStorage.setItem('astra_team_members', JSON.stringify(updatedMembers));
+    } catch (e) {
+      console.warn('LocalStorage save error, fallback to IndexedDB active', e);
+    }
+
+    toast.success(editingMember ? `Updated details for ${formData.name}` : `Added ${formData.name} to ASTRA Team`);
     setIsModalOpen(false);
   };
 
   const handleDeleteTeamMember = (id: string, name: string) => {
-    setTeamMembers(prev => prev.filter(m => m.id !== id));
+    const updated = teamMembers.filter(m => m.id !== id);
+    setTeamMembers(updated);
+    saveToIndexedDB(updated);
+    try {
+      localStorage.setItem('astra_team_members', JSON.stringify(updated));
+    } catch (e) {
+      console.warn('LocalStorage delete sync warning', e);
+    }
     toast.info(`Removed ${name} from Team Members`);
   };
 
   const handleResetTeam = () => {
     setTeamMembers(DEFAULT_TEAM_MEMBERS);
     localStorage.removeItem('astra_team_members');
+    saveToIndexedDB(DEFAULT_TEAM_MEMBERS);
     toast.success('Reset team members to default roster.');
   };
 

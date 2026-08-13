@@ -8,7 +8,8 @@ export function ImmediateActionOverlay() {
   const { subscribe } = useWebSocket();
   const navigate = useNavigate();
   const [activeAlert, setActiveAlert] = useState<any>(null);
-  const [autoCloseTimer, setAutoCloseTimer] = useState<number>(10);
+  const [autoCloseTimer, setAutoCloseTimer] = useState<number>(12);
+  const [isDangerStage, setIsDangerStage] = useState<boolean>(true);
 
   // ── Subscribe to new incidents ──────────────────────────────────────────
   useEffect(() => {
@@ -19,7 +20,13 @@ export function ImmediateActionOverlay() {
           payload.immediateAction || 'Immediate Isolation & Containment Executed';
 
         setActiveAlert({ incident, immediateAction, timestamp: new Date().toLocaleTimeString() });
-        setAutoCloseTimer(10);
+        setAutoCloseTimer(12);
+        setIsDangerStage(true);
+
+        // Transition from Red Danger to Green Resolved after 4 seconds
+        setTimeout(() => {
+          setIsDangerStage(false);
+        }, 4000);
       }
     });
     return () => unsubscribe();
@@ -53,27 +60,39 @@ export function ImmediateActionOverlay() {
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/90 backdrop-blur-2xl animate-in fade-in duration-300">
 
-      {/* Subtle green background glow */}
-      <div className="absolute inset-0 opacity-15 pointer-events-none bg-gradient-to-r from-emerald-900 via-green-900 to-emerald-900 animate-pulse" />
+      {/* Dynamic background glow (Red Danger -> Green Resolved) */}
+      <div className={`absolute inset-0 opacity-20 pointer-events-none transition-all duration-1000 ${
+        isDangerStage 
+          ? 'bg-gradient-to-r from-red-950 via-danger/40 to-red-950 animate-pulse' 
+          : 'bg-gradient-to-r from-emerald-950 via-emerald-800/40 to-emerald-950 animate-pulse'
+      }`} />
 
       {/* Cyber grid */}
       <div className="absolute inset-0 cyber-grid opacity-25 pointer-events-none" />
 
       {/* ── Main card ── */}
-      <div className="relative w-full max-w-3xl rounded-2xl border border-emerald-500/60 bg-[#0B101D]/95 p-8 shadow-[0_0_80px_rgba(16,185,129,0.30)] z-10 flex flex-col gap-6 overflow-hidden">
+      <div className={`relative w-full max-w-3xl rounded-2xl border p-8 transition-all duration-700 z-10 flex flex-col gap-6 overflow-hidden bg-[#0B101D]/95 ${
+        isDangerStage 
+          ? 'border-danger/80 shadow-[0_0_90px_rgba(255,42,109,0.45)]' 
+          : 'border-emerald-500/80 shadow-[0_0_90px_rgba(16,185,129,0.45)]'
+      }`}>
 
         {/* ── Top banner ── */}
         <div className="flex items-center justify-between border-b border-white/10 pb-4">
           <div className="flex items-center gap-3">
-            <div className="p-2 rounded-lg bg-emerald-500/20 text-emerald-400">
-              <ShieldCheck size={28} />
+            <div className={`p-2.5 rounded-xl transition-colors duration-500 ${
+              isDangerStage ? 'bg-danger/20 text-danger animate-bounce' : 'bg-emerald-500/20 text-emerald-400'
+            }`}>
+              {isDangerStage ? <ShieldCheck className="w-8 h-8 text-danger" /> : <ShieldCheck className="w-8 h-8 text-emerald-400" />}
             </div>
             <div>
-              <h2 className="text-xl font-space font-bold text-white tracking-wide uppercase flex items-center gap-2">
-                Automated Immediate Response Triggered
+              <h2 className={`text-xl font-space font-extrabold tracking-wide uppercase flex items-center gap-2 ${
+                isDangerStage ? 'text-danger animate-pulse' : 'text-emerald-400'
+              }`}>
+                {isDangerStage ? '⚠️ DANGER DETECTED: ATTACK INTERCEPTED' : '✅ THREAT NEUTRALIZED & SYSTEM SECURED'}
               </h2>
-              <p className="text-xs text-white/50 font-mono">
-                AGENT ➔ HARDWARE ALERT ➔ AI ANALYSIS ➔ AUTOMATED CONTAINMENT [{timestamp}]
+              <p className="text-xs text-white/60 font-mono mt-0.5">
+                TARGET LAPTOP ➔ KERNEL GUARD ➔ REAL-TIME MITIGATION [{timestamp}]
               </p>
             </div>
           </div>
@@ -83,43 +102,57 @@ export function ImmediateActionOverlay() {
               navigate('/recovery');
             }}
             className="p-2 text-white/40 hover:text-white hover:bg-white/10 rounded-lg transition-colors cursor-pointer"
-            title="Dismiss to Recovery Page"
+            title="Dismiss Alert"
           >
             <X size={20} />
           </button>
         </div>
 
-        {/* ── BIG GREEN Immediate Action Block ── */}
-        <div className="p-6 rounded-xl bg-emerald-500/15 border-2 border-emerald-500/60 shadow-[0_0_30px_rgba(16,185,129,0.25)] flex flex-col md:flex-row items-center gap-6">
+        {/* ── Dynamic Action Block (Red Danger -> Green Resolved) ── */}
+        <div className={`p-6 rounded-xl border-2 transition-all duration-700 flex flex-col md:flex-row items-center gap-6 ${
+          isDangerStage 
+            ? 'bg-danger/15 border-danger/70 shadow-[0_0_35px_rgba(255,42,109,0.3)]' 
+            : 'bg-emerald-500/15 border-emerald-500/70 shadow-[0_0_35px_rgba(16,185,129,0.3)]'
+        }`}>
 
           {/* Pulsing icon */}
-          <div className="p-4 rounded-full bg-emerald-500/20 text-emerald-400 shrink-0 border border-emerald-500/50 animate-pulse">
-            <Zap size={40} />
+          <div className={`p-4 rounded-full shrink-0 border transition-all duration-500 ${
+            isDangerStage 
+              ? 'bg-danger/20 text-danger border-danger/60 animate-ping' 
+              : 'bg-emerald-500/20 text-emerald-400 border-emerald-500/60 animate-pulse'
+          }`}>
+            {isDangerStage ? <Zap size={40} /> : <ShieldCheck size={40} />}
           </div>
 
           <div className="flex-1 text-center md:text-left">
             {/* Label */}
-            <div className="text-xs font-bold tracking-widest text-emerald-400 uppercase mb-1 flex items-center gap-2 justify-center md:justify-start">
-              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-              Immediate Response Action Executed
+            <div className={`text-xs font-bold tracking-widest uppercase mb-1 flex items-center gap-2 justify-center md:justify-start ${
+              isDangerStage ? 'text-danger' : 'text-emerald-400'
+            }`}>
+              <span className={`w-2 h-2 rounded-full animate-ping ${isDangerStage ? 'bg-danger' : 'bg-emerald-400'}`} />
+              {isDangerStage ? 'HIGH SEVERITY DANGER ALERT IN PROGRESS' : 'AUTOMATED RECOVERY COMPLETED'}
             </div>
 
             {/* Action title */}
             <h1 className="text-2xl md:text-3xl font-space font-extrabold text-white tracking-tight leading-tight">
-              {immediateAction.replace('[Immediate Action] ', '')}
+              {isDangerStage 
+                ? `Malicious Behavior Detected on ${incident.target || 'Target Laptop'}` 
+                : immediateAction.replace('[Immediate Action] ', '')}
             </h1>
 
             {/* Sub-text */}
-            <p className="text-sm text-emerald-400/80 mt-1 font-mono">
-              ✔ Action completed — endpoint isolated to prevent lateral spread.
+            <p className={`text-sm mt-1.5 font-mono font-bold ${isDangerStage ? 'text-danger/90' : 'text-emerald-400/90'}`}>
+              {isDangerStage 
+                ? '🛑 High-risk payload isolated — preventing unauthorized execution...' 
+                : '✔ Threat payload terminated & endpoint volume snapshot restored!'}
             </p>
           </div>
         </div>
 
-        {/* ── Threat & AI details grid ── */}
+        {/* ── Threat details grid ── */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div className="p-4 rounded-lg bg-surface/80 border border-border-color space-y-2">
-            <div className="text-xs text-white/40 font-mono uppercase">Detected Incident</div>
+            <div className="text-xs text-white/40 font-mono uppercase">Target Endpoint & Incident</div>
             <div className="text-base font-bold text-white flex items-center gap-2">
               {incident.name}
               <span className={`px-2 py-0.5 text-[10px] rounded-full font-bold ${
@@ -131,16 +164,16 @@ export function ImmediateActionOverlay() {
                 {incident.severity}
               </span>
             </div>
-            <div className="text-xs text-white/60">Category: {incident.type}</div>
-            <div className="text-xs text-white/50 font-mono">Target: {incident.target || 'SIMULATED-ENDPOINT'}</div>
+            <div className="text-xs text-white/60">Threat Type: {incident.type}</div>
+            <div className="text-xs text-white/50 font-mono">Target Host: {incident.target || 'TARGET-LAPTOP-01'}</div>
           </div>
 
           <div className="p-4 rounded-lg bg-surface/80 border border-border-color space-y-2">
             <div className="text-xs text-emerald-400 font-mono uppercase flex items-center gap-1">
-              <Cpu size={14} /> AI Security Analysis
+              <Cpu size={14} /> AI Defense Analysis
             </div>
             <p className="text-xs text-white/80 leading-relaxed italic">
-              "{incident.aiExplanation || 'Anomalous behavior detected. Automated mitigation rules activated immediately.'}"
+              "{incident.aiExplanation || 'Anomalous payload behavior intercepted. Kernel-level mitigation activated.'}"
             </p>
           </div>
         </div>
@@ -148,8 +181,8 @@ export function ImmediateActionOverlay() {
         {/* ── Footer ── */}
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 pt-4 border-t border-white/10">
           <div className="text-xs text-white/40 font-mono flex items-center gap-2">
-            <Activity size={14} className="text-emerald-400 animate-pulse" />
-            Auto-dismissing in {autoCloseTimer}s
+            <Activity size={14} className="text-primary animate-pulse" />
+            Auto-closing in {autoCloseTimer}s
           </div>
 
           <div className="flex flex-wrap gap-3 w-full md:w-auto justify-end">
@@ -158,15 +191,15 @@ export function ImmediateActionOverlay() {
               size="sm"
               onClick={() => { setActiveAlert(null); navigate('/threats'); }}
             >
-              View Threats Page
+              View Threat Center
             </Button>
             <Button
               variant="primary"
               size="sm"
-              className="bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 border-emerald-500"
+              className="bg-emerald-600 hover:bg-emerald-500 text-white flex items-center gap-2 border-emerald-500 font-bold"
               onClick={() => { setActiveAlert(null); navigate('/recovery'); }}
             >
-              Go to Recovery Wizard <ArrowRight size={16} />
+              Open Recovery Wizard <ArrowRight size={16} />
             </Button>
           </div>
         </div>

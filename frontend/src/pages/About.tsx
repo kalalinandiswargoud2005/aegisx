@@ -57,48 +57,6 @@ export interface TeamMember {
 
 const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
   {
-    id: 'team-1',
-    name: 'K. Nandeeshwar',
-    title: 'Core Software Architect & Security Engine Developer (2311cs040073)',
-    photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'SOFTWARE TEAM',
-    specialty: 'Core EDR Software Architecture, C2 Backend & Autonomous Remediation Engine',
-    email: 'nandiswar.2311cs040073@astra-defense.org',
-    github: 'https://github.com/kalalinandiswargoud2005',
-    linkedin: 'https://linkedin.com'
-  },
-  {
-    id: 'team-2',
-    name: 'G. Nishma',
-    title: 'Full Stack Engineer & WebSockets Developer (2311cs040060)',
-    photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'SOFTWARE TEAM',
-    specialty: 'Full Stack Dashboard Systems, Real-Time WebSockets & Agent Telemetry',
-    email: 'nishma.2311cs040060@astra-defense.org',
-    github: 'https://github.com',
-    linkedin: 'https://linkedin.com'
-  },
-  {
-    id: 'team-3',
-    name: 'D. Kowshik',
-    title: 'Embedded EDR & Hardware Agent Specialist (2311cs040045)',
-    photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'HARDWARE TEAM',
-    specialty: 'Hardware Agent Deployment, USB Target Provisioning & Sensor Appliances',
-    email: 'kowshik.2311cs040045@astra-defense.org',
-    github: 'https://github.com'
-  },
-  {
-    id: 'team-4',
-    name: 'K. Jyothi',
-    title: 'IoT Security & Hardware Sensor Engineer (2311cs040076)',
-    photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'HARDWARE TEAM',
-    specialty: 'Tamper-Resistant Enclaves, Edge Sensor Hardware & IoT Security',
-    email: 'jyothi.2311cs040076@astra-defense.org',
-    linkedin: 'https://linkedin.com'
-  },
-  {
     id: 'team-5',
     name: 'A. Rakesh',
     title: 'Threat Intelligence & Security Analyst (2311cs040005)',
@@ -119,16 +77,6 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
     linkedin: 'https://linkedin.com'
   },
   {
-    id: 'team-7',
-    name: 'B. Sathvika',
-    title: 'Cloud Infrastructure & DevOps Engineer (2311cs040025)',
-    photoUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'SOFTWARE TEAM',
-    specialty: 'Vercel & Render CI/CD Deployment Pipelines, Database Pooler & Infrastructure',
-    email: 'sathvika.2311cs040025@astra-defense.org',
-    github: 'https://github.com'
-  },
-  {
     id: 'team-8',
     name: 'B. Navya',
     title: 'AI & Behavioral Threat Model Analyst (2311cs040028)',
@@ -137,6 +85,16 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
     specialty: 'Aegis AI Threat Assistant, Anomaly Detection & Machine Learning',
     email: 'navya.2311cs040028@astra-defense.org',
     linkedin: 'https://linkedin.com'
+  },
+  {
+    id: 'team-7',
+    name: 'B. Sathvika',
+    title: 'Cloud Infrastructure & DevOps Engineer (2311cs040025)',
+    photoUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&auto=format&fit=crop&q=80',
+    roleTag: 'SOFTWARE TEAM',
+    specialty: 'Vercel & Render CI/CD Deployment Pipelines, Database Pooler & Infrastructure',
+    email: 'sathvika.2311cs040025@astra-defense.org',
+    github: 'https://github.com'
   },
   {
     id: 'team-9',
@@ -149,6 +107,27 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
     github: 'https://github.com'
   },
   {
+    id: 'team-3',
+    name: 'D. Kowshik',
+    title: 'Embedded EDR & Hardware Agent Specialist (2311cs040045)',
+    photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
+    roleTag: 'HARDWARE TEAM',
+    specialty: 'Hardware Agent Deployment, USB Target Provisioning & Sensor Appliances',
+    email: 'kowshik.2311cs040045@astra-defense.org',
+    github: 'https://github.com'
+  },
+  {
+    id: 'team-2',
+    name: 'G. Nishma',
+    title: 'Full Stack Engineer & WebSockets Developer (2311cs040060)',
+    photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80',
+    roleTag: 'SOFTWARE TEAM',
+    specialty: 'Full Stack Dashboard Systems, Real-Time WebSockets & Agent Telemetry',
+    email: 'nishma.2311cs040060@astra-defense.org',
+    github: 'https://github.com',
+    linkedin: 'https://linkedin.com'
+  },
+  {
     id: 'team-10',
     name: 'G. Vaishnav Kumar',
     title: 'Network Packet Telemetry & Hardware Specialist (2311cs040053)',
@@ -157,6 +136,27 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
     specialty: 'Network Packet Telemetry Hardware, Sensor Controllers & Peripheral Devices',
     email: 'vaishnav.2311cs040053@astra-defense.org',
     github: 'https://github.com'
+  },
+  {
+    id: 'team-4',
+    name: 'K. Jyothi',
+    title: 'IoT Security & Hardware Sensor Engineer (2311cs040076)',
+    photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&auto=format&fit=crop&q=80',
+    roleTag: 'HARDWARE TEAM',
+    specialty: 'Tamper-Resistant Enclaves, Edge Sensor Hardware & IoT Security',
+    email: 'jyothi.2311cs040076@astra-defense.org',
+    linkedin: 'https://linkedin.com'
+  },
+  {
+    id: 'team-1',
+    name: 'K. Nandeeshwar',
+    title: 'Core Software Architect & Security Engine Developer (2311cs040073)',
+    photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
+    roleTag: 'SOFTWARE TEAM',
+    specialty: 'Core EDR Software Architecture, C2 Backend & Autonomous Remediation Engine',
+    email: 'nandiswar.2311cs040073@astra-defense.org',
+    github: 'https://github.com/kalalinandiswargoud2005',
+    linkedin: 'https://linkedin.com'
   }
 ];
 
@@ -639,7 +639,7 @@ export function About() {
         {/* BIG SIZE TEAM CARDS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <AnimatePresence mode="popLayout">
-            {teamMembers.map((member) => (
+            {[...teamMembers].sort((a, b) => a.name.localeCompare(b.name)).map((member) => (
               <motion.div
                 key={member.id}
                 layout

@@ -5,6 +5,7 @@ import { useWebSocket } from '@/providers/WebSocketProvider';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'sonner';
+import { AudioAlertService } from '@/services/AudioAlertService';
 
 const SEVERITY_RANK: Record<string, number> = {
   'CRITICAL': 4,
@@ -144,6 +145,8 @@ export function Recovery() {
 
   // ── Manual: advance one step at a time ────────────────────────────────
   const handleNextStep = () => {
+    AudioAlertService.unlockAudioContext();
+    AudioAlertService.playNotificationSound();
     if (currentStep <= steps.length) {
       setCurrentStep(prev => prev + 1);
     }
@@ -154,8 +157,23 @@ export function Recovery() {
     if (!activeIncident) return;
     setIsResolving(true);
     try {
+      await AudioAlertService.unlockAudioContext();
       await api.put(`/threats/${activeIncident.id}/resolve`);
       toast.success(`Threat "${activeIncident.name}" resolved`);
+
+      // Play victory/success audio tone over hardware speaker
+      AudioAlertService.playSuccessSound();
+
+      // Voice alert announcement over hardware speaker
+      if ('speechSynthesis' in window) {
+        try {
+          window.speechSynthesis.cancel(); // Clear any queued utterances
+          const msg = new SpeechSynthesisUtterance(`Recovery complete. Threat ${activeIncident.name} successfully resolved.`);
+          msg.volume = 0.9;
+          msg.rate = 1.0;
+          window.speechSynthesis.speak(msg);
+        } catch {}
+      }
 
       setQueue(prev => {
         const remaining = prev.filter((t: any) => t.id !== activeIncident.id);

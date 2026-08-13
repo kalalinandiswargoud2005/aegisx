@@ -951,6 +951,7 @@ Please check:
     recognition.lang = 'en-US';
 
     recognition.onstart = () => {
+      isListeningRef.current = true;
       setIsListening(true);
     };
 
@@ -1020,6 +1021,8 @@ Please check:
       ) {
         return;
       }
+      isListeningRef.current = false;
+      setIsListening(false);
       console.warn(
         'Speech recognition status:',
         event.error
@@ -1045,14 +1048,19 @@ Please check:
     recognitionRef.current =
       recognition;
 
-    // Auto-start Always-On mic listening on mount (no button touch needed)
-    isListeningRef.current = true;
-    setIsListening(true);
-    try {
-      recognition.start();
-    } catch (_) {}
+    // Start listening on first user interaction or mount
+    const handleFirstGesture = () => {
+      if (!isListeningRef.current) {
+        isListeningRef.current = true;
+        try {
+          recognition.start();
+        } catch (_) {}
+      }
+    };
+    window.addEventListener('click', handleFirstGesture, { once: true });
 
     return () => {
+      window.removeEventListener('click', handleFirstGesture);
       isListeningRef.current =
         false;
 
@@ -1110,7 +1118,9 @@ Please check:
 
     try {
       recognitionRef.current?.start();
-    } catch (_) {}
+    } catch (e) {
+      console.warn('Mic start error', e);
+    }
   };
 
   /* =======================================================

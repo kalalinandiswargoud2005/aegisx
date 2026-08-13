@@ -33,8 +33,11 @@ api.interceptors.response.use(
       localStorage.removeItem('astra-user');
       window.location.href = '/login';
       toast.error('Session expired. Please log in again.');
+    } else if (error.response) {
+      toast.error(`API Error: ${error.response.data?.message || error.message || 'An unexpected error occurred.'}`);
     } else {
-      toast.error(`API Error: ${error.response?.data?.message || error.message || 'An unexpected error occurred.'}`);
+      // Silently log network connection refusal when backend server is offline
+      console.warn('ASTRA Backend Server Offline (http://localhost:8080)');
     }
     return Promise.reject(error);
   }

@@ -10,7 +10,17 @@ import { IdleGlobeOverlay } from './components/IdleGlobeOverlay';
 import { AppRoutes } from './routes';
 
 // Providers
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      retry: (failureCount, error: any) => {
+        if (!error?.response) return false;
+        return failureCount < 2;
+      },
+      refetchOnWindowFocus: false
+    }
+  }
+});
 
 export default function App() {
   return (

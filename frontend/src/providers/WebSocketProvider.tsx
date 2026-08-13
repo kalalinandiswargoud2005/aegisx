@@ -23,7 +23,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
     
     const client = new Client({
       brokerURL: wsUrl,
-      reconnectDelay: 5000,
+      reconnectDelay: 15000,
       heartbeatIncoming: 4000,
       heartbeatOutgoing: 4000,
       onConnect: () => {
@@ -41,9 +41,12 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       onDisconnect: () => {
         setIsConnected(false);
       },
+      onWebSocketError: () => {
+        // Silently handle offline WebSocket status when backend is not running
+        setIsConnected(false);
+      },
       onStompError: (frame) => {
-        console.error('STOMP Error:', frame);
-        toast.error('WebSocket connection error');
+        console.warn('STOMP Offline/Error:', frame.headers?.message || 'Broker unavailable');
       },
     });
 

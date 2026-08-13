@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Laptop, Server, Smartphone, CheckCircle, XCircle, Settings2, Trash2, AlertTriangle, Eye } from 'lucide-react';
+import { Laptop, Server, Smartphone, CheckCircle, XCircle, Settings2, Trash2, AlertTriangle, Eye, Usb } from 'lucide-react';
 import { Card, Table, TableHeader, TableRow, TableHead, TableBody, TableCell, Badge, Button, PageContainer, PageHeader, PageSection } from '@/components/ui';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
+import { UsbDeployModal } from '@/components/UsbDeployModal';
 
 const getDeviceIcon = (type: string) => {
   if (type === 'Server') return <Server size={18} className="text-primary" />;
@@ -18,6 +19,7 @@ export function Devices() {
   const queryClient = useQueryClient();
   const [isManageMode, setIsManageMode] = useState(false);
   const [deviceToDelete, setDeviceToDelete] = useState<any | null>(null);
+  const [isUsbModalOpen, setIsUsbModalOpen] = useState(false);
 
   const { data: devices = [], isLoading, isError } = useQuery({
     queryKey: ['devices'],
@@ -67,7 +69,14 @@ export function Devices() {
             {isManageMode ? 'Exit Manage Mode' : 'Manage Devices'}
           </Button>
 
-          <Button variant="primary">Add Device</Button>
+          <Button 
+            variant="primary" 
+            onClick={() => setIsUsbModalOpen(true)}
+            className="flex items-center gap-2 shadow-[0_0_15px_rgba(0,240,255,0.3)] font-mono text-xs uppercase"
+          >
+            <Usb size={16} />
+            Deploy Agent via USB
+          </Button>
         </div>
       </PageHeader>
 
@@ -257,6 +266,11 @@ export function Devices() {
           </motion.div>
         </div>
       )}
+      {/* USB Agent Deployment Modal */}
+      <UsbDeployModal 
+        isOpen={isUsbModalOpen} 
+        onClose={() => setIsUsbModalOpen(false)} 
+      />
     </PageContainer>
   );
 }

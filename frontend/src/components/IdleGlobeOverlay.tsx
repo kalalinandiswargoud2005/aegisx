@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 
@@ -35,10 +36,16 @@ interface LaserBeam {
 const BEAM_COLORS = ['#ef4444', '#05d9e8', '#f97316', '#a855f7', '#10b981'];
 
 export function IdleGlobeOverlay() {
+  const navigate = useNavigate();
   const [isIdle, setIsIdle] = useState(false);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const laserBeamsRef = useRef<LaserBeam[]>([]);
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const handleExitToDashboard = () => {
+    setIsIdle(false);
+    navigate('/dashboard');
+  };
 
   // 1. Inactivity & Manual Trigger Listener
   useEffect(() => {
@@ -51,10 +58,10 @@ export function IdleGlobeOverlay() {
       }, IDLE_THRESHOLD_MS);
     };
 
-    // ONLY dismiss when Enter or Escape is pressed
+    // ONLY dismiss and redirect to dashboard when Enter or Escape is pressed
     const handleKeyDown = (e: KeyboardEvent) => {
       if (isIdle && (e.key === 'Enter' || e.key === 'Escape')) {
-        setIsIdle(false);
+        handleExitToDashboard();
         resetIdleTimer();
       }
     };
@@ -246,7 +253,7 @@ export function IdleGlobeOverlay() {
         {/* Top Right Exit Button */}
         <div className="relative z-30 flex justify-end p-6">
           <button
-            onClick={() => setIsIdle(false)}
+            onClick={handleExitToDashboard}
             className="flex items-center gap-2 px-3 py-1.5 bg-black/60 hover:bg-primary/20 border border-primary/40 text-primary text-xs font-mono font-bold transition-all cursor-pointer shadow-[0_0_15px_rgba(5,217,232,0.2)]"
           >
             <X size={14} />

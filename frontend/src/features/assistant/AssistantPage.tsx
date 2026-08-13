@@ -330,6 +330,9 @@ What would you like to know?`,
   const finalTranscriptRef =
     useRef('');
 
+  const silenceTimerRef =
+    useRef<any>(null);
+
   /* =======================================================
      AUTO SCROLL
   ======================================================= */
@@ -954,10 +957,30 @@ Please check:
           finalText + ' ';
       }
 
-      setInput(
-        finalTranscriptRef.current +
-          interim
-      );
+      const fullSpeech = (
+        finalTranscriptRef.current + interim
+      ).trim();
+
+      setInput(fullSpeech);
+
+      /* Hands-Free Auto-Submit on 1.2s Silence */
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+      }
+
+      if (fullSpeech.length > 2) {
+        silenceTimerRef.current = setTimeout(() => {
+          if (fullSpeech.trim()) {
+            isListeningRef.current = false;
+            setIsListening(false);
+            try {
+              recognitionRef.current?.stop();
+            } catch (_) {}
+            sendMessage(fullSpeech);
+            finalTranscriptRef.current = '';
+          }
+        }, 1200);
+      }
     };
 
     recognition.onerror = (

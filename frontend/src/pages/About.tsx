@@ -276,25 +276,52 @@ export function About() {
     });
   };
 
+  // Helper to strictly sort team members by roll number (2311cs040005, 2311cs040020, ..., 2311cs040076)
+  const sortMembersByRollNumber = (members: TeamMember[]): TeamMember[] => {
+    return [...members].sort((a, b) => {
+      const rollA = a.title.match(/2311cs\d+/i)?.[0] || a.name.match(/2311cs\d+/i)?.[0] || '';
+      const rollB = b.title.match(/2311cs\d+/i)?.[0] || b.name.match(/2311cs\d+/i)?.[0] || '';
+      if (rollA && rollB) {
+        return rollA.localeCompare(rollB, undefined, { numeric: true });
+      }
+      return a.name.localeCompare(b.name);
+    });
+  };
+
   // Team Members State with Synchronous LocalStorage & Async IndexedDB persistence
   const [teamMembers, setTeamMembers] = useState<TeamMember[]>(() => {
     try {
       const saved = localStorage.getItem('astra_team_members');
       if (saved) {
         const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return sortMembersByRollNumber(parsed);
+        }
       }
     } catch (e) {
       console.error('Failed to parse saved team members', e);
     }
-    return DEFAULT_TEAM_MEMBERS;
+    return sortMembersByRollNumber(DEFAULT_TEAM_MEMBERS);
   });
 
   // Load from IndexedDB asynchronously on mount to restore any saved custom images
   useEffect(() => {
     loadFromIndexedDB().then((idbMembers) => {
       if (idbMembers && idbMembers.length > 0) {
-        setTeamMembers(idbMembers);
+        const sorted = sortMembersByRollNumber(idbMembers);
+        setTeamMembers(sorted);
+        // Sync refreshed roll number order to localStorage & IndexedDB
+        saveToIndexedDB(sorted);
+        try {
+          localStorage.setItem('astra_team_members', JSON.stringify(sorted));
+        } catch {}
+      } else {
+        const sortedDefault = sortMembersByRollNumber(DEFAULT_TEAM_MEMBERS);
+        setTeamMembers(sortedDefault);
+        saveToIndexedDB(sortedDefault);
+        try {
+          localStorage.setItem('astra_team_members', JSON.stringify(sortedDefault));
+        } catch {}
       }
     });
   }, []);
@@ -510,7 +537,7 @@ export function About() {
         {/* TEAM CARDS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <AnimatePresence mode="popLayout">
-            {teamMembers.map((member) => (
+            {sortMembersByRollNumber(teamMembers).map((member) => (
               <motion.div
                 key={member.id}
                 layout

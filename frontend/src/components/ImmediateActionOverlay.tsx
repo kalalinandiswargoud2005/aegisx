@@ -143,9 +143,53 @@ export function ImmediateActionOverlay() {
             {/* Sub-text */}
             <p className={`text-sm mt-1.5 font-mono font-bold ${isDangerStage ? 'text-danger/90' : 'text-emerald-400/90'}`}>
               {isDangerStage 
-                ? '🛑 High-risk payload isolated — preventing unauthorized execution...' 
+                ? '🛑 High-risk payload isolated — executing zero-touch recovery...' 
                 : '✔ Threat payload terminated & endpoint volume snapshot restored!'}
             </p>
+          </div>
+        </div>
+
+        {/* ── Step-by-Step Autonomous Recovery Tracker ── */}
+        <div className="p-4 rounded-xl bg-surface/90 border border-white/10 space-y-3 font-mono text-xs">
+          <div className="text-white/60 uppercase tracking-wider font-bold flex items-center justify-between">
+            <span>⚡ Autonomous Recovery Steps Executed</span>
+            <span className={isDangerStage ? 'text-danger animate-pulse' : 'text-emerald-400 font-bold'}>
+              {isDangerStage ? 'RECOVERING...' : '✔ 100% SECURED'}
+            </span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2.5">
+            <div className="p-2.5 rounded-lg bg-black/50 border border-emerald-500/30 flex items-center gap-3">
+              <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-500/40">1</span>
+              <div>
+                <div className="text-white font-bold">Wi-Fi & Network Adapter</div>
+                <div className="text-emerald-400 text-[11px] font-mono">✔ ISOLATED (Wi-Fi Disabled)</div>
+              </div>
+            </div>
+
+            <div className="p-2.5 rounded-lg bg-black/50 border border-emerald-500/30 flex items-center gap-3">
+              <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-500/40">2</span>
+              <div>
+                <div className="text-white font-bold">Malicious Process Tree</div>
+                <div className="text-emerald-400 text-[11px] font-mono">✔ KILLED (PID Terminated)</div>
+              </div>
+            </div>
+
+            <div className="p-2.5 rounded-lg bg-black/50 border border-emerald-500/30 flex items-center gap-3">
+              <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-500/40">3</span>
+              <div>
+                <div className="text-white font-bold">Malware Executable Payload</div>
+                <div className="text-emerald-400 text-[11px] font-mono">✔ QUARANTINED to Vault</div>
+              </div>
+            </div>
+
+            <div className="p-2.5 rounded-lg bg-black/50 border border-emerald-500/30 flex items-center gap-3">
+              <span className="w-6 h-6 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center text-xs font-bold border border-emerald-500/40">4</span>
+              <div>
+                <div className="text-white font-bold">Volume Shadow Snapshots</div>
+                <div className="text-emerald-400 text-[11px] font-mono">✔ RESTORED (Clean State)</div>
+              </div>
+            </div>
           </div>
         </div>
 

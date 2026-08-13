@@ -77,16 +77,6 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
     linkedin: 'https://linkedin.com'
   },
   {
-    id: 'team-8',
-    name: 'B. Navya',
-    title: 'AI & Behavioral Threat Model Analyst (2311cs040028)',
-    photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80',
-    roleTag: 'SOFTWARE TEAM',
-    specialty: 'Aegis AI Threat Assistant, Anomaly Detection & Machine Learning',
-    email: 'navya.2311cs040028@astra-defense.org',
-    linkedin: 'https://linkedin.com'
-  },
-  {
     id: 'team-7',
     name: 'B. Sathvika',
     title: 'Cloud Infrastructure & DevOps Engineer (2311cs040025)',
@@ -95,6 +85,16 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
     specialty: 'Vercel & Render CI/CD Deployment Pipelines, Database Pooler & Infrastructure',
     email: 'sathvika.2311cs040025@astra-defense.org',
     github: 'https://github.com'
+  },
+  {
+    id: 'team-8',
+    name: 'B. Navya',
+    title: 'AI & Behavioral Threat Model Analyst (2311cs040028)',
+    photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80',
+    roleTag: 'SOFTWARE TEAM',
+    specialty: 'Aegis AI Threat Assistant, Anomaly Detection & Machine Learning',
+    email: 'navya.2311cs040028@astra-defense.org',
+    linkedin: 'https://linkedin.com'
   },
   {
     id: 'team-9',

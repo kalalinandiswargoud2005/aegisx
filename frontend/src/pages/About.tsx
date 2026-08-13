@@ -59,7 +59,7 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'team-1',
     name: 'K. Nandeeshwar',
-    title: 'Software Team Member (2311cs040073)',
+    title: 'Core Software Architect & Security Engine Developer (2311cs040073)',
     photoUrl: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop&q=80',
     roleTag: 'SOFTWARE TEAM',
     specialty: 'Core EDR Software Architecture, C2 Backend & Autonomous Remediation Engine',
@@ -70,7 +70,7 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'team-2',
     name: 'G. Nishma',
-    title: 'Software Team Member (2311cs040060)',
+    title: 'Full Stack Engineer & WebSockets Developer (2311cs040060)',
     photoUrl: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=400&auto=format&fit=crop&q=80',
     roleTag: 'SOFTWARE TEAM',
     specialty: 'Full Stack Dashboard Systems, Real-Time WebSockets & Agent Telemetry',
@@ -81,7 +81,7 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'team-3',
     name: 'D. Kowshik',
-    title: 'Hardware Team Member (2311cs040045)',
+    title: 'Embedded EDR & Hardware Agent Specialist (2311cs040045)',
     photoUrl: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop&q=80',
     roleTag: 'HARDWARE TEAM',
     specialty: 'Hardware Agent Deployment, USB Target Provisioning & Sensor Appliances',
@@ -91,7 +91,7 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'team-4',
     name: 'K. Jyothi',
-    title: 'Hardware Team Member (2311cs040076)',
+    title: 'IoT Security & Hardware Sensor Engineer (2311cs040076)',
     photoUrl: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=400&auto=format&fit=crop&q=80',
     roleTag: 'HARDWARE TEAM',
     specialty: 'Tamper-Resistant Enclaves, Edge Sensor Hardware & IoT Security',
@@ -101,7 +101,7 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'team-5',
     name: 'A. Rakesh',
-    title: 'Software Team Member (2311cs040005)',
+    title: 'Threat Intelligence & Security Analyst (2311cs040005)',
     photoUrl: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=400&auto=format&fit=crop&q=80',
     roleTag: 'SOFTWARE TEAM',
     specialty: 'Threat Catalog Research, Zero-Day Heuristics & Incident Analytics',
@@ -111,7 +111,7 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'team-6',
     name: 'B. Bhavana',
-    title: 'Software Team Member (2311cs040020)',
+    title: 'UI/UX & Frontend Developer (2311cs040020)',
     photoUrl: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&auto=format&fit=crop&q=80',
     roleTag: 'SOFTWARE TEAM',
     specialty: 'Cyberpunk Glassmorphism UI, Responsive Layouts & Interactive Visuals',
@@ -121,7 +121,7 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'team-7',
     name: 'B. Sathvika',
-    title: 'Software Team Member (2311cs040025)',
+    title: 'Cloud Infrastructure & DevOps Engineer (2311cs040025)',
     photoUrl: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&auto=format&fit=crop&q=80',
     roleTag: 'SOFTWARE TEAM',
     specialty: 'Vercel & Render CI/CD Deployment Pipelines, Database Pooler & Infrastructure',
@@ -131,7 +131,7 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'team-8',
     name: 'B. Navya',
-    title: 'Software Team Member (2311cs040028)',
+    title: 'AI & Behavioral Threat Model Analyst (2311cs040028)',
     photoUrl: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80',
     roleTag: 'SOFTWARE TEAM',
     specialty: 'Aegis AI Threat Assistant, Anomaly Detection & Machine Learning',
@@ -141,7 +141,7 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'team-9',
     name: 'Ch. HariKrishna',
-    title: 'Software Team Member (2311cs040029)',
+    title: 'Backend & C2 Security Engine Engineer (2311cs040029)',
     photoUrl: 'https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=400&auto=format&fit=crop&q=80',
     roleTag: 'SOFTWARE TEAM',
     specialty: 'Spring Boot REST Controllers, Security Handlers & Command Dispatching',
@@ -151,7 +151,7 @@ const DEFAULT_TEAM_MEMBERS: TeamMember[] = [
   {
     id: 'team-10',
     name: 'G. Vaishnav Kumar',
-    title: 'Hardware Team Member (2311cs040053)',
+    title: 'Network Packet Telemetry & Hardware Specialist (2311cs040053)',
     photoUrl: 'https://images.unsplash.com/photo-1522075469751-3a6694fb2f61?w=400&auto=format&fit=crop&q=80',
     roleTag: 'HARDWARE TEAM',
     specialty: 'Network Packet Telemetry Hardware, Sensor Controllers & Peripheral Devices',

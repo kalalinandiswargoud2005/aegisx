@@ -100,11 +100,11 @@ export function useAudioAlerts(
   );
 
   const [voiceEnabled, setVoiceEnabledState] = useState<boolean>(() =>
-    readBool('astra_voice_alerts', false)
+    readBool('astra_voice_alerts', true)
   );
 
   const [volume, setVolumeState] = useState<number>(() =>
-    readNumber('astra_alert_volume', 0.7)
+    readNumber('astra_alert_volume', 0.9)
   );
 
   const [audioAvailable] = useState<boolean>(() => AudioAlertService.isAvailable());

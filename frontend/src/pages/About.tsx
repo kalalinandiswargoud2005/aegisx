@@ -477,25 +477,6 @@ export function About() {
     toast.info(`Removed ${name} from Team Members`);
   };
 
-  const handleDownloadPhoto = (member: TeamMember) => {
-    try {
-      if (!member.photoUrl) {
-        toast.error('No photo available for download');
-        return;
-      }
-      const link = document.createElement('a');
-      link.href = member.photoUrl;
-      link.download = `ASTRA_Team_${member.name.replace(/[^a-zA-Z0-9]/g, '_')}_Photo.jpg`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      toast.success(`Downloaded photo for ${member.name}`);
-    } catch (e) {
-      console.error('Download photo error', e);
-      toast.error('Failed to download photo');
-    }
-  };
-
   const handleResetTeam = () => {
     setTeamMembers(DEFAULT_TEAM_MEMBERS);
     localStorage.removeItem('astra_team_members');
@@ -569,13 +550,6 @@ export function About() {
                   {/* Action Controls overlay */}
                   <div className="absolute top-4 right-4 z-20 flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity duration-200">
                     <button
-                      onClick={() => handleDownloadPhoto(member)}
-                      className="p-2 rounded-xl bg-surface/90 text-emerald-400 hover:bg-emerald-400 hover:text-black border border-emerald-500/40 transition-all shadow-md"
-                      title="Download Member Photo"
-                    >
-                      <Download size={15} />
-                    </button>
-                    <button
                       onClick={() => handleOpenEditModal(member)}
                       className="p-2 rounded-xl bg-surface/90 text-primary hover:bg-primary hover:text-black border border-primary/40 transition-all shadow-md"
                       title="Edit Member Details"
@@ -592,14 +566,27 @@ export function About() {
                   </div>
 
                   <div className="p-6 space-y-5">
-                    {/* Photo Avatar in Big Size */}
+                    {/* Photo Avatar in Big Size (Protected against saving & dragging) */}
                     <div className="flex flex-col items-center text-center">
                       <div className="relative mb-4">
-                        <div className="w-36 h-36 sm:w-40 sm:h-40 rounded-3xl overflow-hidden border-2 border-primary/40 group-hover:border-primary shadow-[0_0_25px_rgba(5,217,232,0.25)] group-hover:shadow-[0_0_35px_rgba(5,217,232,0.6)] transition-all duration-500">
+                        <div 
+                          onContextMenu={(e) => {
+                            e.preventDefault();
+                            toast.info('Image saving is disabled for privacy protection.');
+                          }}
+                          onDragStart={(e) => e.preventDefault()}
+                          className="w-36 h-36 sm:w-40 sm:h-40 rounded-3xl overflow-hidden border-2 border-primary/40 group-hover:border-primary shadow-[0_0_25px_rgba(5,217,232,0.25)] group-hover:shadow-[0_0_35px_rgba(5,217,232,0.6)] transition-all duration-500 select-none"
+                        >
                           <img 
                             src={member.photoUrl} 
                             alt={member.name}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                            draggable={false}
+                            onContextMenu={(e) => {
+                              e.preventDefault();
+                              toast.info('Image saving is disabled for privacy protection.');
+                            }}
+                            onDragStart={(e) => e.preventDefault()}
+                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 pointer-events-none select-none"
                             onError={(e) => {
                               (e.target as HTMLImageElement).src = PRESET_AVATARS[0];
                             }}
@@ -629,16 +616,8 @@ export function About() {
                     )}
                   </div>
 
-                  {/* Social / Contact & Download Links Footer */}
-                  <div className="px-6 py-4 border-t border-white/10 bg-white/[0.02] flex items-center justify-center gap-3">
-                    <button
-                      onClick={() => handleDownloadPhoto(member)}
-                      className="text-white/60 hover:text-emerald-400 hover:scale-125 transition-all p-1.5 rounded-lg hover:bg-emerald-500/10 flex items-center gap-1 text-xs font-mono font-bold"
-                      title={`Download ${member.name}'s Photo`}
-                    >
-                      <Download size={16} />
-                      <span className="text-[11px]">Download Photo</span>
-                    </button>
+                  {/* Social / Contact Links Footer */}
+                  <div className="px-6 py-4 border-t border-white/10 bg-white/[0.02] flex items-center justify-center gap-4">
                     {member.email && (
                       <a 
                         href={`mailto:${member.email}`}

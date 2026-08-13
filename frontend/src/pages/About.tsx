@@ -1015,20 +1015,20 @@ export function About() {
                   <Button
                     type="button"
                     variant="ghost"
-                    size="sm"
+                    size="md"
                     onClick={() => setIsModalOpen(false)}
-                    className="text-white/60 hover:text-white"
+                    className="text-white/60 hover:text-white font-mono text-xs uppercase"
                   >
                     Cancel
                   </Button>
                   <Button
                     type="submit"
                     variant="primary"
-                    size="sm"
-                    className="flex items-center gap-2 text-black font-bold"
+                    size="md"
+                    className="flex items-center gap-2 font-mono font-bold text-xs uppercase text-black bg-primary hover:bg-cyan-300 shadow-[0_0_20px_rgba(5,217,232,0.5)] px-6 cursor-pointer"
                   >
-                    <Check size={16} />
-                    {editingMember ? 'Save Changes' : 'Add Team Member'}
+                    <Check size={18} />
+                    <span>{editingMember ? 'SAVE CHANGES' : 'SAVE TEAM MEMBER'}</span>
                   </Button>
                 </div>
               </form>

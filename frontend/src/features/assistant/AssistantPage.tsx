@@ -255,6 +255,15 @@ What would you like to know?`,
     if (typeof window !== 'undefined' && window.speechSynthesis) {
       window.speechSynthesis.cancel();
       setIsSpeaking(false);
+      finalTranscriptRef.current = '';
+      setInput('');
+      setTimeout(() => {
+        isListeningRef.current = true;
+        setIsListening(true);
+        try {
+          recognitionRef.current?.start();
+        } catch (_) {}
+      }, 400);
     }
   }, []);
 
@@ -371,6 +380,17 @@ What would you like to know?`,
         cleanText.match(
           /[^.!?\n]+[.!?\n]+/g
         ) || [cleanText];
+
+      // Pause Mic listening so AI does not listen to its own speaker output!
+      isListeningRef.current = false;
+      setIsListening(false);
+      finalTranscriptRef.current = '';
+      if (silenceTimerRef.current) {
+        clearTimeout(silenceTimerRef.current);
+      }
+      try {
+        recognitionRef.current?.abort();
+      } catch (_) {}
 
       setIsSpeaking(true);
 

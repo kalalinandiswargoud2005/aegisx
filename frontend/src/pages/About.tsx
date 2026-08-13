@@ -1,10 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
-  ShieldCheck, Cpu, Activity, Database, Zap, Lock, Server, 
-  CheckCircle2, Radio, Terminal, Network, Layers, Globe, 
-  Sparkles, RefreshCw, Award, ShieldAlert, Sliders, HardDrive, Check,
-  User, UserPlus, Edit2, Trash2, X, Plus, RotateCcw, Mail, Camera, ExternalLink, Upload
+  Check, User, UserPlus, Edit2, Trash2, X, RotateCcw, Mail, Upload 
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { Card, Badge, PageContainer, PageHeader, PageSection, Button, Input } from '@/components/ui';
@@ -26,21 +23,6 @@ function LinkedinIcon({ size = 15, className = '' }: { size?: number; className?
       <circle cx="4" cy="4" r="2" />
     </svg>
   );
-}
-
-interface SystemMetric {
-  title: string;
-  value: string;
-  subtitle: string;
-  icon: React.ElementType;
-  status: 'optimal' | 'warning' | 'info';
-}
-
-interface TechItem {
-  name: string;
-  version: string;
-  category: 'engine' | 'frontend' | 'ai' | 'security';
-  description: string;
 }
 
 export interface TeamMember {
@@ -173,94 +155,7 @@ const PRESET_AVATARS = [
   'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop&q=80'
 ];
 
-const systemMetrics: SystemMetric[] = [
-  {
-    title: 'Neural NPU Processing Engine',
-    value: '64 Cores',
-    subtitle: '100% Hardware Acceleration Active',
-    icon: Cpu,
-    status: 'optimal'
-  },
-  {
-    title: 'Network Packet Line Rate',
-    value: '10 Gbps',
-    subtitle: '<1.2ms Deep Inspection Latency',
-    icon: Activity,
-    status: 'optimal'
-  },
-  {
-    title: 'Threat Signature Database',
-    value: '4.85M+',
-    subtitle: 'Real-time Cyber Indicators Loaded',
-    icon: Database,
-    status: 'optimal'
-  },
-  {
-    title: 'Hardware Security Module',
-    value: 'FIPS 140-3',
-    subtitle: 'Post-Quantum Key Enclave Locked',
-    icon: Lock,
-    status: 'optimal'
-  }
-];
-
-const pillars = [
-  {
-    icon: ShieldCheck,
-    title: 'Autonomous Threat Mitigation',
-    description: 'Sub-millisecond automated packet inspection, inline payload isolation, and zero-day attack neutralization.'
-  },
-  {
-    icon: Cpu,
-    title: 'Aegis Neural AI Engine',
-    description: 'Context-aware threat correlation and predictive anomaly detection powered by specialized Security LLMs.'
-  },
-  {
-    icon: Network,
-    title: 'Multi-Node Edge Telemetry',
-    description: 'Continuous monitoring across Windows, Linux, and embedded IoT appliances via lightweight sensor agents.'
-  },
-  {
-    icon: Lock,
-    title: 'Quantum-Safe Fabric',
-    description: 'Hardware-backed cryptographic security using Kyber1024 and Dilithium algorithms resistant to quantum decryption.'
-  }
-];
-
-const techStack: TechItem[] = [
-  { name: 'React 19 & Vite 8', version: 'v19.2.18', category: 'frontend', description: 'Ultra-fast reactive UI layer' },
-  { name: 'TypeScript 6', version: 'v6.0.2', category: 'frontend', description: 'Strict type safety & interface integrity' },
-  { name: 'Tailwind CSS v4 & Framer Motion', version: 'v4.3.3', category: 'frontend', description: 'Cyberpunk glassmorphic design system' },
-  { name: 'Aegis Security Engine', version: 'v2.1.0-Release', category: 'engine', description: 'High-throughput Rust & C++ core packet processor' },
-  { name: 'eBPF Kernel Filters', version: 'v6.8.0-LTS', category: 'engine', description: 'Low-overhead kernel network hook telemetry' },
-  { name: 'Aegis Neural Model (Google GenAI)', version: 'v2.16.0', category: 'ai', description: 'Contextual cybersecurity threat assistant' },
-  { name: 'Anomaly Classifier Matrix', version: 'v3.4.1', category: 'ai', description: 'Real-time packet behavioral classifier' },
-  { name: 'WireGuard Tunneling', version: 'v1.0.2024', category: 'security', description: 'Encrypted peer-to-peer security node mesh' },
-  { name: 'PQC Kyber-1024', version: 'NIST Standard', category: 'security', description: 'Post-quantum key encapsulation algorithm' },
-  { name: 'TanStack Query', version: 'v5.101', category: 'frontend', description: 'Real-time WebSocket & REST state synchronization' },
-  { name: 'Recharts Engine', version: 'v3.10.1', category: 'frontend', description: 'High-frequency visual telemetry charts' },
-  { name: 'FIPS Cryptographic Module', version: 'Level 3', category: 'security', description: 'Hardware tamper-resistant key store' }
-];
-
-const architectureSteps = [
-  { step: '01', title: 'Telemetry Ingestion', desc: 'Edge sensor agents gather network flows, process metrics, and kernel events.', icon: Radio },
-  { step: '02', title: 'Kernel eBPF Inspection', desc: 'High-speed packet filtration occurs directly inside the network stack.', icon: Layers },
-  { step: '03', title: 'Aegis AI Threat Analysis', desc: 'Neural engines analyze payload features for zero-day exploit patterns.', icon: Sparkles },
-  { step: '04', title: 'Automated Enforcement', desc: 'Instant packet drop, process isolation, and SOC incident dispatching.', icon: ShieldAlert }
-];
-
-const certifications = [
-  { code: 'ISO/IEC 27001:2022', title: 'Information Security Management System', issuer: 'Certified Compliance' },
-  { code: 'NIST CSF 2.0', title: 'Cybersecurity Framework Alignment', issuer: 'Tier 4 Adaptive' },
-  { code: 'SOC 2 Type II', title: 'Security, Availability & Confidentiality', issuer: 'Independently Audited' },
-  { code: 'FIPS 140-3 Level 3', title: 'Security Requirements for Cryptographic Modules', issuer: 'Validated Enclave' }
-];
-
 export function About() {
-  const [activeCategory, setActiveCategory] = useState<'all' | 'engine' | 'frontend' | 'ai' | 'security'>('all');
-  const [isRunningDiagnostics, setIsRunningDiagnostics] = useState(false);
-  const [diagnosticProgress, setDiagnosticProgress] = useState(0);
-
   // IndexedDB Storage Helpers for infinite storage capacity & zero quota errors
   const IDB_STORE_KEY = 'astra_team_members_roster';
 
@@ -472,30 +367,6 @@ export function About() {
     saveToIndexedDB(teamMembers);
   }, [teamMembers]);
 
-  const filteredTech = activeCategory === 'all' 
-    ? techStack 
-    : techStack.filter(t => t.category === activeCategory);
-
-  const runDiagnostics = () => {
-    if (isRunningDiagnostics) return;
-    setIsRunningDiagnostics(true);
-    setDiagnosticProgress(0);
-
-    toast.info('Initiating ASTRA Appliance Diagnostics...');
-
-    const interval = setInterval(() => {
-      setDiagnosticProgress((prev) => {
-        if (prev >= 100) {
-          clearInterval(interval);
-          setIsRunningDiagnostics(false);
-          toast.success('ASTRA System Diagnostics Complete: All 12 Subsystems Nominal (100% Integrity)');
-          return 100;
-        }
-        return prev + 25;
-      });
-    }, 400);
-  };
-
   // Team Member Modal Handlers
   const handleOpenAddModal = () => {
     setEditingMember(null);
@@ -590,10 +461,10 @@ export function About() {
     <PageContainer className="space-y-8 pb-12">
       <PageHeader 
         title="About ASTRA Enterprise" 
-        description="System architecture, core engine specifications, tech stack breakdown, and licensing."
+        description="Engineering Team Roster and Project Contributors."
       />
 
-      {/* PROMINENT BIG-SIZE EDITABLE TEAM MEMBERS SECTION (AT THE VERY TOP) */}
+      {/* TEAM MEMBERS SECTION */}
       <PageSection className="space-y-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 sm:p-5 rounded-2xl bg-gradient-to-r from-primary/10 via-surface to-surface border border-primary/30 shadow-[0_0_25px_rgba(5,217,232,0.15)]">
           <div className="flex items-center gap-4">
@@ -636,7 +507,7 @@ export function About() {
           </div>
         </div>
 
-        {/* BIG SIZE TEAM CARDS GRID */}
+        {/* TEAM CARDS GRID */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <AnimatePresence mode="popLayout">
             {teamMembers.map((member) => (
@@ -745,234 +616,6 @@ export function About() {
           </AnimatePresence>
         </div>
       </PageSection>
-
-      {/* Hero Banner Card */}
-      <Card className="relative overflow-hidden border-primary/30 bg-gradient-to-br from-surface via-surface/90 to-primary/10 shadow-[0_0_30px_rgba(5,217,232,0.15)]">
-        <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-          <ShieldCheck size={260} className="text-primary" />
-        </div>
-
-        <div className="relative z-10 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 p-2">
-          <div className="flex items-center gap-5">
-            <motion.div 
-              className="flex h-20 w-20 shrink-0 items-center justify-center rounded-2xl bg-primary/20 text-primary border border-primary/40 shadow-[0_0_20px_rgba(5,217,232,0.4)]"
-              animate={{ boxShadow: ['0 0 15px rgba(5,217,232,0.3)', '0 0 30px rgba(5,217,232,0.7)', '0 0 15px rgba(5,217,232,0.3)'] }}
-              transition={{ repeat: Infinity, duration: 3 }}
-            >
-              <ShieldCheck size={44} />
-            </motion.div>
-
-            <div>
-              <div className="flex items-center gap-3 mb-1">
-                <h1 className="text-3xl font-space font-bold text-white tracking-wide">ASTRA Enterprise</h1>
-                <Badge variant="outline" className="bg-primary/10 text-primary border-primary/40 font-mono text-xs">
-                  v1.0.0-rc.4
-                </Badge>
-              </div>
-              <p className="text-base text-white/70">
-                AI-Powered Embedded Cybersecurity Security Appliance & Autonomous Threat Defense Platform
-              </p>
-              
-              <div className="flex items-center gap-4 mt-3 text-xs font-mono text-white/60">
-                <span className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  System Status: <strong className="text-emerald-400 font-semibold">OPERATIONAL</strong>
-                </span>
-                <span className="text-white/30">|</span>
-                <span>Core Engine: <strong className="text-white font-semibold">v2.1.0-AegisAI</strong></span>
-                <span className="text-white/30">|</span>
-                <span>Uptime: <strong className="text-white font-semibold">99.998%</strong></span>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full lg:w-auto">
-            <Button 
-              onClick={runDiagnostics} 
-              disabled={isRunningDiagnostics}
-              className="relative overflow-hidden bg-primary/20 hover:bg-primary/30 text-primary border border-primary/50 font-mono text-sm py-2.5 px-5 rounded-lg flex items-center justify-center gap-2 transition-all shadow-[0_0_15px_rgba(5,217,232,0.2)]"
-            >
-              <RefreshCw size={16} className={isRunningDiagnostics ? 'animate-spin' : ''} />
-              {isRunningDiagnostics ? `Testing (${diagnosticProgress}%)` : 'Run Diagnostics'}
-            </Button>
-          </div>
-        </div>
-
-        {/* Progress Bar overlay when running diagnostics */}
-        <AnimatePresence>
-          {isRunningDiagnostics && (
-            <motion.div 
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: '4px' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="w-full bg-surface-light mt-4 rounded-full overflow-hidden"
-            >
-              <motion.div 
-                className="h-full bg-primary shadow-[0_0_10px_#05d9e8]"
-                style={{ width: `${diagnosticProgress}%` }}
-                transition={{ duration: 0.3 }}
-              />
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </Card>
-
-      {/* Hardware & System Specs Grid */}
-      <PageSection className="space-y-4">
-        <div>
-          <h2 className="text-xl font-space font-semibold text-white">Hardware Node & Engine Metrics</h2>
-          <p className="text-xs text-white/60">Live hardware acceleration and signature capacity.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-          {systemMetrics.map((metric, i) => {
-            const IconComponent = metric.icon;
-            return (
-              <motion.div
-                key={metric.title}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.08 }}
-              >
-                <Card className="p-5 border-white/10 hover:border-primary/40 transition-all duration-300 group hover:shadow-[0_4px_20px_rgba(5,217,232,0.15)]">
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-xs font-mono text-white/50 tracking-wider uppercase">{metric.title}</span>
-                    <div className="p-2 rounded-lg bg-primary/10 text-primary group-hover:bg-primary/20 transition-colors">
-                      <IconComponent size={20} />
-                    </div>
-                  </div>
-                  <div className="text-2xl font-space font-bold text-white mb-1 group-hover:text-primary transition-colors">
-                    {metric.value}
-                  </div>
-                  <div className="text-xs text-emerald-400 font-mono flex items-center gap-1">
-                    <CheckCircle2 size={12} />
-                    {metric.subtitle}
-                  </div>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </div>
-      </PageSection>
-
-      {/* Core Architectural Pillars */}
-      <PageSection className="space-y-4">
-        <div>
-          <h2 className="text-xl font-space font-semibold text-white">Core Defense Pillars</h2>
-          <p className="text-xs text-white/60">Built for enterprise threat detection and autonomous remediation.</p>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {pillars.map((pillar, index) => {
-            const Icon = pillar.icon;
-            return (
-              <motion.div
-                key={pillar.title}
-                initial={{ opacity: 0, y: 15 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.1 }}
-              >
-                <Card className="p-6 h-full border-white/10 hover:border-primary/40 bg-surface/40 hover:bg-surface/70 transition-all duration-300">
-                  <div className="flex items-start gap-4">
-                    <div className="p-3 rounded-xl bg-primary/15 text-primary border border-primary/30 shrink-0">
-                      <Icon size={24} />
-                    </div>
-                    <div className="space-y-1">
-                      <h3 className="text-lg font-space font-semibold text-white">{pillar.title}</h3>
-                      <p className="text-sm text-white/70 leading-relaxed">{pillar.description}</p>
-                    </div>
-                  </div>
-                </Card>
-              </motion.div>
-            );
-          })}
-        </div>
-      </PageSection>
-
-      {/* End-to-End Data Pipeline Visual */}
-      <PageSection className="space-y-4">
-        <div>
-          <h2 className="text-xl font-space font-semibold text-white">System Architecture & Threat Pipeline</h2>
-          <p className="text-xs text-white/60">Real-time flow from packet tap to automated mitigation.</p>
-        </div>
-        <Card className="p-6 border-white/10 bg-surface/50">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 relative">
-            {architectureSteps.map((step) => {
-              const StepIcon = step.icon;
-              return (
-                <div key={step.step} className="relative group">
-                  <div className="p-5 rounded-xl border border-white/10 bg-surface-light/40 group-hover:border-primary/50 group-hover:bg-surface-light/80 transition-all duration-300 h-full">
-                    <div className="flex items-center justify-between mb-3">
-                      <span className="font-mono text-xs font-bold px-2 py-0.5 rounded bg-primary/20 text-primary border border-primary/30">
-                        STEP {step.step}
-                      </span>
-                      <StepIcon size={20} className="text-primary/70 group-hover:text-primary transition-colors" />
-                    </div>
-                    <h4 className="font-space font-semibold text-white text-base mb-1.5">{step.title}</h4>
-                    <p className="text-xs text-white/60 leading-relaxed">{step.desc}</p>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        </Card>
-      </PageSection>
-
-      {/* Technology Stack Matrix */}
-      <PageSection className="space-y-4">
-        <div>
-          <h2 className="text-xl font-space font-semibold text-white">Technology Stack & Subsystems</h2>
-          <p className="text-xs text-white/60">Modern components powering the ASTRA platform.</p>
-        </div>
-        <Card className="p-6 border-white/10">
-          {/* Category Filter Tabs */}
-          <div className="flex flex-wrap gap-2 mb-6 border-b border-white/10 pb-4">
-            {[
-              { id: 'all', label: 'All Technologies' },
-              { id: 'engine', label: 'Security Engine' },
-              { id: 'frontend', label: 'Frontend & UI' },
-              { id: 'ai', label: 'AI & Intelligence' },
-              { id: 'security', label: 'Cryptography & Mesh' }
-            ].map((cat) => (
-              <button
-                key={cat.id}
-                onClick={() => setActiveCategory(cat.id as any)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-mono transition-all ${
-                  activeCategory === cat.id
-                    ? 'bg-primary text-black font-semibold shadow-[0_0_12px_rgba(5,217,232,0.5)]'
-                    : 'bg-white/5 text-white/70 hover:bg-white/10 hover:text-white'
-                }`}
-              >
-                {cat.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Grid of Tech Badges */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {filteredTech.map((item) => (
-              <motion.div 
-                key={item.name}
-                layout
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.2 }}
-                className="p-3.5 rounded-lg border border-white/5 bg-white/5 hover:border-primary/40 hover:bg-white/10 transition-all flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="font-space font-medium text-sm text-white">{item.name}</span>
-                    <Badge variant="outline" className="text-[10px] font-mono border-white/20 text-white/80">
-                      {item.version}
-                    </Badge>
-                  </div>
-                  <p className="text-xs text-white/60">{item.description}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
-        </Card>
-      </PageSection>
-
 
       {/* EDIT & ADD TEAM MEMBER MODAL DIALOG */}
       <AnimatePresence>
@@ -1185,54 +828,6 @@ export function About() {
           </div>
         )}
       </AnimatePresence>
-
-      {/* Compliance & Licensing */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <Card className="lg:col-span-2 p-6 border-white/10 space-y-4">
-          <div className="flex items-center gap-3">
-            <Award className="text-primary" size={24} />
-            <div>
-              <h3 className="text-lg font-space font-semibold text-white">Enterprise Security & Compliance</h3>
-              <p className="text-xs text-white/60">Validated security controls and framework standard alignments.</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
-            {certifications.map((cert) => (
-              <div key={cert.code} className="p-3 rounded-lg border border-primary/20 bg-primary/5 flex items-start gap-3">
-                <ShieldCheck size={18} className="text-primary shrink-0 mt-0.5" />
-                <div>
-                  <div className="text-xs font-mono font-bold text-primary">{cert.code}</div>
-                  <div className="text-xs font-medium text-white">{cert.title}</div>
-                  <div className="text-[10px] text-white/50">{cert.issuer}</div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </Card>
-
-        <Card className="p-6 border-white/10 space-y-4 flex flex-col justify-between">
-          <div>
-            <div className="flex items-center gap-2 mb-2 text-white">
-              <Lock size={20} className="text-primary" />
-              <h3 className="text-lg font-space font-semibold">License & Notice</h3>
-            </div>
-            <Badge variant="outline" className="bg-amber-500/10 text-amber-400 border-amber-500/30 font-mono text-xs mb-3">
-              Proprietary Enterprise Software
-            </Badge>
-            <p className="text-xs text-white/70 leading-relaxed">
-              ASTRA Cybersecurity Enterprise Appliance is licensed exclusively for authorized organization deployments. 
-              Unauthorized reverse engineering, disassembly, or distribution of core engine binaries is strictly prohibited.
-            </p>
-          </div>
-
-          <div className="pt-4 border-t border-white/10 text-[11px] text-white/40 font-mono flex items-center justify-between">
-            <span>© 2026 ASTRA Security Inc.</span>
-            <span>All Rights Reserved</span>
-          </div>
-        </Card>
-      </div>
     </PageContainer>
   );
 }
-

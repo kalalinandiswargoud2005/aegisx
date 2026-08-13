@@ -33,8 +33,10 @@ export function ImmediateActionOverlay() {
       setAutoCloseTimer((prev) => {
         if (prev <= 1) {
           clearInterval(interval);
-          setActiveAlert(null);
-          navigate('/recovery');
+          setTimeout(() => {
+            setActiveAlert(null);
+            navigate('/recovery');
+          }, 0);
           return 0;
         }
         return prev - 1;

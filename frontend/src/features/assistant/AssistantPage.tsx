@@ -995,23 +995,28 @@ Please check:
       event: any
     ) => {
       if (
-        event.error !==
-        'no-speech'
+        event.error === 'aborted' ||
+        event.error === 'no-speech'
       ) {
-        console.error(
-          'Speech recognition error:',
-          event.error
-        );
+        return;
       }
+      console.warn(
+        'Speech recognition status:',
+        event.error
+      );
     };
 
     recognition.onend = () => {
       if (
         isListeningRef.current
       ) {
-        try {
-          recognition.start();
-        } catch (_) {}
+        setTimeout(() => {
+          if (isListeningRef.current) {
+            try {
+              recognition.start();
+            } catch (_) {}
+          }
+        }, 800);
       } else {
         setIsListening(false);
       }

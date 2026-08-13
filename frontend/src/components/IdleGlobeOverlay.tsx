@@ -42,27 +42,25 @@ export function IdleGlobeOverlay() {
   const laserBeamsRef = useRef<LaserBeam[]>([]);
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
 
+  const resetIdleTimer = () => {
+    if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
+    idleTimerRef.current = setTimeout(() => {
+      setIsIdle(true);
+    }, 60000); // 60s idle threshold
+  };
+
   const handleExitToDashboard = () => {
     setIsIdle(false);
+    resetIdleTimer();
     navigate('/dashboard');
   };
 
   // 1. Inactivity & Manual Trigger Listener
   useEffect(() => {
-    const IDLE_THRESHOLD_MS = 60000; // 60s idle threshold
-
-    const resetIdleTimer = () => {
-      if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
-      idleTimerRef.current = setTimeout(() => {
-        setIsIdle(true);
-      }, IDLE_THRESHOLD_MS);
-    };
-
-    // ONLY dismiss and redirect to dashboard when Enter or Escape is pressed
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (isIdle && (e.key === 'Enter' || e.key === 'Escape')) {
+    // ANY keypress or click when idle returns immediately to dashboard
+    const handleKeyDown = () => {
+      if (isIdle) {
         handleExitToDashboard();
-        resetIdleTimer();
       }
     };
 
@@ -70,7 +68,6 @@ export function IdleGlobeOverlay() {
       setIsIdle(true);
     };
 
-    // Reset inactivity timer on mouse movements, but DO NOT dismiss active screen on mouse move!
     const handleMouseActivity = () => {
       if (!isIdle) {
         resetIdleTimer();
@@ -212,8 +209,9 @@ export function IdleGlobeOverlay() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.8 }}
-        className="fixed inset-0 z-50 flex flex-col justify-between bg-[#020617] text-white font-mono select-none overflow-hidden"
+        transition={{ duration: 0.2 }}
+        onClick={handleExitToDashboard}
+        className="fixed inset-0 z-50 flex flex-col justify-between bg-[#020617] text-white font-mono select-none overflow-hidden cursor-pointer"
       >
         {/* Background Visual Layers */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-950/40 via-[#020617] to-[#020617] pointer-events-none" />
@@ -253,11 +251,14 @@ export function IdleGlobeOverlay() {
         {/* Top Right Exit Button */}
         <div className="relative z-30 flex justify-end p-6">
           <button
-            onClick={handleExitToDashboard}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleExitToDashboard();
+            }}
             className="flex items-center gap-2 px-3 py-1.5 bg-black/60 hover:bg-primary/20 border border-primary/40 text-primary text-xs font-mono font-bold transition-all cursor-pointer shadow-[0_0_15px_rgba(5,217,232,0.2)]"
           >
             <X size={14} />
-            <span>EXIT MAP (ESC / ENTER)</span>
+            <span>RETURN TO DASHBOARD</span>
           </button>
         </div>
 
@@ -270,7 +271,7 @@ export function IdleGlobeOverlay() {
             VIGILANCE BEYOND BOUNDARIES
           </p>
           <div className="mt-4 inline-block px-4 py-1 bg-black/80 border border-primary/40 text-[11px] font-mono font-bold text-white/60 tracking-[0.2em] uppercase animate-pulse">
-            PRESS ENTER OR ESC TO RESUME CONTROL
+            PRESS ANY KEY OR CLICK TO RETURN TO DASHBOARD
           </div>
         </div>
       </motion.div>

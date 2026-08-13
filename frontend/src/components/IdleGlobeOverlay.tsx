@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { X } from 'lucide-react';
 
 interface City {
   name: string;
@@ -41,14 +42,7 @@ export function IdleGlobeOverlay() {
 
   // 1. Inactivity & Manual Trigger Listener
   useEffect(() => {
-    const IDLE_THRESHOLD_MS = 60000; // 60 seconds
-
-    const handleUserActivity = () => {
-      if (isIdle) {
-        setIsIdle(false);
-      }
-      resetIdleTimer();
-    };
+    const IDLE_THRESHOLD_MS = 60000; // 60s idle threshold
 
     const resetIdleTimer = () => {
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
@@ -57,18 +51,38 @@ export function IdleGlobeOverlay() {
       }, IDLE_THRESHOLD_MS);
     };
 
+    // ONLY dismiss when Enter or Escape is pressed
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (isIdle && (e.key === 'Enter' || e.key === 'Escape')) {
+        setIsIdle(false);
+        resetIdleTimer();
+      }
+    };
+
     const handleManualTrigger = () => {
       setIsIdle(true);
     };
 
-    const activityEvents = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll'];
-    activityEvents.forEach((evt) => window.addEventListener(evt, handleUserActivity));
+    // Reset inactivity timer on mouse movements, but DO NOT dismiss active screen on mouse move!
+    const handleMouseActivity = () => {
+      if (!isIdle) {
+        resetIdleTimer();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('mousemove', handleMouseActivity);
+    window.addEventListener('mousedown', handleMouseActivity);
+    window.addEventListener('touchstart', handleMouseActivity);
     window.addEventListener('trigger-idle-screensaver', handleManualTrigger);
 
     resetIdleTimer();
 
     return () => {
-      activityEvents.forEach((evt) => window.removeEventListener(evt, handleUserActivity));
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('mousemove', handleMouseActivity);
+      window.removeEventListener('mousedown', handleMouseActivity);
+      window.removeEventListener('touchstart', handleMouseActivity);
       window.removeEventListener('trigger-idle-screensaver', handleManualTrigger);
       if (idleTimerRef.current) clearTimeout(idleTimerRef.current);
     };
@@ -116,7 +130,7 @@ export function IdleGlobeOverlay() {
 
       ctx.clearRect(0, 0, width, height);
 
-      // Draw Subtly Interconnected Web Lines
+      // Draw Connection Lines
       ctx.strokeStyle = 'rgba(5, 217, 232, 0.08)';
       ctx.lineWidth = 1;
       GLOBAL_NODES.forEach((node1, idx) => {
@@ -165,7 +179,7 @@ export function IdleGlobeOverlay() {
         ctx.fill();
         ctx.shadowBlur = 0;
 
-        // Target Impact Circle Ring
+        // Target Impact Ring
         if (t > 0.88) {
           ctx.strokeStyle = beam.color;
           ctx.lineWidth = 1.5;
@@ -192,7 +206,7 @@ export function IdleGlobeOverlay() {
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
         transition={{ duration: 0.8 }}
-        className="fixed inset-0 z-50 flex flex-col items-center justify-between bg-[#020617] text-white font-mono select-none overflow-hidden"
+        className="fixed inset-0 z-50 flex flex-col justify-between bg-[#020617] text-white font-mono select-none overflow-hidden"
       >
         {/* Background Visual Layers */}
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-950/40 via-[#020617] to-[#020617] pointer-events-none" />
@@ -229,21 +243,28 @@ export function IdleGlobeOverlay() {
           ))}
         </div>
 
-        {/* Clean Center App Name Header (ONLY APP NAME & SUBTITLE, NO BOXES/HEADERS) */}
-        <div className="relative z-30 pt-12 text-center pointer-events-none">
-          <h1 className="font-rajdhani font-extrabold text-6xl md:text-8xl tracking-[0.25em] text-glow text-primary drop-shadow-[0_0_35px_rgba(5,217,232,0.8)] uppercase">
-            ASTRA
-          </h1>
-          <p className="text-xs md:text-sm text-cyan-300/80 font-mono tracking-[0.35em] uppercase mt-2 drop-shadow-[0_0_10px_rgba(5,217,232,0.4)]">
-            VIGILANCE BEYOND BOUNDARIES
-          </p>
+        {/* Top Right Exit Button */}
+        <div className="relative z-30 flex justify-end p-6">
+          <button
+            onClick={() => setIsIdle(false)}
+            className="flex items-center gap-2 px-3 py-1.5 bg-black/60 hover:bg-primary/20 border border-primary/40 text-primary text-xs font-mono font-bold transition-all cursor-pointer shadow-[0_0_15px_rgba(5,217,232,0.2)]"
+          >
+            <X size={14} />
+            <span>EXIT MAP (ESC / ENTER)</span>
+          </button>
         </div>
 
-        {/* Subtle Minimal Resume Prompt at Bottom */}
-        <div className="relative z-30 pb-8 text-center pointer-events-none">
-          <p className="text-[11px] font-mono font-bold text-white/40 tracking-[0.3em] uppercase animate-pulse">
-            PRESS ANY KEY OR MOVE MOUSE TO RESUME
+        {/* Bottom App Name Header (PLACED AFTER / BELOW THE MAP AT THE BOTTOM) */}
+        <div className="relative z-30 pb-10 text-center pointer-events-none">
+          <h1 className="font-rajdhani font-extrabold text-5xl sm:text-7xl md:text-8xl tracking-[0.25em] text-glow text-primary drop-shadow-[0_0_35px_rgba(5,217,232,0.8)] uppercase">
+            ASTRA
+          </h1>
+          <p className="text-xs sm:text-sm text-cyan-300/80 font-mono tracking-[0.35em] uppercase mt-1 drop-shadow-[0_0_10px_rgba(5,217,232,0.4)]">
+            VIGILANCE BEYOND BOUNDARIES
           </p>
+          <div className="mt-4 inline-block px-4 py-1 bg-black/80 border border-primary/40 text-[11px] font-mono font-bold text-white/60 tracking-[0.2em] uppercase animate-pulse">
+            PRESS ENTER OR ESC TO RESUME CONTROL
+          </div>
         </div>
       </motion.div>
     </AnimatePresence>

@@ -245,7 +245,7 @@ What would you like to know?`,
     useState(false);
 
   const [speechEnabled, setSpeechEnabled] =
-    useState(false);
+    useState(true);
 
   /* =======================================================
      GEMINI

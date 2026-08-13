@@ -477,6 +477,65 @@ export function About() {
     toast.info(`Removed ${name} from Team Members`);
   };
 
+  const rosterImportInputRef = useRef<HTMLInputElement>(null);
+
+  // Export entire Team Package JSON (including custom photos & metadata)
+  const handleExportRoster = () => {
+    try {
+      const exportData = {
+        app: 'ASTRA Enterprise Security Appliance',
+        version: 'v2.4.0',
+        exportedAt: new Date().toISOString(),
+        roster: sortMembersByRollNumber(teamMembers)
+      };
+
+      const jsonStr = JSON.stringify(exportData, null, 2);
+      const blob = new Blob([jsonStr], { type: 'application/json' });
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.setAttribute('download', 'astra-team-roster.json');
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      toast.success('Exported Team Package (astra-team-roster.json)');
+    } catch (e) {
+      console.error('Export error', e);
+      toast.error('Failed to export team roster package');
+    }
+  };
+
+  // Import Team Package JSON
+  const handleImportRosterFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      try {
+        const text = event.target?.result as string;
+        const parsed = JSON.parse(text);
+        const importedRoster = parsed.roster || (Array.isArray(parsed) ? parsed : null);
+
+        if (Array.isArray(importedRoster) && importedRoster.length > 0) {
+          const sorted = sortMembersByRollNumber(importedRoster);
+          setTeamMembers(sorted);
+          saveToIndexedDB(sorted);
+          try {
+            localStorage.setItem('astra_team_members', JSON.stringify(sorted));
+          } catch {}
+          toast.success(`Imported ${sorted.length} team members to ASTRA Roster!`);
+        } else {
+          toast.error('Invalid roster file format.');
+        }
+      } catch {
+        toast.error('Failed to parse roster file JSON.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  };
+
   const handleResetTeam = () => {
     setTeamMembers(DEFAULT_TEAM_MEMBERS);
     localStorage.removeItem('astra_team_members');
@@ -511,7 +570,34 @@ export function About() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <input 
+              type="file" 
+              ref={rosterImportInputRef} 
+              onChange={handleImportRosterFile} 
+              accept=".json" 
+              className="hidden" 
+            />
+            <Button
+              onClick={() => rosterImportInputRef.current?.click()}
+              variant="outline"
+              size="md"
+              className="flex items-center gap-2 border-primary/50 text-primary hover:bg-primary/10 font-bold"
+              title="Import Team Roster Package (.json) from another device"
+            >
+              <Upload size={16} />
+              Import Package
+            </Button>
+            <Button
+              onClick={handleExportRoster}
+              variant="outline"
+              size="md"
+              className="flex items-center gap-2 border-white/20 text-white/90 hover:text-white hover:border-primary font-bold"
+              title="Export current team roster & photos to a portable file"
+            >
+              <Download size={16} />
+              Export Package
+            </Button>
             <Button
               onClick={handleOpenAddModal}
               variant="primary"

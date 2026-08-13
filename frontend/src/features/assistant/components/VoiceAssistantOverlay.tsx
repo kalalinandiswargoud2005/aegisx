@@ -1,10 +1,10 @@
 /**
  * VoiceAssistantOverlay.tsx
  *
- * Full-screen voice assistant UI for AEGISX.
+ * Full-screen voice assistant UI for ASTRA.
  *
  * ┌─ States ───────────────────────────────────────────────────────────────────┐
- * │  idle       → Pulsing orb, "Say 'Hey AEGISX' or tap the orb"             │
+ * │  idle       → Pulsing orb, "Say 'Hey ASTRA' or tap the orb"             │
  * │  listening  → Red ripple animation, shows live transcript                 │
  * │  thinking   → Spinning rings, "Processing…"                               │
  * │  speaking   → Green wave bars, reads the response aloud                  │
@@ -35,7 +35,7 @@ interface VoiceAssistantOverlayProps {
 }
 
 // ── Wake words ────────────────────────────────────────────────────────────────
-const WAKE_WORDS = ['hey aegisx', 'aegisx', 'hey axis', 'hey agis'];
+const WAKE_WORDS = ['hey astra', 'astra', 'hey axis', 'hey agis'];
 
 function containsWakeWord(text: string): boolean {
   const lower = text.toLowerCase();
@@ -63,8 +63,8 @@ const STATE_CONFIG: Record<VoiceState, {
     orbColor: 'from-cyan-600 to-blue-700',
     ringColor: 'border-cyan-400/30',
     glowColor: 'rgba(34,211,238,0.35)',
-    label: 'AEGISX VOICE',
-    sublabel: 'Tap the orb or say "Hey AEGISX"',
+    label: 'ASTRA VOICE',
+    sublabel: 'Tap the orb or say "Hey ASTRA"',
   },
   listening: {
     orbColor: 'from-red-600 to-rose-700',
@@ -78,14 +78,14 @@ const STATE_CONFIG: Record<VoiceState, {
     ringColor: 'border-violet-400/40',
     glowColor: 'rgba(139,92,246,0.45)',
     label: 'PROCESSING',
-    sublabel: 'AEGISX is analyzing…',
+    sublabel: 'ASTRA is analyzing…',
   },
   speaking: {
     orbColor: 'from-emerald-600 to-green-700',
     ringColor: 'border-emerald-400/40',
     glowColor: 'rgba(16,185,129,0.45)',
     label: 'RESPONDING',
-    sublabel: 'AEGISX is speaking…',
+    sublabel: 'ASTRA is speaking…',
   },
 };
 
@@ -204,7 +204,7 @@ export const VoiceAssistantOverlay: React.FC<VoiceAssistantOverlayProps> = ({
       {/* ── Header ── */}
       <div className="text-center mb-10">
         <div className="text-[10px] font-mono tracking-[.35em] uppercase text-cyan-400/60 mb-1">
-          AEGISX CYBER DEFENSE
+          ASTRA CYBER DEFENSE
         </div>
         <h1
           className="text-3xl font-black font-mono tracking-widest uppercase"
@@ -292,7 +292,7 @@ export const VoiceAssistantOverlay: React.FC<VoiceAssistantOverlayProps> = ({
         {transcript
           ? <span>{transcript}</span>
           : voiceState === 'idle'
-          ? <span className="text-white/25 text-sm">Tap orb or say "Hey AEGISX, …"</span>
+          ? <span className="text-white/25 text-sm">Tap orb or say "Hey ASTRA, …"</span>
           : null
         }
       </div>
@@ -310,7 +310,7 @@ export const VoiceAssistantOverlay: React.FC<VoiceAssistantOverlayProps> = ({
           }}
         >
           <div className="flex items-center gap-1.5 justify-center mb-1 text-[10px] text-cyan-400/60 tracking-widest uppercase">
-            <Volume2 size={10} /> AEGISX said
+            <Volume2 size={10} /> ASTRA said
           </div>
           <p className="line-clamp-4">{lastResponse.replace(/\*\*(.*?)\*\*/g,'$1').replace(/[*#•]/g,'').trim()}</p>
         </div>

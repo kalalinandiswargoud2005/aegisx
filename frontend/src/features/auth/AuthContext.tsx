@@ -19,14 +19,14 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const defaultUser: User = { id: '00000000-0000-0000-0000-000000000001', email: 'admin@aegisx.com', name: 'System Admin', role: 'ADMIN' };
+  const defaultUser: User = { id: '00000000-0000-0000-0000-000000000001', email: 'admin@astra.com', name: 'System Admin', role: 'ADMIN' };
   const [user, setUser] = useState<User | null>(defaultUser);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Check for existing token and user on mount
-    const token = localStorage.getItem('aegisx-token');
-    const storedUser = localStorage.getItem('aegisx-user');
+    const token = localStorage.getItem('astra-token');
+    const storedUser = localStorage.getItem('astra-user');
 
     if (token && storedUser) {
       try {
@@ -36,21 +36,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // Do not logout, keep defaultUser
       }
     } else {
-        localStorage.setItem('aegisx-token', 'mock-token');
-        localStorage.setItem('aegisx-user', JSON.stringify(defaultUser));
+        localStorage.setItem('astra-token', 'mock-token');
+        localStorage.setItem('astra-user', JSON.stringify(defaultUser));
     }
     setIsLoading(false);
   }, []);
 
   const login = (token: string, userData: User) => {
-    localStorage.setItem('aegisx-token', token);
-    localStorage.setItem('aegisx-user', JSON.stringify(userData));
+    localStorage.setItem('astra-token', token);
+    localStorage.setItem('astra-user', JSON.stringify(userData));
     setUser(userData);
   };
 
   const logout = () => {
-    localStorage.removeItem('aegisx-token');
-    localStorage.removeItem('aegisx-user');
+    localStorage.removeItem('astra-token');
+    localStorage.removeItem('astra-user');
     setUser(null);
     window.location.href = '/login';
   };

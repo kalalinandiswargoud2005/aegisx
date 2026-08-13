@@ -22,7 +22,7 @@ export function Footer() {
         </span>
         <span>Version 1.0.0-rc.4</span>
         <span>Build: a9f8b4c</span>
-        <span>© 2026 AEGISX Enterprise</span>
+        <span>© 2026 ASTRA Enterprise</span>
       </div>
     </footer>
   );

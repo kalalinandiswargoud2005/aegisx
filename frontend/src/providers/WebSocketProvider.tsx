@@ -28,7 +28,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
       heartbeatOutgoing: 4000,
       onConnect: () => {
         setIsConnected(true);
-        console.log('Connected to AEGISX STOMP Broker');
+        console.log('Connected to ASTRA STOMP Broker');
         
         // Re-subscribe to all active topics
         subscriptionsRef.current.forEach((callbacks, topic) => {

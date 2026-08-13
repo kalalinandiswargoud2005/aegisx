@@ -32,7 +32,7 @@ export function Recovery() {
 
   // Response mode: AUTOMATED or MANUAL (from Settings)
   const [responseMode] = useState<'AUTOMATED' | 'MANUAL'>(
-    () => (localStorage.getItem('aegisx_response_mode') as 'AUTOMATED' | 'MANUAL') || 'AUTOMATED'
+    () => (localStorage.getItem('astra_response_mode') as 'AUTOMATED' | 'MANUAL') || 'AUTOMATED'
   );
   const isManual = responseMode === 'MANUAL';
 

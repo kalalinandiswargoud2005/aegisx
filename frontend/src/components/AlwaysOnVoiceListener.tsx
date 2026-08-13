@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { toast } from 'sonner';
 
-const WAKE_WORDS = ['hey aegisx', 'aegisx', 'hey axis', 'hey jarvis', 'jarvis', 'hey agis'];
+const WAKE_WORDS = ['hey astra', 'astra', 'hey axis', 'hey jarvis', 'jarvis', 'hey agis'];
 
 function stripWakeWord(text: string): string {
   let result = text;

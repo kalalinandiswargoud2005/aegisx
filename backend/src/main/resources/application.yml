@@ -1,6 +1,6 @@
 spring:
   application:
-    name: aegisx-backend
+    name: astra-backend
   profiles:
     active: dev
   datasource:

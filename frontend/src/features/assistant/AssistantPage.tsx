@@ -212,7 +212,7 @@ export default function AssistantPage() {
       timestamp:
         new Date().toLocaleTimeString('en-US'),
 
-      content: `Hello! I'm your AEGISX Cyber Defense Assistant. 🤖
+      content: `Hello! I'm your ASTRA Cyber Defense Assistant. 🤖
 
 I'm currently running in **${
         defenseMode === 'auto'
@@ -222,7 +222,7 @@ I'm currently running in **${
           : 'Manual Monitoring mode'
       }**.
 
-I monitor the security events received by the AEGISX platform and help analyze threats, explain risks, and provide recovery guidance.
+I monitor the security events received by the ASTRA platform and help analyze threats, explain risks, and provide recovery guidance.
 
 What would you like to know?`,
     },
@@ -255,7 +255,7 @@ What would you like to know?`,
     useState(() => {
       return (
         localStorage.getItem(
-          'aegisx_gemini_key'
+          'astra_gemini_key'
         ) ||
         import.meta.env.VITE_GEMINI_API_KEY ||
         ''
@@ -278,7 +278,7 @@ What would you like to know?`,
     if (!key) return;
 
     localStorage.setItem(
-      'aegisx_gemini_key',
+      'astra_gemini_key',
       key
     );
 
@@ -291,7 +291,7 @@ What would you like to know?`,
         id: msgId.current++,
         role: 'ai',
         content:
-          '✅ **Gemini API Key saved successfully!**\n\nThe AEGISX AI Assistant is now ready.',
+          '✅ **Gemini API Key saved successfully!**\n\nThe ASTRA AI Assistant is now ready.',
         timestamp:
           new Date().toLocaleTimeString(
             'en-US'
@@ -521,13 +521,13 @@ What would you like to know?`,
         });
 
         /* =================================================
-           AEGISX SYSTEM INSTRUCTION
+           ASTRA SYSTEM INSTRUCTION
         ================================================= */
 
         const systemInstruction = `
-You are the AEGISX Cyber Defense Assistant.
+You are the ASTRA Cyber Defense Assistant.
 
-You are an AI cybersecurity assistant integrated into the AEGISX Cybersecurity Appliance.
+You are an AI cybersecurity assistant integrated into the ASTRA Cybersecurity Appliance.
 
 USER ROLE:
 Administrator
@@ -541,7 +541,7 @@ ${isConnected ? 'CONNECTED' : 'DISCONNECTED'}
 
 IMPORTANT ARCHITECTURE:
 
-The AEGISX Windows Agent is a monitoring-only endpoint agent.
+The ASTRA Windows Agent is a monitoring-only endpoint agent.
 
 The Windows Agent:
 
@@ -557,7 +557,7 @@ The Windows Agent MUST NOT:
 - Automatically recover the system
 - Modify the Windows system without authorization
 
-The AEGISX backend is the central threat-processing system.
+The ASTRA backend is the central threat-processing system.
 
 The AI Assistant:
 - Analyzes received threat information
@@ -572,7 +572,7 @@ The AI Assistant:
 
 RECOVERY:
 
-Recovery is manual and must be performed through the AEGISX Recovery Wizard.
+Recovery is manual and must be performed through the ASTRA Recovery Wizard.
 
 Never claim that you actually executed a recovery action.
 
@@ -623,13 +623,13 @@ Prevention
 
 10. Do not provide offensive attack instructions.
 
-11. Do not claim that AEGISX automatically repaired the system.
+11. Do not claim that ASTRA automatically repaired the system.
 
-12. If asked to perform an attack, refuse the offensive action and instead explain how AEGISX could safely detect the corresponding event.
+12. If asked to perform an attack, refuse the offensive action and instead explain how ASTRA could safely detect the corresponding event.
 
 13. For security incidents, prioritize containment, evidence preservation, credential protection, patching, verification, and monitoring.
 
-14. If the user asks about one of the predefined AEGISX threats, explain the threat using its configured threat ID when available.
+14. If the user asks about one of the predefined ASTRA threats, explain the threat using its configured threat ID when available.
 
 15. If the user asks about hardware, remember that the current prototype uses a Raspberry Pi and touchscreen architecture. ESP32, LEDs, and buzzer have been removed from the current design.
 
@@ -648,7 +648,7 @@ Prevention
           role: 'ai',
           content: '',
           thought:
-            'Analyzing AEGISX security context...',
+            'Analyzing ASTRA security context...',
           timestamp:
             new Date().toLocaleTimeString(
               'en-US'
@@ -849,7 +849,7 @@ Please check:
           setGeminiKey('');
 
           localStorage.removeItem(
-            'aegisx_gemini_key'
+            'astra_gemini_key'
           );
         }
       }
@@ -1104,7 +1104,7 @@ Please check:
             <div>
 
               <h1 className="text-xl font-bold font-mono tracking-widest uppercase text-glow text-white">
-                AEGISX AI Assistant
+                ASTRA AI Assistant
               </h1>
 
               <div className="flex items-center gap-2 mt-0.5">
@@ -1678,7 +1678,7 @@ Please check:
 
               <p className="text-[10px] text-success/70 font-mono mt-2">
 
-                AEGISX is monitoring security events. Recovery actions require user approval.
+                ASTRA is monitoring security events. Recovery actions require user approval.
 
               </p>
 
@@ -1802,7 +1802,7 @@ Please check:
                 </span>
 
                 <button
-                  id="aegisx-audio-alerts-toggle"
+                  id="astra-audio-alerts-toggle"
                   onClick={() => {
                     unlockAudio();
                     setAudioEnabled(!audioEnabled);
@@ -1831,7 +1831,7 @@ Please check:
                 </span>
 
                 <button
-                  id="aegisx-voice-alerts-toggle"
+                  id="astra-voice-alerts-toggle"
                   onClick={() => {
                     unlockAudio();
                     setVoiceEnabled(!voiceEnabled);
@@ -1860,7 +1860,7 @@ Please check:
                 </span>
 
                 <input
-                  id="aegisx-alert-volume"
+                  id="astra-alert-volume"
                   type="range"
                   min={0}
                   max={1}
@@ -1879,7 +1879,7 @@ Please check:
               {/* Test Alert button */}
 
               <button
-                id="aegisx-test-alert-btn"
+                id="astra-test-alert-btn"
                 onClick={() => {
                   unlockAudio();
                   playTestAlert();

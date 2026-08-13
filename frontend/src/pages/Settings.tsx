@@ -8,12 +8,12 @@ import { toast } from 'sonner';
 export function Settings() {
   const { theme, setTheme } = useTheme();
   const [responseMode, setResponseMode] = React.useState<'AUTOMATED' | 'MANUAL'>(() => {
-    return (localStorage.getItem('aegisx_response_mode') as 'AUTOMATED' | 'MANUAL') || 'AUTOMATED';
+    return (localStorage.getItem('astra_response_mode') as 'AUTOMATED' | 'MANUAL') || 'AUTOMATED';
   });
 
   const handleModeChange = (mode: 'AUTOMATED' | 'MANUAL') => {
     setResponseMode(mode);
-    localStorage.setItem('aegisx_response_mode', mode);
+    localStorage.setItem('astra_response_mode', mode);
     if (mode === 'AUTOMATED') {
       toast.success('Response Mode updated to Fully Automated (Agentic AI Execution)');
     } else {
@@ -25,7 +25,7 @@ export function Settings() {
     <PageContainer>
       <PageHeader 
         title="Settings" 
-        description="Configure your AEGISX environment and response modes."
+        description="Configure your ASTRA environment and response modes."
       >
         <Button variant="primary" onClick={() => toast.success('Settings saved successfully')}>
           <Save size={16} className="mr-2" />

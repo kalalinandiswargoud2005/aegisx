@@ -15,7 +15,7 @@ const api = axios.create({
 
 api.interceptors.request.use(
   (config) => {
-    const token = localStorage.getItem('aegisx-token');
+    const token = localStorage.getItem('astra-token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -29,8 +29,8 @@ api.interceptors.response.use(
   (error) => {
     if (error.response?.status === 401) {
       // Auto logout if 401 Unauthorized
-      localStorage.removeItem('aegisx-token');
-      localStorage.removeItem('aegisx-user');
+      localStorage.removeItem('astra-token');
+      localStorage.removeItem('astra-user');
       window.location.href = '/login';
       toast.error('Session expired. Please log in again.');
     } else {

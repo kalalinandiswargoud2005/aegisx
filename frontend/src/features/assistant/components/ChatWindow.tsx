@@ -24,7 +24,7 @@ export function ChatWindow({ messages, isTyping, onSelectPrompt }: ChatWindowPro
           <div className="space-y-3">
             <h2 className="text-2xl font-mono font-bold text-white uppercase tracking-widest text-glow">How can I help you today?</h2>
             <p className="text-white/60 font-mono">
-              I am your AEGISX AI Assistant. I can explain threats, summarize system health, or help you navigate the platform.
+              I am your ASTRA AI Assistant. I can explain threats, summarize system health, or help you navigate the platform.
             </p>
           </div>
           <SuggestedPrompts onSelectPrompt={onSelectPrompt} />

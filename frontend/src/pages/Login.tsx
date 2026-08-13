@@ -57,7 +57,7 @@ export function Login() {
             <div className="w-16 h-16 bg-primary/20 rounded-xl flex items-center justify-center border border-primary/50 mb-4 box-glow">
               <Shield className="w-8 h-8 text-primary" />
             </div>
-            <h1 className="text-2xl font-bold font-space tracking-wider text-glow">AEGISX SOC</h1>
+            <h1 className="text-2xl font-bold font-space tracking-wider text-glow">ASTRA SOC</h1>
             <p className="text-sm text-gray-400 mt-2 font-inter text-center">
               Enterprise Threat Simulation & Security Response Platform
             </p>

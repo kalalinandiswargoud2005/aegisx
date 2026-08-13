@@ -96,15 +96,15 @@ export function useAudioAlerts(
   // ── Persisted settings ────────────────────────────────────────────────────
 
   const [audioEnabled, setAudioEnabledState] = useState<boolean>(() =>
-    readBool('aegisx_audio_alerts', true)
+    readBool('astra_audio_alerts', true)
   );
 
   const [voiceEnabled, setVoiceEnabledState] = useState<boolean>(() =>
-    readBool('aegisx_voice_alerts', false)
+    readBool('astra_voice_alerts', false)
   );
 
   const [volume, setVolumeState] = useState<number>(() =>
-    readNumber('aegisx_alert_volume', 0.7)
+    readNumber('astra_alert_volume', 0.7)
   );
 
   const [audioAvailable] = useState<boolean>(() => AudioAlertService.isAvailable());
@@ -136,12 +136,12 @@ export function useAudioAlerts(
 
   const setAudioEnabled = useCallback((value: boolean) => {
     setAudioEnabledState(value);
-    try { localStorage.setItem('aegisx_audio_alerts', String(value)); } catch { /* */ }
+    try { localStorage.setItem('astra_audio_alerts', String(value)); } catch { /* */ }
   }, []);
 
   const setVoiceEnabled = useCallback((value: boolean) => {
     setVoiceEnabledState(value);
-    try { localStorage.setItem('aegisx_voice_alerts', String(value)); } catch { /* */ }
+    try { localStorage.setItem('astra_voice_alerts', String(value)); } catch { /* */ }
     // Unlocking AudioContext on voice-enable counts as a user gesture
     if (value) {
       AudioAlertService.unlockAudioContext().catch(() => { /* */ });
@@ -152,7 +152,7 @@ export function useAudioAlerts(
     const clamped = Math.max(0, Math.min(1, value));
     setVolumeState(clamped);
     AudioAlertService.setAlertVolume(clamped);
-    try { localStorage.setItem('aegisx_alert_volume', String(clamped)); } catch { /* */ }
+    try { localStorage.setItem('astra_alert_volume', String(clamped)); } catch { /* */ }
   }, []);
 
   // ── Queue processor ───────────────────────────────────────────────────────

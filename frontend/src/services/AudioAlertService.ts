@@ -2,7 +2,7 @@
  * AudioAlertService.ts
  *
  * Singleton service that owns a single AudioContext and generates
- * all AEGISX threat alert tones using the Web Audio API.
+ * all ASTRA threat alert tones using the Web Audio API.
  *
  * - No external audio files required.
  * - Works in Chromium / Chrome on Raspberry Pi OS.

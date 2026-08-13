@@ -5,12 +5,12 @@ spring:
   application:
     name: windows-agent
 
-aegisx:
+astra:
   backend:
     url: http://localhost:8080
     ws-url: ws://localhost:8080/ws-endpoint
 
 agent:
   device-id: LAPTOP-001
-  hostname: AEGIS-PC
+  hostname: ASTRA-PC
   version: 1.0.0

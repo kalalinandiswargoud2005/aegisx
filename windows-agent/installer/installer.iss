@@ -1,14 +1,14 @@
 [Setup]
-AppName=AEGISX Windows Agent
+AppName=ASTRA Windows Agent
 AppVersion=1.0.0
-Publisher=AEGISX Security
-DefaultDirName={pf}\AEGISX-Agent
-DefaultGroupName=AEGISX
+Publisher=ASTRA Security
+DefaultDirName={pf}\ASTRA-Agent
+DefaultGroupName=ASTRA
 UninstallDisplayIcon={app}\windows-agent.exe
 Compression=lzma2
 SolidCompression=yes
 OutputDir=.\
-OutputBaseFilename=AEGISX_Windows_Agent_Setup
+OutputBaseFilename=ASTRA_Windows_Agent_Setup
 ArchitecturesInstallIn64BitMode=x64
 
 [Dirs]
@@ -45,6 +45,6 @@ begin
   if not RegKeyExists(HKLM, 'SOFTWARE\JavaSoft\Java Runtime Environment') and 
      not RegKeyExists(HKLM, 'SOFTWARE\JavaSoft\JDK') then
   begin
-    MsgBox('Java is required to install the AEGISX Windows Agent. Please install Java 21 or higher.', mbError, MB_OK);
+    MsgBox('Java is required to install the ASTRA Windows Agent. Please install Java 21 or higher.', mbError, MB_OK);
   end;
 end;

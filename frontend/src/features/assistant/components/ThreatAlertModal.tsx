@@ -56,7 +56,7 @@ const IMMEDIATE_ACTIONS = [
   'Preserve system logs and memory dumps',
   'Block suspicious network traffic at the firewall',
   'Reset credentials of affected accounts',
-  'Open the AEGISX Recovery Wizard to finalise recovery',
+  'Open the ASTRA Recovery Wizard to finalise recovery',
 ];
 
 // ═══════════════════════════════════════════════════════════════════════════════
@@ -107,21 +107,21 @@ export const ThreatAlertModal: React.FC<ThreatAlertModalProps> = ({
   return (
     <>
       <style>{`
-        @keyframes aegisx-modal-in {
+        @keyframes astra-modal-in {
           from { opacity:0; transform:scale(.96); }
           to   { opacity:1; transform:scale(1); }
         }
-        @keyframes aegisx-vignette-pulse {
+        @keyframes astra-vignette-pulse {
           0%,100% { opacity:.65; } 50% { opacity:1; }
         }
-        @keyframes aegisx-card-glow {
+        @keyframes astra-card-glow {
           0%,100% { box-shadow: 0 0 55px ${accent.glow}, 0 0 110px ${accent.glow.replace('.65','.20')}; }
           50%      { box-shadow: 0 0 85px ${accent.glow}, 0 0 170px ${accent.glow.replace('.65','.35')}; }
         }
-        @keyframes aegisx-title-flash {
+        @keyframes astra-title-flash {
           0%,100% { opacity:1; } 50% { opacity:.72; }
         }
-        @keyframes aegisx-icon-beat {
+        @keyframes astra-icon-beat {
           0%,100% { transform:scale(1); } 50% { transform:scale(1.08); }
         }
       `}</style>
@@ -132,7 +132,7 @@ export const ThreatAlertModal: React.FC<ThreatAlertModalProps> = ({
         style={{
           background: 'rgba(0,0,0,.90)',
           backdropFilter: 'blur(8px)',
-          animation: 'aegisx-modal-in .3s ease',
+          animation: 'astra-modal-in .3s ease',
         }}
       >
         {/* Colour vignette */}
@@ -140,7 +140,7 @@ export const ThreatAlertModal: React.FC<ThreatAlertModalProps> = ({
           className="absolute inset-0 pointer-events-none"
           style={{
             background: `radial-gradient(ellipse at center, transparent 22%, ${accent.border.replace('.90','.30')} 100%)`,
-            animation: 'aegisx-vignette-pulse 1.6s ease-in-out infinite',
+            animation: 'astra-vignette-pulse 1.6s ease-in-out infinite',
           }}
         />
 
@@ -150,7 +150,7 @@ export const ThreatAlertModal: React.FC<ThreatAlertModalProps> = ({
           style={{
             background: 'linear-gradient(145deg,#160000 0%,#0c0000 100%)',
             border: `2px solid ${accent.border}`,
-            animation: 'aegisx-card-glow 1.6s ease-in-out infinite',
+            animation: 'astra-card-glow 1.6s ease-in-out infinite',
             clipPath: 'polygon(0 0,calc(100% - 18px) 0,100% 18px,100% 100%,18px 100%,0 calc(100% - 18px))',
             maxHeight: '92vh',
             overflowY: 'auto',
@@ -179,7 +179,7 @@ export const ThreatAlertModal: React.FC<ThreatAlertModalProps> = ({
                 border: `1.5px solid ${accent.border.replace('.90','.65')}`,
                 clipPath: 'polygon(0 0,calc(100% - 6px) 0,100% 6px,100% 100%,6px 100%,0 calc(100% - 6px))',
                 display: 'flex', alignItems: 'center', justifyContent: 'center',
-                animation: 'aegisx-icon-beat 1.3s ease-in-out infinite',
+                animation: 'astra-icon-beat 1.3s ease-in-out infinite',
               }}
             >
               <AlertTriangle style={{ width: 24, height: 24, color: accent.text }} />
@@ -187,14 +187,14 @@ export const ThreatAlertModal: React.FC<ThreatAlertModalProps> = ({
 
             <div>
               <div className="text-[10px] font-mono tracking-[.28em] uppercase mb-0.5" style={{ color: `${accent.text}99` }}>
-                AEGISX CYBER DEFENSE · LIVE ALERT
+                ASTRA CYBER DEFENSE · LIVE ALERT
               </div>
               <h2
                 className="text-2xl font-black font-mono tracking-widest uppercase leading-none"
                 style={{
                   color: accent.text,
                   textShadow: `0 0 22px ${accent.glow}`,
-                  animation: 'aegisx-title-flash 1.2s ease-in-out infinite',
+                  animation: 'astra-title-flash 1.2s ease-in-out infinite',
                 }}
               >
                 ⚠ THREAT DETECTED

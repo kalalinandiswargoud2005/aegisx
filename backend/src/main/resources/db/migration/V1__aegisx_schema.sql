@@ -1,5 +1,5 @@
 -- ==========================================
--- AEGISX Enterprise - Initial Schema Setup
+-- ASTRA Enterprise - Initial Schema Setup
 -- Database: PostgreSQL 17+ (Supabase)
 -- ==========================================
 

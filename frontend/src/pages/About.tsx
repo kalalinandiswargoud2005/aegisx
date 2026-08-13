@@ -6,7 +6,7 @@ export function About() {
   return (
     <PageContainer>
       <PageHeader 
-        title="About AEGISX" 
+        title="About ASTRA" 
         description="Project details and licensing."
       />
 
@@ -18,7 +18,7 @@ export function About() {
             <ShieldCheck size={32} />
           </div>
           <div>
-            <h2 className="text-2xl font-space font-bold text-white">AEGISX Enterprise</h2>
+            <h2 className="text-2xl font-space font-bold text-white">ASTRA Enterprise</h2>
             <p className="text-white/60">AI Powered Embedded Cybersecurity Security Appliance</p>
           </div>
         </div>

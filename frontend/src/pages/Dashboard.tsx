@@ -243,30 +243,30 @@ const itemVariants: Variants = {
             <div>
               <div className="mb-2 flex items-center justify-between text-sm font-mono uppercase tracking-wider">
                 <span className="flex items-center gap-2 text-white/70"><Cpu size={16} className="text-primary"/> CPU Usage</span>
-                <span className="font-bold text-white text-glow">42%</span>
+                <span className="font-bold text-white text-glow">{metrics?.cpuUsage ?? 18}%</span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-none bg-white/10 cyber-cut">
-                <motion.div initial={{ width: 0 }} animate={{ width: '42%' }} transition={{ duration: 1, delay: 0.5 }} className="h-full bg-primary shadow-[0_0_10px_rgba(5,217,232,0.8)]" />
+                <motion.div initial={{ width: 0 }} animate={{ width: `${metrics?.cpuUsage ?? 18}%` }} transition={{ duration: 1, delay: 0.5 }} className="h-full bg-primary shadow-[0_0_10px_rgba(5,217,232,0.8)]" />
               </div>
             </div>
             
             <div>
               <div className="mb-2 flex items-center justify-between text-sm font-mono uppercase tracking-wider">
-                <span className="flex items-center gap-2 text-white/70"><Server size={16} className="text-warning"/> Memory</span>
-                <span className="font-bold text-white text-glow">68%</span>
+                <span className="flex items-center gap-2 text-white/70"><Server size={16} className="text-warning"/> Memory (RAM)</span>
+                <span className="font-bold text-white text-glow">{metrics?.ramUsage ?? 45}%</span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-none bg-white/10 cyber-cut">
-                <motion.div initial={{ width: 0 }} animate={{ width: '68%' }} transition={{ duration: 1, delay: 0.7 }} className="h-full bg-warning shadow-[0_0_10px_rgba(243,230,0,0.8)]" />
+                <motion.div initial={{ width: 0 }} animate={{ width: `${metrics?.ramUsage ?? 45}%` }} transition={{ duration: 1, delay: 0.7 }} className="h-full bg-warning shadow-[0_0_10px_rgba(243,230,0,0.8)]" />
               </div>
             </div>
 
             <div>
               <div className="mb-2 flex items-center justify-between text-sm font-mono uppercase tracking-wider">
-                <span className="flex items-center gap-2 text-white/70"><HardDrive size={16} className="text-danger"/> Storage</span>
-                <span className="font-bold text-white text-glow">89%</span>
+                <span className="flex items-center gap-2 text-white/70"><HardDrive size={16} className="text-danger"/> Disk Storage</span>
+                <span className="font-bold text-white text-glow">{metrics?.storage ?? 32}%</span>
               </div>
               <div className="h-1.5 w-full overflow-hidden rounded-none bg-white/10 cyber-cut">
-                <motion.div initial={{ width: 0 }} animate={{ width: '89%' }} transition={{ duration: 1, delay: 0.9 }} className="h-full bg-danger shadow-[0_0_10px_rgba(255,42,109,0.8)]" />
+                <motion.div initial={{ width: 0 }} animate={{ width: `${metrics?.storage ?? 32}%` }} transition={{ duration: 1, delay: 0.9 }} className="h-full bg-danger shadow-[0_0_10px_rgba(255,42,109,0.8)]" />
               </div>
             </div>
           </div>

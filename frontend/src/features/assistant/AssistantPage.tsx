@@ -283,7 +283,7 @@ What would you like to know?`,
     });
 
   const [showKeyInput, setShowKeyInput] =
-    useState(!geminiKey);
+    useState(false);
 
   const [tempKey, setTempKey] =
     useState('');
@@ -566,6 +566,8 @@ What would you like to know?`,
         return;
       }
 
+      let aiMsgId = 0;
+
       try {
         /* =================================================
            GEMINI CLIENT
@@ -695,8 +697,7 @@ Prevention
            CREATE AI MESSAGE
         ================================================= */
 
-        const aiMsgId =
-          msgId.current++;
+        aiMsgId = msgId.current++;
 
         const aiMsg: ChatMessage = {
           id: aiMsgId,
@@ -749,35 +750,41 @@ Prevention
         });
 
         /* =================================================
-           GEMINI STREAM
+           GEMINI STREAM WITH MODEL FALLBACK
         ================================================= */
 
-        const responseStream =
-          await ai.models.generateContentStream(
-            {
-              /*
-               * UPDATED MODEL
-               *
-               * Previous:
-               * gemini-2.5-flash
-               *
-               * Current:
-               * gemini-3.6-flash
-               */
+        const GEMINI_MODELS = [
+          'gemini-2.5-flash',
+          'gemini-2.0-flash',
+          'gemini-1.5-flash',
+          'gemini-1.5-pro',
+        ];
 
-              model:
-                'gemini-3.6-flash',
+        let responseStream: any = null;
+        let lastModelError: any = null;
 
-              contents:
-                chatContext,
-
+        for (const modelCandidate of GEMINI_MODELS) {
+          try {
+            responseStream = await ai.models.generateContentStream({
+              model: modelCandidate,
+              contents: chatContext,
               config: {
                 systemInstruction,
-
                 temperature: 0.7,
               },
+            });
+            if (responseStream) {
+              break;
             }
-          );
+          } catch (modelErr: any) {
+            console.warn(`Gemini model ${modelCandidate} failed, trying fallback:`, modelErr);
+            lastModelError = modelErr;
+          }
+        }
+
+        if (!responseStream) {
+          throw lastModelError || new Error('All Gemini API models failed to respond.');
+        }
 
         /* =================================================
            STREAM RESPONSE
@@ -844,68 +851,64 @@ Prevention
 
         const errorMessage =
           error?.message ||
+          (typeof error === 'object' ? JSON.stringify(error) : String(error)) ||
           'Unknown Gemini API error';
 
-        const errorMsg: ChatMessage =
-          {
-            id: msgId.current++,
-            role: 'ai',
+        const lowerError = errorMessage.toLowerCase();
 
-            content: `❌ **Failed to connect to Gemini API**
+        /* Check for 429 Rate Limit / Quota Exceeded */
+        const is429 =
+          error?.status === 429 ||
+          error?.code === 429 ||
+          lowerError.includes('429') ||
+          lowerError.includes('resource_exhausted') ||
+          lowerError.includes('quota exceeded') ||
+          lowerError.includes('rate-limit') ||
+          lowerError.includes('rate limit');
 
-Error:
-${errorMessage}
+        if (is429) {
+          setMessages((prev) =>
+            prev.map((msg) =>
+              msg.id === aiMsgId
+                ? {
+                    ...msg,
+                    content: `⚠️ **Gemini API Quota Exceeded / Rate Limit (429)**\n\nThe free-tier API quota limit for Gemini has been temporarily reached. Please retry in ~15-30 seconds, or click the **KEY** button at the top to configure your personal Google Gemini API key.`,
+                    isStreaming: false,
+                  }
+                : msg
+            )
+          );
 
-Please check:
+          setIsThinking(false);
+          return;
+        }
 
-1. Gemini API key
-2. Gemini model availability
-3. Google AI API access
-4. Network connection
-5. Browser console for additional details`,
-
-            timestamp:
-              new Date().toLocaleTimeString(
-                'en-US'
-              ),
-          };
-
-        setMessages((prev) => [
-          ...prev,
-          errorMsg,
-        ]);
+        /* Generic Error Message */
+        setMessages((prev) =>
+          prev.map((msg) =>
+            msg.id === aiMsgId
+              ? {
+                  ...msg,
+                  content: `❌ **Failed to connect to Gemini API**\n\nError: ${errorMessage}\n\nPlease check your internet connection, API key, or model availability.`,
+                  isStreaming: false,
+                }
+              : msg
+          )
+        );
 
         setIsThinking(false);
 
-        /* Reopen API key input if authentication failed */
+        /* ONLY wipe out key & show key prompt if authentication specifically failed (401 / invalid key) */
+        const isInvalidKey =
+          error?.status === 401 ||
+          lowerError.includes('api_key_invalid') ||
+          lowerError.includes('invalid_api_key') ||
+          lowerError.includes('api key not valid');
 
-        const lowerError =
-          errorMessage.toLowerCase();
-
-        if (
-          lowerError.includes(
-            'api key'
-          ) ||
-          lowerError.includes(
-            'api_key'
-          ) ||
-          lowerError.includes(
-            'unauthorized'
-          ) ||
-          lowerError.includes(
-            'authentication'
-          ) ||
-          lowerError.includes(
-            'permission'
-          )
-        ) {
+        if (isInvalidKey) {
           setShowKeyInput(true);
-
           setGeminiKey('');
-
-          localStorage.removeItem(
-            'astra_gemini_key'
-          );
+          localStorage.removeItem('astra_gemini_key');
         }
       }
     },
@@ -1313,13 +1316,24 @@ Please check:
               )}
 
               <span className="hidden sm:inline">
-
                 {speechEnabled
                   ? 'VOICE ON'
                   : 'MUTE'}
-
               </span>
+            </button>
 
+            {/* Key Config Button */}
+            <button
+              onClick={() => setShowKeyInput((prev) => !prev)}
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-none text-xs font-bold transition-all border cyber-cut ${
+                showKeyInput
+                  ? 'bg-primary/20 border-primary text-primary'
+                  : 'bg-surface border-border-color text-white/50 hover:text-white/80'
+              }`}
+              title="Configure Gemini API Key"
+            >
+              <Key className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">KEY</span>
             </button>
 
             {/* Stop Speaking Button */}

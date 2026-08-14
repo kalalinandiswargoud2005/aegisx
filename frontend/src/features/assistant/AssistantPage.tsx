@@ -691,6 +691,8 @@ Prevention
 15. If the user asks about hardware, remember that the current prototype uses a Raspberry Pi and touchscreen architecture. ESP32, LEDs, and buzzer have been removed from the current design.
 
 16. Never expose API keys, credentials, JWTs, passwords, or other secrets.
+
+17. If the user asks a general or non-cybersecurity question, answer it normally and helpfully. You do not need to restrict yourself exclusively to cybersecurity.
 `;
 
         /* =================================================

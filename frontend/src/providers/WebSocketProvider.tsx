@@ -18,7 +18,7 @@ export function WebSocketProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const rawWsUrl = import.meta.env.VITE_WS_URL || 
       (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1'
-        ? 'wss://astra-backend.onrender.com/ws'
+        ? 'wss://aegisx-backend-2k67.onrender.com/ws'
         : 'ws://localhost:8080/ws');
     const wsUrl = rawWsUrl.endsWith('/ws')
       ? rawWsUrl

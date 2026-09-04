@@ -22,14 +22,16 @@ if not exist "windows-agent.jar" (
     exit /b 1
 )
 
-echo [3/3] Launching ASTRA Windows Agent with GUI & Overlay support...
-echo Configuration: agent.properties
+set BACKEND_URL=%1
+if "%BACKEND_URL%"=="" set BACKEND_URL=https://aegisx-backend-2k67.onrender.com
+
+echo [3/3] Launching ASTRA Windows Agent connecting to: %BACKEND_URL%
 echo.
 echo -----------------------------------------------------------------------
 echo Press Ctrl+C to safely terminate the agent when finished.
 echo -----------------------------------------------------------------------
 echo.
 
-java -jar windows-agent.jar --spring.config.additional-location=file:agent.properties
+java -Djava.awt.headless=false -Dastra.backend.url=%BACKEND_URL% -jar windows-agent.jar
 
 pause

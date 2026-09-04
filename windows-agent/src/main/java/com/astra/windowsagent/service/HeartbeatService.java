@@ -91,10 +91,16 @@ public class HeartbeatService {
             }
             HttpEntity<HeartbeatDto> request = new HttpEntity<>(dto, headers);
 
-            restTemplate.postForEntity(backendUrl + "/api/v1/agent/heartbeat", request, Object.class);
-            log.trace("[ASTRA-HEARTBEAT] Dispatched: deviceId={}, CPU={}%", deviceId, dto.getCpuUsage());
+            for (String bUrl : configHelper.getBackendUrls()) {
+                try {
+                    restTemplate.postForEntity(bUrl + "/api/v1/agent/heartbeat", request, Object.class);
+                    log.trace("[ASTRA-HEARTBEAT] Dispatched to {}: deviceId={}, CPU={}%", bUrl, deviceId, dto.getCpuUsage());
+                } catch (Exception e) {
+                    log.debug("[ASTRA-HEARTBEAT] Heartbeat ping failed for {}: {}", bUrl, e.getMessage());
+                }
+            }
         } catch (Exception e) {
-            log.debug("[ASTRA-HEARTBEAT] Heartbeat ping failed for {}: {}", backendUrl, e.getMessage());
+            log.debug("[ASTRA-HEARTBEAT] Heartbeat build error: {}", e.getMessage());
         }
     }
 }

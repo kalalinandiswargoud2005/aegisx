@@ -35,76 +35,70 @@ public class RemediationCommandPoller {
             return; // Wait until device identity is resolved via registration
         }
 
-        String backendUrl = configHelper.getBackendUrl();
         String deviceToken = configHelper.getDeviceToken();
 
-        try {
-            String url = backendUrl + "/api/v1/agent/commands/" + deviceId;
+        for (String backendUrl : configHelper.getBackendUrls()) {
+            try {
+                String url = backendUrl + "/api/v1/agent/commands/" + deviceId;
 
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_JSON);
-            if (deviceToken != null && !deviceToken.isBlank()) {
-                headers.set("X-Device-Token", deviceToken);
-            }
-            HttpEntity<Void> request = new HttpEntity<>(headers);
-
-            ResponseEntity<List<DeviceCommandDto>> response = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    request,
-                    new ParameterizedTypeReference<List<DeviceCommandDto>>() {}
-            );
-
-            List<DeviceCommandDto> commands = response.getBody();
-            if (commands != null && !commands.isEmpty()) {
-                for (DeviceCommandDto cmd : commands) {
-                    String cmdId = cmd.getId() != null ? cmd.getId().toString() : "UNKNOWN";
-                    log.info("[ASTRA-CMD] RECEIVED commandId={}, deviceId={}, commandType={}, target={}",
-                            cmdId, deviceId, cmd.getCommandType(), cmd.getTarget());
-                    log.info("[ASTRA-CMD] CLAIMED commandId={}, deviceId={}", cmdId, deviceId);
-                    log.info("[ASTRA-CMD] EXECUTION_STARTED commandId={}, deviceId={}", cmdId, deviceId);
-
-                    String rawResult = executor.execute(cmd);
-
-                    String reportedStatus = "COMPLETED";
-                    String verificationOutcome = "SUCCESS";
-                    String message = rawResult;
-
-                    try {
-                        JsonNode jsonNode = objectMapper.readTree(rawResult);
-                        String statusField = jsonNode.path("status").asText("COMPLETED");
-                        String verifyField = jsonNode.path("verification").asText("SUCCESS");
-                        message = jsonNode.path("message").asText(rawResult);
-
-                        if ("REJECTED".equalsIgnoreCase(statusField)) {
-                            reportedStatus = "REJECTED";
-                            verificationOutcome = "FAILED";
-                        } else if ("FAILED".equalsIgnoreCase(statusField) || "FAILED".equalsIgnoreCase(verifyField)) {
-                            reportedStatus = "FAILED";
-                            verificationOutcome = "FAILED";
-                        } else {
-                            reportedStatus = "COMPLETED";
-                            verificationOutcome = "SUCCESS";
-                        }
-                    } catch (Exception e) {
-                        if (rawResult != null && (rawResult.startsWith("FAILED") || rawResult.contains("REJECTED"))) {
-                            reportedStatus = "FAILED";
-                            verificationOutcome = "FAILED";
-                        }
-                    }
-
-                    log.info("[ASTRA-CMD] EXECUTION_VERIFICATION commandId={}, verificationOutcome={}, status={}",
-                            cmdId, verificationOutcome, reportedStatus);
-
-                    reportResult(cmdId, reportedStatus, rawResult, deviceToken, backendUrl);
-                    log.info("[ASTRA-CMD] RESULT_SENT commandId={}, deviceId={}, status={}", cmdId, deviceId, reportedStatus);
+                HttpHeaders headers = new HttpHeaders();
+                headers.setContentType(MediaType.APPLICATION_JSON);
+                if (deviceToken != null && !deviceToken.isBlank()) {
+                    headers.set("X-Device-Token", deviceToken);
                 }
+                HttpEntity<Void> request = new HttpEntity<>(headers);
+
+                ResponseEntity<List<DeviceCommandDto>> response = restTemplate.exchange(
+                        url,
+                        HttpMethod.GET,
+                        request,
+                        new ParameterizedTypeReference<List<DeviceCommandDto>>() {}
+                );
+
+                List<DeviceCommandDto> commands = response.getBody();
+                if (commands != null && !commands.isEmpty()) {
+                    for (DeviceCommandDto cmd : commands) {
+                        String cmdId = cmd.getId() != null ? cmd.getId().toString() : "UNKNOWN";
+                        log.info("[ASTRA-CMD] RECEIVED commandId={}, deviceId={}, commandType={}, target={}",
+                                cmdId, deviceId, cmd.getCommandType(), cmd.getTarget());
+
+                        String rawResult = executor.execute(cmd);
+
+                        String reportedStatus = "COMPLETED";
+                        String verificationOutcome = "SUCCESS";
+                        String message = rawResult;
+
+                        try {
+                            JsonNode jsonNode = objectMapper.readTree(rawResult);
+                            String statusField = jsonNode.path("status").asText("COMPLETED");
+                            String verifyField = jsonNode.path("verification").asText("SUCCESS");
+                            message = jsonNode.path("message").asText(rawResult);
+
+                            if ("REJECTED".equalsIgnoreCase(statusField)) {
+                                reportedStatus = "REJECTED";
+                                verificationOutcome = "FAILED";
+                            } else if ("FAILED".equalsIgnoreCase(statusField) || "FAILED".equalsIgnoreCase(verifyField)) {
+                                reportedStatus = "FAILED";
+                                verificationOutcome = "FAILED";
+                            } else {
+                                reportedStatus = "COMPLETED";
+                                verificationOutcome = "SUCCESS";
+                            }
+                        } catch (Exception e) {
+                            if (rawResult != null && (rawResult.startsWith("FAILED") || rawResult.contains("REJECTED"))) {
+                                reportedStatus = "FAILED";
+                                verificationOutcome = "FAILED";
+                            }
+                        }
+
+                        reportResult(cmdId, reportedStatus, rawResult, deviceToken, backendUrl);
+                    }
+                }
+            } catch (HttpStatusCodeException e) {
+                log.debug("[ASTRA-POLL] Command polling HTTP error from {}: Status={}", backendUrl, e.getStatusCode());
+            } catch (Exception e) {
+                log.debug("[ASTRA-POLL] Command polling network error from {}: {}", backendUrl, e.getMessage());
             }
-        } catch (HttpStatusCodeException e) {
-            log.warn("[ASTRA-POLL] Command polling HTTP error from {}: Status={} Message={}", 
-                    backendUrl, e.getStatusCode(), e.getResponseBodyAsString());
-        } catch (Exception e) {
-            log.debug("[ASTRA-POLL] Command polling network error from {}: {}", backendUrl, e.getMessage());
         }
     }
 

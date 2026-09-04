@@ -36,59 +36,64 @@ public class DeviceRegistration {
         int delayMs = 2000;
 
         while (!registered) {
-            String backendUrl = configHelper.getBackendUrl();
-            try {
-                String registerUrl = backendUrl + "/api/v1/agent/register";
-                log.info("[ASTRA-REGISTRATION] Connecting to SOC backend: URL={} (Attempt {})", registerUrl, attempt);
+            java.util.List<String> urls = configHelper.getBackendUrls();
+            boolean anySuccess = false;
 
-                Map<String, Object> payload = new HashMap<>();
-                payload.put("hostname", configHelper.getHostname());
-                payload.put("deviceName", configHelper.getHostname());
-                payload.put("ipAddress", configHelper.getIpAddress());
-                payload.put("macAddress", configHelper.getMacAddress());
-                payload.put("hardwareId", configHelper.getHardwareId());
-                payload.put("os", System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ")");
-                payload.put("agentVersion", "1.0.0");
+            for (String backendUrl : urls) {
+                try {
+                    String registerUrl = backendUrl + "/api/v1/agent/register";
+                    log.info("[ASTRA-REGISTRATION] Connecting to SOC backend: URL={} (Attempt {})", registerUrl, attempt);
 
-                if (configHelper.getDeviceId() != null && !configHelper.getDeviceId().isBlank()) {
-                    payload.put("deviceId", configHelper.getDeviceId());
+                    Map<String, Object> payload = new HashMap<>();
+                    payload.put("hostname", configHelper.getHostname());
+                    payload.put("deviceName", configHelper.getHostname());
+                    payload.put("ipAddress", configHelper.getIpAddress());
+                    payload.put("macAddress", configHelper.getMacAddress());
+                    payload.put("hardwareId", configHelper.getHardwareId());
+                    payload.put("os", System.getProperty("os.name") + " (" + System.getProperty("os.arch") + ")");
+                    payload.put("agentVersion", "1.0.0");
+
+                    if (configHelper.getDeviceId() != null && !configHelper.getDeviceId().isBlank()) {
+                        payload.put("deviceId", configHelper.getDeviceId());
+                    }
+                    if (configHelper.getDeviceToken() != null && !configHelper.getDeviceToken().isBlank()) {
+                        payload.put("deviceToken", configHelper.getDeviceToken());
+                    }
+
+                    HttpHeaders headers = new HttpHeaders();
+                    headers.setContentType(MediaType.APPLICATION_JSON);
+                    HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
+
+                    ResponseEntity<String> response = restTemplate.postForEntity(registerUrl, request, String.class);
+                    if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                        JsonNode json = objectMapper.readTree(response.getBody());
+                        String deviceId = json.path("deviceId").asText();
+                        String deviceToken = json.path("deviceToken").asText();
+
+                        configHelper.saveIdentity(deviceId, deviceToken, backendUrl);
+                        anySuccess = true;
+
+                        log.info("================================================================================");
+                        log.info(" [ASTRA-AGENT] SUCCESSFULLY REGISTERED WITH SOC: {}", backendUrl);
+                        log.info("  ├─ Device ID    : {}", deviceId);
+                        log.info("  ├─ Hostname     : {}", configHelper.getHostname());
+                        log.info("  └─ IP Address   : {}", configHelper.getIpAddress());
+                        log.info("================================================================================");
+                    }
+                } catch (Exception e) {
+                    log.debug("[ASTRA-REGISTRATION] Backend {} not reachable: {}", backendUrl, e.getMessage());
                 }
-                if (configHelper.getDeviceToken() != null && !configHelper.getDeviceToken().isBlank()) {
-                    payload.put("deviceToken", configHelper.getDeviceToken());
-                }
+            }
 
-                HttpHeaders headers = new HttpHeaders();
-                headers.setContentType(MediaType.APPLICATION_JSON);
-                HttpEntity<Map<String, Object>> request = new HttpEntity<>(payload, headers);
-
-                ResponseEntity<String> response = restTemplate.postForEntity(registerUrl, request, String.class);
-                if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                    JsonNode json = objectMapper.readTree(response.getBody());
-                    String deviceId = json.path("deviceId").asText();
-                    String deviceToken = json.path("deviceToken").asText();
-
-                    configHelper.saveIdentity(deviceId, deviceToken, backendUrl);
-                    registered = true;
-
-                    log.info("================================================================================");
-                    log.info(" [ASTRA-AGENT] SUCCESSFULLY REGISTERED WITH ASTRA SOC DASHBOARD");
-                    log.info("  ├─ Device ID    : {}", deviceId);
-                    log.info("  ├─ Device Token : {}{}", deviceToken.substring(0, Math.min(8, deviceToken.length())), "***");
-                    log.info("  ├─ Hostname     : {}", configHelper.getHostname());
-                    log.info("  ├─ Local IP     : {}", configHelper.getIpAddress());
-                    log.info("  └─ Backend URL  : {}", backendUrl);
-                    log.info("================================================================================");
-                    return;
-                }
-            } catch (Exception e) {
-                log.warn("[ASTRA-REGISTRATION] SOC Backend Unreachable at {}: {}. Retrying in {}s...",
-                        backendUrl, e.getMessage(), delayMs / 1000);
+            if (anySuccess) {
+                registered = true;
+                return;
             }
 
             attempt++;
             try {
                 Thread.sleep(delayMs);
-                delayMs = Math.min(delayMs * 2, 10000); // Backoff up to 10s intervals
+                delayMs = Math.min(delayMs * 2, 10000);
             } catch (InterruptedException ignored) {
                 Thread.currentThread().interrupt();
                 return;

@@ -233,6 +233,23 @@ public class AgentConfigHelper {
         return url;
     }
 
+    public java.util.List<String> getBackendUrls() {
+        java.util.List<String> list = new java.util.ArrayList<>();
+        String primary = getBackendUrl();
+        if (primary != null && !primary.isBlank()) {
+            list.add(primary);
+        }
+        String cloud = "https://aegisx-backend-2k67.onrender.com";
+        if (!list.contains(cloud)) {
+            list.add(cloud);
+        }
+        String local = "http://localhost:8080";
+        if (!list.contains(local)) {
+            list.add(local);
+        }
+        return list;
+    }
+
     public String getHostname() {
         return resolvedHostname != null ? resolvedHostname : "Endpoint-Node";
     }

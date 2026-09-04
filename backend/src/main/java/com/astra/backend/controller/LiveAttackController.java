@@ -67,6 +67,7 @@ public class LiveAttackController {
         String immediateAction = "";
         String recoveryWorkflow = "";
 
+        switch (attackType) {
             case "ASTRA_END_TO_END_SAFE_TEST":
             case "SIMULATED_RANSOMWARE":
                 incident.setName("Simulated Ransomware File Encryption");

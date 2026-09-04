@@ -65,6 +65,37 @@ public class RecoveryService {
         return steps.isEmpty() ? "Analyze incident, Contain threat, Recover systems" : String.join(", ", steps);
     }
 
+    public void generateDynamicRecoveryStepsForIncident(UUID incidentId, String immediateAction, List<java.util.Map<String, String>> dynamicSteps) {
+        if (immediateAction == null || immediateAction.isBlank()) {
+            immediateAction = "Identify and isolate threat";
+        }
+
+        List<RecoveryStep> recoverySteps = new ArrayList<>();
+
+        // Step 1: Immediate Action (Automatically marked as Completed)
+        recoverySteps.add(RecoveryStep.builder()
+                .incidentId(incidentId.toString())
+                .title("[Immediate Action] " + immediateAction.trim())
+                .stepOrder(1)
+                .status("COMPLETED")
+                .script("")
+                .build());
+
+        // Subsequent steps
+        for (int i = 0; i < dynamicSteps.size(); i++) {
+            java.util.Map<String, String> stepInfo = dynamicSteps.get(i);
+            recoverySteps.add(RecoveryStep.builder()
+                    .incidentId(incidentId.toString())
+                    .title(stepInfo.getOrDefault("name", "Recovery Step"))
+                    .stepOrder(i + 2)
+                    .status(i == 0 ? "IN_PROGRESS" : "PENDING")
+                    .script(stepInfo.getOrDefault("script", ""))
+                    .build());
+        }
+
+        recoveryStepRepository.saveAll(recoverySteps);
+    }
+    
     public void generateRecoveryStepsForIncident(UUID incidentId, String immediateAction, String recoveryWorkflow) {
         if (immediateAction == null || immediateAction.isBlank()) {
             immediateAction = "Identify and isolate threat";
@@ -81,6 +112,7 @@ public class RecoveryService {
                 .title("[Immediate Action] " + immediateAction.trim())
                 .stepOrder(1)
                 .status("COMPLETED")
+                .script("")
                 .build());
 
         // Subsequent steps
@@ -91,6 +123,7 @@ public class RecoveryService {
                     .title(steps[i].trim())
                     .stepOrder(i + 2)
                     .status(i == 0 ? "IN_PROGRESS" : "PENDING")
+                    .script("")
                     .build());
         }
 

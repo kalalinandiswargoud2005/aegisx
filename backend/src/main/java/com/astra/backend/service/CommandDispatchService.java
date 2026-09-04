@@ -1,8 +1,10 @@
 package com.astra.backend.service;
 
+import com.astra.backend.entity.Device;
 import com.astra.backend.entity.DeviceCommand;
 import com.astra.backend.entity.Incident;
 import com.astra.backend.repository.DeviceCommandRepository;
+import com.astra.backend.repository.DeviceRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -13,51 +15,77 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 public class CommandDispatchService {
-    private static final org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(CommandDispatchService.class);
 
     private final DeviceCommandRepository commandRepository;
+    private final DeviceRepository deviceRepository;
+
+    private UUID resolveDeviceId(String target) {
+        if (target == null || target.isBlank()) return null;
+        try {
+            UUID uuid = UUID.fromString(target);
+            if (deviceRepository.existsById(uuid)) {
+                return uuid;
+            }
+        } catch (Exception ignored) {}
+
+        // Look up by hostname / name
+        return deviceRepository.findByName(target)
+                .map(Device::getId)
+                .orElse(null);
+    }
 
     public void dispatchCommandsForIncident(Incident incident) {
         if (incident.getTarget() == null || incident.getTarget().isEmpty()) {
-            log.warn("Incident {} has no target device. Cannot dispatch commands.", incident.getId());
+            log.warn("[ASTRA-DISPATCH] Incident {} has no target device. Cannot dispatch commands.", incident.getId());
             return;
         }
 
-        log.info("Dispatching recovery commands for incident: {}", incident.getId());
-        UUID deviceId = UUID.fromString(incident.getTarget());
-
-        // Basic default commands based on severity if threat name isn't specifically mapped
-        if ("CRITICAL".equalsIgnoreCase(incident.getSeverity())) {
-            queueCommand(deviceId, incident.getId(), "ISOLATE_DEVICE", "{}");
-            queueCommand(deviceId, incident.getId(), "KILL_PROCESS", "{\"target\":\"malicious_process\"}");
-            queueCommand(deviceId, incident.getId(), "RUN_DEFENDER_SCAN", "{}");
-        } else if ("HIGH".equalsIgnoreCase(incident.getSeverity())) {
-            queueCommand(deviceId, incident.getId(), "KILL_PROCESS", "{\"target\":\"malicious_process\"}");
-            queueCommand(deviceId, incident.getId(), "RUN_DEFENDER_SCAN", "{}");
-        } else if ("MEDIUM".equalsIgnoreCase(incident.getSeverity())) {
-            queueCommand(deviceId, incident.getId(), "RUN_DEFENDER_SCAN", "{}");
+        UUID deviceId = resolveDeviceId(incident.getTarget());
+        if (deviceId == null) {
+            // Fallback: check first online device
+            var onlineDevice = deviceRepository.findAll().stream()
+                    .filter(d -> "ONLINE".equalsIgnoreCase(d.getStatus()))
+                    .findFirst();
+            if (onlineDevice.isPresent()) {
+                deviceId = onlineDevice.get().getId();
+            } else {
+                log.warn("[ASTRA-DISPATCH] Could not resolve device UUID for target: {}", incident.getTarget());
+                return;
+            }
         }
-        
-        // Threat-specific overrides
-        String name = incident.getName().toLowerCase();
-        
-        if (name.contains("eicar")) {
-            queueCommand(deviceId, incident.getId(), "QUARANTINE_FILE", "{\"file\":\"eicar\"}");
-        } else if (name.contains("mimikatz") || name.contains("credential")) {
-            queueCommand(deviceId, incident.getId(), "KILL_PROCESS", "{\"target\":\"mimikatz\"}");
-        } else if (name.contains("firewall disabled")) {
-            queueCommand(deviceId, incident.getId(), "RE_ENABLE_FIREWALL", "{}");
-        } else if (name.contains("antivirus disabled")) {
-            queueCommand(deviceId, incident.getId(), "RE_ENABLE_DEFENDER", "{}");
-        } else if (name.contains("administrator account")) {
-            queueCommand(deviceId, incident.getId(), "DISABLE_LOCAL_ACCOUNT", "{\"username\":\"hacker\"}");
-        } else if (name.contains("scheduled task")) {
-            queueCommand(deviceId, incident.getId(), "REMOVE_SCHEDULED_TASK", "{\"taskName\":\"evil_task\"}");
-        } else if (name.contains("rdp")) {
+
+        log.info("[ASTRA-DISPATCH] Dispatching recovery commands for incident: {}, Device UUID: {}", incident.getId(), deviceId);
+
+        String name = incident.getName() != null ? incident.getName().toLowerCase() : "";
+        String type = incident.getType() != null ? incident.getType().toLowerCase() : "";
+
+        if (name.contains("ransomware") || type.contains("ransomware")) {
+            queueCommand(deviceId, incident.getId(), "STOP_TEST_PROCESS", "{\"target\":\"ping.exe\"}");
+            queueCommand(deviceId, incident.getId(), "QUARANTINE_TEST_FILE", "{}");
+            queueCommand(deviceId, incident.getId(), "RESTORE_TEST_FILE", "{}");
+            queueCommand(deviceId, incident.getId(), "FINAL_VERIFICATION", "{}");
+        } else if (name.contains("registry") || type.contains("persistence")) {
+            queueCommand(deviceId, incident.getId(), "RESTORE_TEST_REGISTRY", "{}");
+            queueCommand(deviceId, incident.getId(), "REMOVE_TEST_PERSISTENCE", "{}");
+            queueCommand(deviceId, incident.getId(), "FINAL_VERIFICATION", "{}");
+        } else if (name.contains("backdoor") || name.contains("port") || type.contains("c2")) {
+            queueCommand(deviceId, incident.getId(), "STOP_TEST_LISTENER", "{}");
+            queueCommand(deviceId, incident.getId(), "FINAL_VERIFICATION", "{}");
+        } else if (name.contains("firewall") || type.contains("defense evasion")) {
+            queueCommand(deviceId, incident.getId(), "RESTORE_FIREWALL", "{}");
+            queueCommand(deviceId, incident.getId(), "FINAL_VERIFICATION", "{}");
+        } else if (name.contains("antivirus") || name.contains("defender")) {
+            queueCommand(deviceId, incident.getId(), "ENABLE_REALTIME", "{}");
+            queueCommand(deviceId, incident.getId(), "FINAL_VERIFICATION", "{}");
+        } else if (name.contains("rdp") || name.contains("remote desktop")) {
             queueCommand(deviceId, incident.getId(), "DISABLE_RDP", "{}");
-        } else if (name.contains("ransomware") || name.contains("simulation")) {
-            queueCommand(deviceId, incident.getId(), "KILL_PROCESS", "{\"target\":\"ransomware\"}");
-            queueCommand(deviceId, incident.getId(), "RESTORE_NETWORK", "{}");
+            queueCommand(deviceId, incident.getId(), "FINAL_VERIFICATION", "{}");
+        } else if (name.contains("exfiltration") || type.contains("exfiltration")) {
+            queueCommand(deviceId, incident.getId(), "STOP_TEST_EXFILTRATION", "{}");
+            queueCommand(deviceId, incident.getId(), "FINAL_VERIFICATION", "{}");
+        } else {
+            // General defensive baseline
+            queueCommand(deviceId, incident.getId(), "FINAL_VERIFICATION", "{}");
         }
     }
 
@@ -66,10 +94,11 @@ public class CommandDispatchService {
                 .deviceId(deviceId)
                 .incidentId(incidentId)
                 .commandType(commandType)
-                .parameters(params)
+                .parameters(params != null ? params : "{}")
                 .status("PENDING")
                 .build();
         commandRepository.save(cmd);
-        log.info("Queued command {} for device {}", commandType, deviceId);
+        log.info("[ASTRA-DISPATCH] Queued command: deviceId={}, commandId={}, incidentId={}, commandType={}",
+                deviceId, cmd.getId(), incidentId, commandType);
     }
 }

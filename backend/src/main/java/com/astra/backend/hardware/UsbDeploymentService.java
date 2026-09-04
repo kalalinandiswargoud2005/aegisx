@@ -72,16 +72,8 @@ public class UsbDeploymentService {
     /**
      * Deploy Astra Agent Installer payload to specified USB drive path
      */
-    public boolean deployAgentToUsb(String drivePath, String targetHostname, String serverUrl) {
+    public boolean deployAgentToUsb(String drivePath, String targetHostname, String serverUrl, String customFolderName) {
         try {
-            File targetDir = new File(drivePath, "ASTRA_AGENT_INSTALLER");
-            if (!targetDir.exists()) {
-                boolean created = targetDir.mkdirs();
-                if (!created) {
-                    log.error("Failed to create directory on USB drive: {}", targetDir.getAbsolutePath());
-                }
-            }
-
             if (serverUrl == null || serverUrl.trim().isEmpty()) {
                 serverUrl = "http://" + getHostIpAddress() + ":8080";
             }
@@ -89,66 +81,195 @@ public class UsbDeploymentService {
                 targetHostname = "Target-Laptop-" + (int)(Math.random() * 9000 + 1000);
             }
 
-            // 1. Write agent.properties
-            File configProps = new File(targetDir, "agent.properties");
-            try (FileWriter writer = new FileWriter(configProps)) {
-                writer.write("# Astra EDR Agent Remote Configuration\n");
-                writer.write("agent.hostname=" + targetHostname + "\n");
-                writer.write("astra.backend.url=" + serverUrl + "\n");
-                writer.write("agent.device-id=USB-" + System.currentTimeMillis() + "\n");
-                writer.write("agent.installed-via=USB_AUTO_PROVISION\n");
+            // Create custom or sanitized directory name
+            String dirName;
+            if (customFolderName != null && !customFolderName.trim().isEmpty()) {
+                dirName = customFolderName.replaceAll("[^a-zA-Z0-9-_]", "_");
+            } else {
+                String safeHostname = targetHostname.replaceAll("[^a-zA-Z0-9-_]", "_");
+                dirName = "ASTRA_AGENT_" + safeHostname;
+            }
+            
+            File targetDir = new File(drivePath, dirName);
+            
+            if (!targetDir.exists()) {
+                boolean created = targetDir.mkdirs();
+                if (!created) {
+                    log.error("Failed to create directory on USB drive: {}", targetDir.getAbsolutePath());
+                }
             }
 
-            // 2. Create Deploy-Target-Agent.bat script
+            // Subdirectory for companion files
+            File windowsAgentSubdir = new File(targetDir, "windows-agent");
+            if (!windowsAgentSubdir.exists()) {
+                windowsAgentSubdir.mkdirs();
+            }
+
+            File projectRoot = findProjectRoot();
+            log.info("Resolved project root for USB staging: {}", projectRoot.getAbsolutePath());
+
+            // 1. Copy windows-agent.jar
+            File sourceJar = findFile(projectRoot, 
+                "windows-agent.jar",
+                "windows-agent/windows-agent.jar",
+                "windows-agent/target/windows-agent-1.0.0.jar",
+                "windows-agent/target/windows-agent.jar"
+            );
+            if (sourceJar != null && sourceJar.exists()) {
+                Files.copy(sourceJar.toPath(), new File(targetDir, "windows-agent.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
+                Files.copy(sourceJar.toPath(), new File(targetDir, "windows-agent-1.0.0.jar").toPath(), StandardCopyOption.REPLACE_EXISTING);
+                log.info("Copied windows-agent.jar to USB staging directory.");
+            } else {
+                log.warn("Source windows-agent.jar could not be located in project root: {}", projectRoot.getAbsolutePath());
+            }
+
+            // 2. Copy Core Scripts (Install-Astra.bat, Install-Astra.ps1, Uninstall-Astra.bat, Uninstall-Astra.ps1, start-agent.ps1)
+            copyIfExists(findFile(projectRoot, "Install-Astra.bat"), new File(targetDir, "Install-Astra.bat"));
+            copyIfExists(findFile(projectRoot, "Install-Astra.ps1"), new File(targetDir, "Install-Astra.ps1"));
+            copyIfExists(findFile(projectRoot, "Uninstall-Astra.bat"), new File(targetDir, "Uninstall-Astra.bat"));
+            copyIfExists(findFile(projectRoot, "Uninstall-Astra.ps1"), new File(targetDir, "Uninstall-Astra.ps1"));
+            copyIfExists(findFile(projectRoot, "start-agent.ps1"), new File(targetDir, "start-agent.ps1"));
+
+            // 3. Copy windows-agent sub-files (AstraEDR.xml, Astra-UI.vbs)
+            copyIfExists(findFile(projectRoot, "windows-agent/AstraEDR.xml", "AstraEDR.xml"), new File(windowsAgentSubdir, "AstraEDR.xml"));
+            copyIfExists(findFile(projectRoot, "windows-agent/Astra-UI.vbs", "Astra-UI.vbs"), new File(windowsAgentSubdir, "Astra-UI.vbs"));
+            // Also copy to root of targetDir for convenience
+            copyIfExists(findFile(projectRoot, "windows-agent/AstraEDR.xml", "AstraEDR.xml"), new File(targetDir, "AstraEDR.xml"));
+            copyIfExists(findFile(projectRoot, "windows-agent/Astra-UI.vbs", "Astra-UI.vbs"), new File(targetDir, "Astra-UI.vbs"));
+
+            // 4. Generate Pre-configured One-Click Deploy-Target-Agent.bat
             File installScript = new File(targetDir, "Deploy-Target-Agent.bat");
             try (FileWriter writer = new FileWriter(installScript)) {
-                writer.write("@echo off\n");
-                writer.write("TITLE Astra EDR Agent — One-Click USB Target Installer\n");
-                writer.write("COLOR 0A\n");
-                writer.write("cls\n");
-                writer.write("echo ===================================================\n");
-                writer.write("echo     ASTRA EDR AGENT — AUTOMATED USB PROVISIONING\n");
-                writer.write("echo ===================================================\n");
-                writer.write("echo Target Device: " + targetHostname + "\n");
-                writer.write("echo C2 Backend URL: " + serverUrl + "\n");
-                writer.write("echo.\n");
-                writer.write("net session >nul 2>&1\n");
-                writer.write("if %errorLevel% neq 0 (\n");
-                writer.write("    echo [!] ERROR: Administrator privileges required!\n");
-                writer.write("    echo Please right-click this script and select 'Run as Administrator'.\n");
-                writer.write("    pause\n");
-                writer.write("    exit /b\n");
-                writer.write(")\n");
-                writer.write("echo [+] Administrative rights verified.\n");
-                writer.write("echo [+] Deploying Astra Agent service...\n");
-                writer.write("set DEST_DIR=C:\\Astra\\Agent\n");
-                writer.write("if not exist \"%DEST_DIR%\" mkdir \"%DEST_DIR%\"\n");
-                writer.write("copy /Y \"%~dp0agent.properties\" \"%DEST_DIR%\\agent.properties\"\n");
-                writer.write("if exist \"%~dp0astra-agent-1.0.0.jar\" copy /Y \"%~dp0astra-agent-1.0.0.jar\" \"%DEST_DIR%\\astra-agent.jar\"\n");
-                writer.write("echo.\n");
-                writer.write("echo ===================================================\n");
-                writer.write("echo     SUCCESS! Agent configured and ready for " + targetHostname + "\n");
-                writer.write("echo ===================================================\n");
-                writer.write("pause\n");
+                writer.write("@echo off\r\n");
+                writer.write("TITLE Astra EDR Agent — Automated USB Provisioning\r\n");
+                writer.write("COLOR 0A\r\n");
+                writer.write("cls\r\n");
+                writer.write("echo ===================================================\r\n");
+                writer.write("echo     ASTRA EDR AGENT — AUTOMATED USB PROVISIONING   \r\n");
+                writer.write("echo ===================================================\r\n");
+                writer.write("echo Target Device  : %COMPUTERNAME%\r\n");
+                writer.write("echo C2 Backend URL : " + serverUrl + "\r\n");
+                writer.write("echo.\r\n");
+                writer.write("net session >nul 2>&1\r\n");
+                writer.write("if %errorLevel% neq 0 (\r\n");
+                writer.write("    echo [!] ERROR: Administrative privileges required!\r\n");
+                writer.write("    echo Please right-click this script and select 'Run as Administrator'.\r\n");
+                writer.write("    echo.\r\n");
+                writer.write("    pause\r\n");
+                writer.write("    exit /b 1\r\n");
+                writer.write(")\r\n");
+                writer.write("echo [+] Administrative rights verified.\r\n");
+                writer.write("echo [+] Executing Automated ASTRA Windows Service Installer...\r\n");
+                writer.write("echo.\r\n");
+                writer.write("powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"%~dp0Install-Astra.ps1\" -BackendUrl \"" + serverUrl + "\" -Hostname \"%COMPUTERNAME%\"\r\n");
+                writer.write("echo.\r\n");
+                writer.write("pause\r\n");
             }
 
-            // 3. Copy agent JAR file if present in workspace root or build folder
-            Path sourceJar = Paths.get("astra-agent", "target", "astra-agent-1.0.0.jar");
-            if (!Files.exists(sourceJar)) {
-                sourceJar = Paths.get("..", "astra-agent", "target", "astra-agent-1.0.0.jar");
-            }
-            if (Files.exists(sourceJar)) {
-                Path destJar = Paths.get(targetDir.getAbsolutePath(), "astra-agent-1.0.0.jar");
-                Files.copy(sourceJar, destJar, StandardCopyOption.REPLACE_EXISTING);
-                log.info("Copied agent JAR file to USB drive: {}", destJar.toAbsolutePath());
+            // 5. Generate Pre-configured One-Click Uninstall-Target-Agent.bat
+            File uninstallScript = new File(targetDir, "Uninstall-Target-Agent.bat");
+            try (FileWriter writer = new FileWriter(uninstallScript)) {
+                writer.write("@echo off\r\n");
+                writer.write("TITLE Astra EDR Agent — Clean Uninstaller\r\n");
+                writer.write("COLOR 0C\r\n");
+                writer.write("cls\r\n");
+                writer.write("echo ===================================================\r\n");
+                writer.write("echo     ASTRA EDR AGENT — CLEAN UNINSTALLATION        \r\n");
+                writer.write("echo ===================================================\r\n");
+                writer.write("net session >nul 2>&1\r\n");
+                writer.write("if %errorLevel% neq 0 (\r\n");
+                writer.write("    echo [!] ERROR: Administrative privileges required!\r\n");
+                writer.write("    echo Please right-click this script and select 'Run as Administrator'.\r\n");
+                writer.write("    echo.\r\n");
+                writer.write("    pause\r\n");
+                writer.write("    exit /b 1\r\n");
+                writer.write(")\r\n");
+                writer.write("powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"%~dp0Uninstall-Astra.ps1\"\r\n");
+                writer.write("echo.\r\n");
+                writer.write("pause\r\n");
             }
 
-            log.info("Successfully provisioned USB agent installer at {}", targetDir.getAbsolutePath());
+            // 6. Generate Pre-configured One-Click Start-Target-Agent-Interactive.bat
+            File interactiveScript = new File(targetDir, "Start-Target-Agent-Interactive.bat");
+            try (FileWriter writer = new FileWriter(interactiveScript)) {
+                writer.write("@echo off\r\n");
+                writer.write("TITLE Astra EDR Agent — Quick Interactive Runner\r\n");
+                writer.write("COLOR 0B\r\n");
+                writer.write("cls\r\n");
+                writer.write("echo ===================================================\r\n");
+                writer.write("echo     ASTRA EDR AGENT — INTERACTIVE RUNNER          \r\n");
+                writer.write("echo ===================================================\r\n");
+                writer.write("powershell.exe -NoProfile -ExecutionPolicy Bypass -File \"%~dp0start-agent.ps1\" -BackendUrl \"" + serverUrl + "\"\r\n");
+                writer.write("echo.\r\n");
+                writer.write("pause\r\n");
+            }
+
+            // 7. Write README_INSTRUCTIONS.txt
+            File instructionsFile = new File(targetDir, "README_INSTRUCTIONS.txt");
+            try (FileWriter writer = new FileWriter(instructionsFile)) {
+                writer.write("=========================================================\r\n");
+                writer.write("   ASTRA EDR AGENT — TARGET LAPTOP DEPLOYMENT KIT       \r\n");
+                writer.write("=========================================================\r\n\r\n");
+                writer.write("Configured Central C2 URL: " + serverUrl + "\r\n");
+                writer.write("Target Device Hostname   : " + targetHostname + "\r\n\r\n");
+                writer.write("HOW TO INSTALL ON TARGET LAPTOP:\r\n");
+                writer.write("1. Plug this USB drive into the target Windows laptop.\r\n");
+                writer.write("2. Open this folder: " + dirName + "\r\n");
+                writer.write("3. Right-click 'Deploy-Target-Agent.bat' and click 'Run as Administrator'.\r\n");
+                writer.write("   -> This automatically configures and starts the AstraEDR background service.\r\n\r\n");
+                writer.write("HOW TO RUN IN QUICK INTERACTIVE / DEBUG MODE:\r\n");
+                writer.write("- Right-click 'Start-Target-Agent-Interactive.bat' and click 'Run as Administrator'.\r\n\r\n");
+                writer.write("HOW TO UNINSTALL FROM TARGET LAPTOP:\r\n");
+                writer.write("- Right-click 'Uninstall-Target-Agent.bat' and click 'Run as Administrator'.\r\n");
+                writer.write("=========================================================\r\n");
+            }
+
+            log.info("Successfully provisioned complete USB agent deployment bundle at {}", targetDir.getAbsolutePath());
             return true;
 
         } catch (Exception e) {
             log.error("Failed to deploy agent to USB drive {}: {}", drivePath, e.getMessage(), e);
             return false;
+        }
+    }
+
+    private File findProjectRoot() {
+        File current = new File(".").getAbsoluteFile();
+        if (new File(current, "windows-agent").exists() || new File(current, "Install-Astra.ps1").exists()) {
+            return current;
+        }
+        if (new File(current, "..").exists()) {
+            File parent = new File(current, "..").getAbsoluteFile();
+            if (new File(parent, "windows-agent").exists() || new File(parent, "Install-Astra.ps1").exists()) {
+                return parent;
+            }
+        }
+        return current;
+    }
+
+    private File findFile(File root, String... relativePaths) {
+        for (String rel : relativePaths) {
+            File candidate = new File(root, rel);
+            if (candidate.exists()) {
+                return candidate;
+            }
+            // Check direct cwd
+            File direct = new File(rel);
+            if (direct.exists()) {
+                return direct;
+            }
+        }
+        return null;
+    }
+
+    private void copyIfExists(File src, File dest) {
+        if (src != null && src.exists()) {
+            try {
+                Files.copy(src.toPath(), dest.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                log.info("Staged file to USB: {}", dest.getName());
+            } catch (Exception e) {
+                log.warn("Could not copy file {} to {}: {}", src.getAbsolutePath(), dest.getAbsolutePath(), e.getMessage());
+            }
         }
     }
 }

@@ -33,6 +33,7 @@ public class UsbDeploymentController {
         private String drivePath;
         private String targetHostname;
         private String serverUrl;
+        private String customFolderName;
     }
 
     @PostMapping("/deploy")
@@ -44,14 +45,35 @@ public class UsbDeploymentController {
         boolean success = usbDeploymentService.deployAgentToUsb(
             request.getDrivePath(),
             request.getTargetHostname(),
-            request.getServerUrl()
+            request.getServerUrl(),
+            request.getCustomFolderName()
         );
 
         if (success) {
+            String dirName;
+            if (request.getCustomFolderName() != null && !request.getCustomFolderName().trim().isEmpty()) {
+                dirName = request.getCustomFolderName().replaceAll("[^a-zA-Z0-9-_]", "_");
+            } else {
+                String hostname = request.getTargetHostname() != null && !request.getTargetHostname().trim().isEmpty() 
+                        ? request.getTargetHostname() 
+                        : "Target-Laptop";
+                String safeHostname = hostname.replaceAll("[^a-zA-Z0-9-_]", "_");
+                dirName = "ASTRA_AGENT_" + safeHostname;
+            }
+
+            String fullPath = request.getDrivePath();
+            if (!fullPath.endsWith("\\") && !fullPath.endsWith("/")) {
+                fullPath += "\\";
+            }
+            fullPath += dirName;
+            
             return ResponseEntity.ok(Map.of(
                 "status", "SUCCESS",
-                "message", "Agent installer staged successfully to " + request.getDrivePath() + "ASTRA_AGENT_INSTALLER",
-                "instructions", "1. Connect USB drive to target laptop.\n2. Open 'ASTRA_AGENT_INSTALLER' directory.\n3. Right-click 'Deploy-Target-Agent.bat' and select 'Run as Administrator'."
+                "folderName", dirName,
+                "fullPath", fullPath,
+                "targetHostname", request.getTargetHostname() != null ? request.getTargetHostname() : "Target-Laptop",
+                "message", "Agent deployment bundle successfully created at " + fullPath,
+                "instructions", "1. Connect USB drive to target laptop.\n2. Open '" + dirName + "' folder.\n3. Right-click 'Deploy-Target-Agent.bat' and select 'Run as Administrator'."
             ));
         } else {
             return ResponseEntity.internalServerError().body(Map.of(

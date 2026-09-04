@@ -13,10 +13,10 @@ import { DeviceDetail } from '@/pages/DeviceDetail';
 import { Watch } from '@/pages/Watch';
 import { Recovery } from '@/pages/Recovery';
 import { Reports } from '@/pages/Reports';
-import { AIAssistant } from '@/pages/AIAssistant';
 import { Settings } from '@/pages/Settings';
-import { Simulation } from '@/pages/Simulation';
+import { Attacks } from '@/pages/Attacks';
 import { About } from '@/pages/About';
+import { AssistantPage } from '@/features/assistant/AssistantPage';
 
 export function AppRoutes() {
   return (
@@ -34,9 +34,9 @@ export function AppRoutes() {
           <Route path="/recovery" element={<Recovery />} />
           <Route path="/analytics" element={<Reports />} />
           <Route path="/reports" element={<Reports />} />
-          <Route path="/ai-assistant" element={<AIAssistant />} />
           <Route path="/settings" element={<Settings />} />
-          <Route path="/simulation" element={<Simulation />} />
+          <Route path="/simulation" element={<Attacks />} />
+          <Route path="/ai-assistant" element={<AssistantPage isGlobalMode={false} />} />
           <Route path="/docs" element={<Navigate to="/reports" replace />} />
           <Route path="/about" element={<About />} />
           

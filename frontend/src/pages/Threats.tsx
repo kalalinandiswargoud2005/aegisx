@@ -6,10 +6,12 @@ import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
+import { useScopedDevice } from '@/contexts/ScopedDeviceContext';
 
 export function Threats() {
   const [searchTerm, setSearchTerm] = useState('');
   const { subscribe } = useWebSocket();
+  const { scopedDeviceId } = useScopedDevice();
   const [threats, setThreats] = useState<any[]>([]);
 
   const { data: initialThreats, isLoading, isError } = useQuery({
@@ -17,7 +19,8 @@ export function Threats() {
     queryFn: async () => {
       const res = await api.get('/threats');
       return res.data;
-    }
+    },
+    refetchInterval: 5000
   });
 
   useEffect(() => {
@@ -27,7 +30,7 @@ export function Threats() {
   }, [initialThreats]);
 
   useEffect(() => {
-    // Listen for timeline events from Simulation Engine
+    // Listen for timeline events from Attacks Engine
     const unsubscribe = subscribe('timeline', (payload) => {
       if (payload.event === 'NEW_INCIDENT') {
         setThreats(prev => [payload.incident, ...prev].slice(0, 50));
@@ -37,17 +40,19 @@ export function Threats() {
     return () => unsubscribe();
   }, [subscribe]);
 
-  const filteredThreats = threats.filter(t => 
-    t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    t.severity.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredThreats = threats.filter(t => {
+    const matchesSearch = t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          t.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          t.severity.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesDevice = scopedDeviceId ? (t.target && t.target.includes(scopedDeviceId)) : true;
+    return matchesSearch && matchesDevice;
+  });
 
   return (
     <PageContainer>
       <PageHeader 
-        title="Threat Center (Live Timeline)" 
-        description="Analyze and manage live security incidents."
+        title="Incident Logs" 
+        description="Analyze and manage live security incidents across the agency network."
       />
 
       <PageSection>
@@ -142,8 +147,8 @@ export function Threats() {
                       </TableCell>
                       <TableCell className="text-white/70">
                         <div className="flex flex-col gap-1 items-start">
-                          {threat.target?.includes('SIMULATED') ? (
-                            <Badge variant="outline" className="text-primary border-primary/50 text-[10px] px-1 py-0 h-4">SIMULATED</Badge>
+                          {threat.target?.includes('SCRIPTED') ? (
+                            <Badge variant="outline" className="text-primary border-primary/50 text-[10px] px-1 py-0 h-4">SCRIPTED</Badge>
                           ) : (
                             <Badge variant="outline" className="text-success border-success/50 text-[10px] px-1 py-0 h-4">HARDWARE</Badge>
                           )}

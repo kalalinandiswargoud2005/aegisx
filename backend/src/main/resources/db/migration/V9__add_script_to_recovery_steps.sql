@@ -1,0 +1,1 @@
+ALTER TABLE recovery.steps ADD COLUMN IF NOT EXISTS script VARCHAR(2048);

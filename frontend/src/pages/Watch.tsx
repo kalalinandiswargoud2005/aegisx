@@ -190,7 +190,40 @@ const DEFAULT_DEVICES: MonitoredDevice[] = [
 
 export function Watch() {
   const { subscribe } = useWebSocket();
-  const [deviceList, setDeviceList] = useState<MonitoredDevice[]>(DEFAULT_DEVICES);
+
+  const { data: realDevices = [], isLoading: isDeviceLoading } = useQuery({
+    queryKey: ['devices'],
+    queryFn: async () => {
+      const res = await api.get('/devices');
+      return res.data.map((d: any) => ({
+        id: String(d.id),
+        name: d.name || String(d.id),
+        type: d.type || 'Laptop',
+        os: d.os || 'Unknown OS',
+        ip: d.ipAddress || d.ip || 'Unknown IP',
+        mac: d.macAddress || 'Unknown MAC',
+        status: d.status || 'Offline',
+        health: d.health || 'Healthy',
+        cpu: 10,
+        ram: 2,
+        ramTotal: 8,
+        disk: 'Unknown',
+        threatCount: 0,
+        risk: 'Low',
+        agentVersion: d.agentVersion || 'v1.0.0',
+        activeProcess: 'system',
+        isIsolated: false
+      }));
+    }
+  });
+
+  const [deviceList, setDeviceList] = useState<MonitoredDevice[]>([]);
+  useEffect(() => {
+    if (realDevices.length > 0 && deviceList.length === 0) {
+      setDeviceList(realDevices);
+    }
+  }, [realDevices]);
+
   const [selectedDevice, setSelectedDevice] = useState<MonitoredDevice | null>(null);
   const [activeTab, setActiveTab] = useState<'OVERVIEW' | 'THREATS' | 'PROCESSES' | 'TERMINAL' | 'RECOVERY'>('OVERVIEW');
   const [searchQuery, setSearchQuery] = useState('');
@@ -251,18 +284,35 @@ export function Watch() {
     }
   }, [selectedDevice]);
 
-  // Pulse CPU / RAM Metrics dynamically
+  // Listen for live hardware telemetry from agents
   useEffect(() => {
-    const interval = setInterval(() => {
+    const unsubscribe = subscribe('telemetry', (telemetry: any) => {
       setDeviceList((prev) =>
-        prev.map((dev) => ({
-          ...dev,
-          cpu: Math.max(4, Math.min(95, dev.cpu + Math.floor((Math.random() - 0.5) * 8))),
-        }))
+        prev.map((dev) => {
+          if (dev.name === telemetry.deviceId || dev.id === telemetry.deviceId) {
+            return {
+              ...dev,
+              cpu: telemetry.cpuUsage,
+              ram: telemetry.ramUsage
+            };
+          }
+          return dev;
+        })
       );
-    }, 3000);
-    return () => clearInterval(interval);
-  }, []);
+
+      setSelectedDevice((prev) => {
+        if (prev && (prev.name === telemetry.deviceId || prev.id === telemetry.deviceId)) {
+          return {
+            ...prev,
+            cpu: telemetry.cpuUsage,
+            ram: telemetry.ramUsage
+          };
+        }
+        return prev;
+      });
+    });
+    return () => unsubscribe();
+  }, [subscribe]);
 
   // Filtered devices for the main Watch Deck grid
   const filteredDevices = useMemo(() => {
@@ -561,7 +611,7 @@ export function Watch() {
                           <h4 className="font-space font-bold text-white text-base group-hover:text-primary transition-colors">
                             {dev.name}
                           </h4>
-                          <span className="text-[10px] font-mono text-white/50 block">{dev.os.split(' ')[0]} {dev.os.split(' ')[1]}</span>
+                          <span className="text-[10px] font-mono text-white/50 block">{dev.os?.split(' ')[0]} {dev.os?.split(' ')[1]}</span>
                         </div>
                       </div>
 

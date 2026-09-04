@@ -5,12 +5,31 @@ spring:
   application:
     name: windows-agent
 
+logging:
+  file:
+    name: ${LOG_FILE:C:/ProgramData/Astra/Agent/logs/agent.log}
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  level:
+    root: INFO
+    com.astra.windowsagent: INFO
+
 astra:
   backend:
-    url: http://localhost:8080
-    ws-url: ws://localhost:8080/ws-endpoint
+    url: ${ASTRA_BACKEND_URL:http://localhost:8080}
+    ws-url: ${ASTRA_WS_URL:ws://localhost:8080/ws-endpoint}
 
 agent:
-  device-id: LAPTOP-001
-  hostname: ASTRA-PC
+  device-id: ${ASTRA_DEVICE_ID:}
+  hostname: ${ASTRA_HOSTNAME:}
+  token: ${ASTRA_AGENT_TOKEN:}
   version: 1.0.0
+  sandbox-path: C:/Astra/Demo
+  monitors:
+    auto-dispatch: true
+    rate: 10000
+    dedup-window-ms: 5000
+  ui:
+    enabled: true
+    ipc-port: 8082

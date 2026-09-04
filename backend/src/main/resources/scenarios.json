@@ -1,452 +1,737 @@
 [
   {
     "threatId": "THREAT-2026-001",
-    "threatName": "SQL Injection Attempt",
-    "category": "Web Security",
+    "threatName": "Ransomware Document Encryption",
+    "category": "Ransomware",
     "mitreMapping": "T1000",
-    "severity": "CRITICAL",
-    "description": "Simulated enterprise threat scenario: SQL Injection Attempt",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
+    "severity": "MEDIUM",
+    "description": "Simulates rapid file encryption.",
+    "businessImpact": "High risk of data loss.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
     "dashboardAnimation": "pulse_red",
-    "immediateAction": "Block malicious request",
-    "recoveryWorkflow": "Enable WAF rules, Analyze SQL logs, Patch vulnerable code, Validate user input, Test application security, Generate incident report",
-    "aiSummary": "This is an AI generated summary for SQL Injection Attempt. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "mkdir C:\\Astra\\Financials && echo \"Q3 Report\" > C:\\Astra\\Financials\\report.pdf && explorer C:\\Astra\\Financials && timeout 2 && ren C:\\Astra\\Financials\\*.pdf *.encrypted",
+    "dynamicRecovery": [
+      {
+        "name": "Decrypt Files",
+        "script": "ren C:\\Astra\\Financials\\*.encrypted *.pdf"
+      }
+    ],
+    "aiSummary": "AI detected Ransomware Document Encryption. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
   },
   {
     "threatId": "THREAT-2026-002",
-    "threatName": "Cross-Site Scripting (XSS)",
-    "category": "Web Security",
+    "threatName": "Ransomware Image Encryption",
+    "category": "Ransomware",
     "mitreMapping": "T1000",
     "severity": "HIGH",
-    "description": "Simulated enterprise threat scenario: Cross-Site Scripting (XSS)",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
+    "description": "Simulates image file encryption.",
+    "businessImpact": "High risk of data loss.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
     "dashboardAnimation": "pulse_red",
-    "immediateAction": "Block malicious payload",
-    "recoveryWorkflow": "Enable Content Security Policy, Sanitize inputs, Patch application, Invalidate sessions, Monitor logs, Verify fix",
-    "aiSummary": "This is an AI generated summary for Cross-Site Scripting (XSS). Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "mkdir C:\\Astra\\Images && echo \"Logo\" > C:\\Astra\\Images\\logo.png && explorer C:\\Astra\\Images && timeout 2 && ren C:\\Astra\\Images\\*.png *.locked",
+    "dynamicRecovery": [
+      {
+        "name": "Decrypt Images",
+        "script": "ren C:\\Astra\\Images\\*.locked *.png"
+      }
+    ],
+    "aiSummary": "AI detected Ransomware Image Encryption. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
   },
   {
     "threatId": "THREAT-2026-003",
-    "threatName": "Broken Authentication",
-    "category": "Identity",
+    "threatName": "Mass File Deletion",
+    "category": "Sabotage",
     "mitreMapping": "T1000",
     "severity": "CRITICAL",
-    "description": "Simulated enterprise threat scenario: Broken Authentication",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
+    "description": "Simulates wiping a critical directory.",
+    "businessImpact": "High risk of data loss.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
     "dashboardAnimation": "pulse_red",
-    "immediateAction": "Lock affected account",
-    "recoveryWorkflow": "Force password reset, Enable MFA, Review login history, Remove suspicious sessions, Audit IAM policies, Generate report",
-    "aiSummary": "This is an AI generated summary for Broken Authentication. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "mkdir C:\\Astra\\Critical && echo \"Data\" > C:\\Astra\\Critical\\data.txt && explorer C:\\Astra\\Critical && timeout 2 && del /q C:\\Astra\\Critical\\*.*",
+    "dynamicRecovery": [
+      {
+        "name": "Restore from Backup",
+        "script": "echo \"Data (Recovered)\" > C:\\Astra\\Critical\\data.txt"
+      }
+    ],
+    "aiSummary": "AI detected Mass File Deletion. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
   },
   {
     "threatId": "THREAT-2026-004",
-    "threatName": "Privilege Escalation",
-    "category": "Identity",
+    "threatName": "Hidden Folder Creation",
+    "category": "Malware",
     "mitreMapping": "T1000",
-    "severity": "CRITICAL",
-    "description": "Simulated enterprise threat scenario: Privilege Escalation",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
+    "severity": "HIGH",
+    "description": "Creates a hidden folder for malware staging.",
+    "businessImpact": "Malware staging area established.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
     "dashboardAnimation": "pulse_red",
-    "immediateAction": "Revoke elevated permissions",
-    "recoveryWorkflow": "Review user roles, Patch vulnerabilities, Audit administrator actions, Monitor processes, Validate permissions, Document incident",
-    "aiSummary": "This is an AI generated summary for Privilege Escalation. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "mkdir C:\\Astra\\HiddenMalware && attrib +h C:\\Astra\\HiddenMalware && explorer C:\\Astra",
+    "dynamicRecovery": [
+      {
+        "name": "Remove Hidden Folder",
+        "script": "rmdir /S /Q C:\\Astra\\HiddenMalware"
+      }
+    ],
+    "aiSummary": "AI detected Hidden Folder Creation. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
   },
   {
     "threatId": "THREAT-2026-005",
-    "threatName": "Brute Force Login",
-    "category": "Authentication",
-    "mitreMapping": "T1000",
-    "severity": "HIGH",
-    "description": "Simulated enterprise threat scenario: Brute Force Login",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Block attacker IP",
-    "recoveryWorkflow": "Enable account lockout, Enable MFA, Reset passwords, Monitor login attempts, Update firewall, Close incident",
-    "aiSummary": "This is an AI generated summary for Brute Force Login. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-006",
-    "threatName": "Credential Stuffing",
-    "category": "Authentication",
-    "mitreMapping": "T1000",
-    "severity": "HIGH",
-    "description": "Simulated enterprise threat scenario: Credential Stuffing",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Block suspicious accounts",
-    "recoveryWorkflow": "Reset compromised passwords, Enable MFA, Audit logs, Notify users, Monitor activity, Generate report",
-    "aiSummary": "This is an AI generated summary for Credential Stuffing. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-007",
-    "threatName": "Password Spray",
-    "category": "Authentication",
+    "threatName": "Rogue Batch Script Drop",
+    "category": "Malware",
     "mitreMapping": "T1000",
     "severity": "MEDIUM",
-    "description": "Simulated enterprise threat scenario: Password Spray",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
+    "description": "Drops an executable batch script.",
+    "businessImpact": "Potential code execution.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
     "dashboardAnimation": "pulse_red",
-    "immediateAction": "Block source IP",
-    "recoveryWorkflow": "Increase password policy, Audit accounts, Enable MFA, Notify administrator, Monitor authentication, Close incident",
-    "aiSummary": "This is an AI generated summary for Password Spray. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-008",
-    "threatName": "Malware Detection",
-    "category": "Malware",
-    "mitreMapping": "T1000",
-    "severity": "CRITICAL",
-    "description": "Simulated enterprise threat scenario: Malware Detection",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Isolate endpoint",
-    "recoveryWorkflow": "Perform malware scan, Quarantine files, Remove malware, Patch system, Verify integrity, Generate report",
-    "aiSummary": "This is an AI generated summary for Malware Detection. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-009",
-    "threatName": "Ransomware Alert",
-    "category": "Malware",
-    "mitreMapping": "T1000",
-    "severity": "CRITICAL",
-    "description": "Simulated enterprise threat scenario: Ransomware Alert",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Disconnect system",
-    "recoveryWorkflow": "Stop encryption process, Restore from backup, Verify backup, Scan remaining systems, Patch vulnerabilities, Document recovery",
-    "aiSummary": "This is an AI generated summary for Ransomware Alert. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-010",
-    "threatName": "Suspicious PowerShell Activity",
-    "category": "Endpoint",
-    "mitreMapping": "T1000",
-    "severity": "HIGH",
-    "description": "Simulated enterprise threat scenario: Suspicious PowerShell Activity",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Terminate script",
-    "recoveryWorkflow": "Review execution logs, Scan endpoint, Block malicious hashes, Patch operating system, Verify endpoint health, Close incident",
-    "aiSummary": "This is an AI generated summary for Suspicious PowerShell Activity. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "mkdir C:\\Astra\\Temp && echo timeout 10 > C:\\Astra\\Temp\\malicious.bat && explorer C:\\Astra\\Temp",
+    "dynamicRecovery": [
+      {
+        "name": "Delete Script",
+        "script": "del C:\\Astra\\Temp\\malicious.bat"
+      }
+    ],
+    "aiSummary": "AI detected Rogue Batch Script Drop. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
   },
   {
     "threatId": "THREAT-2026-011",
-    "threatName": "DNS Tunneling",
-    "category": "Network",
-    "mitreMapping": "T1000",
-    "severity": "HIGH",
-    "description": "Simulated enterprise threat scenario: DNS Tunneling",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Block DNS traffic",
-    "recoveryWorkflow": "Inspect DNS logs, Block malicious domain, Update DNS policies, Monitor traffic, Validate resolution, Report incident",
-    "aiSummary": "This is an AI generated summary for DNS Tunneling. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-012",
-    "threatName": "Command & Control Beacon",
-    "category": "Network",
-    "mitreMapping": "T1000",
-    "severity": "CRITICAL",
-    "description": "Simulated enterprise threat scenario: Command & Control Beacon",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Isolate endpoint",
-    "recoveryWorkflow": "Block C2 server, Scan endpoint, Remove persistence, Patch system, Monitor network, Close incident",
-    "aiSummary": "This is an AI generated summary for Command & Control Beacon. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-013",
-    "threatName": "Port Scan",
-    "category": "Network",
-    "mitreMapping": "T1000",
-    "severity": "MEDIUM",
-    "description": "Simulated enterprise threat scenario: Port Scan",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Block scanner IP",
-    "recoveryWorkflow": "Review firewall logs, Harden firewall, Enable IDS alerts, Monitor traffic, Verify services, Generate report",
-    "aiSummary": "This is an AI generated summary for Port Scan. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-014",
-    "threatName": "Internal Network Scan",
-    "category": "Network",
-    "mitreMapping": "T1000",
-    "severity": "HIGH",
-    "description": "Simulated enterprise threat scenario: Internal Network Scan",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Isolate scanning host",
-    "recoveryWorkflow": "Audit network logs, Restrict lateral movement, Patch systems, Validate segmentation, Resume operations, Document findings",
-    "aiSummary": "This is an AI generated summary for Internal Network Scan. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-015",
-    "threatName": "Data Exfiltration Alert",
-    "category": "Data Security",
-    "mitreMapping": "T1000",
-    "severity": "CRITICAL",
-    "description": "Simulated enterprise threat scenario: Data Exfiltration Alert",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Stop data transfer",
-    "recoveryWorkflow": "Block destination, Identify exposed files, Rotate credentials, Notify security team, Verify data integrity, Generate incident report",
-    "aiSummary": "This is an AI generated summary for Data Exfiltration Alert. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-016",
-    "threatName": "Insider Threat",
-    "category": "Insider Risk",
-    "mitreMapping": "T1000",
-    "severity": "CRITICAL",
-    "description": "Simulated enterprise threat scenario: Insider Threat",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Disable user account",
-    "recoveryWorkflow": "Preserve evidence, Review accessed files, Notify HR, Audit activity, Restore permissions, Close case",
-    "aiSummary": "This is an AI generated summary for Insider Threat. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-017",
-    "threatName": "Unauthorized USB Device",
-    "category": "Device Control",
-    "mitreMapping": "T1000",
-    "severity": "MEDIUM",
-    "description": "Simulated enterprise threat scenario: Unauthorized USB Device",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Disable USB device",
-    "recoveryWorkflow": "Scan connected system, Remove device, Review USB policy, Enable device control, Monitor endpoints, Report incident",
-    "aiSummary": "This is an AI generated summary for Unauthorized USB Device. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-018",
-    "threatName": "Firewall Disabled",
-    "category": "Network Security",
-    "mitreMapping": "T1000",
-    "severity": "HIGH",
-    "description": "Simulated enterprise threat scenario: Firewall Disabled",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Re-enable firewall",
-    "recoveryWorkflow": "Review configuration, Scan system, Patch vulnerabilities, Verify protection, Audit administrator logs, Close incident",
-    "aiSummary": "This is an AI generated summary for Firewall Disabled. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-019",
-    "threatName": "Antivirus Disabled",
-    "category": "Endpoint",
-    "mitreMapping": "T1000",
-    "severity": "HIGH",
-    "description": "Simulated enterprise threat scenario: Antivirus Disabled",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Enable antivirus",
-    "recoveryWorkflow": "Update signatures, Run full scan, Remove threats, Verify protection, Monitor endpoint, Generate report",
-    "aiSummary": "This is an AI generated summary for Antivirus Disabled. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-020",
-    "threatName": "VPN Disconnected",
-    "category": "Remote Access",
-    "mitreMapping": "T1000",
-    "severity": "MEDIUM",
-    "description": "Simulated enterprise threat scenario: VPN Disconnected",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Verify user identity",
-    "recoveryWorkflow": "Reconnect VPN, Review VPN logs, Enforce MFA, Validate endpoint, Resume secure access, Close incident",
-    "aiSummary": "This is an AI generated summary for VPN Disconnected. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-021",
-    "threatName": "High CPU Usage",
-    "category": "System",
-    "mitreMapping": "T1000",
-    "severity": "LOW",
-    "description": "Simulated enterprise threat scenario: High CPU Usage",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Identify process",
-    "recoveryWorkflow": "Check running services, Scan for malware, Restart affected service, Monitor CPU, Verify stability, Document event",
-    "aiSummary": "This is an AI generated summary for High CPU Usage. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-022",
-    "threatName": "Memory Exhaustion",
-    "category": "System",
-    "mitreMapping": "T1000",
-    "severity": "MEDIUM",
-    "description": "Simulated enterprise threat scenario: Memory Exhaustion",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Identify memory leak",
-    "recoveryWorkflow": "Restart service, Optimize application, Increase monitoring, Verify usage, Patch application, Close incident",
-    "aiSummary": "This is an AI generated summary for Memory Exhaustion. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-023",
-    "threatName": "Critical Service Failure",
-    "category": "Availability",
-    "mitreMapping": "T1000",
-    "severity": "HIGH",
-    "description": "Simulated enterprise threat scenario: Critical Service Failure",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Restart service",
-    "recoveryWorkflow": "Review logs, Restore configuration, Verify dependencies, Monitor availability, Test functionality, Generate report",
-    "aiSummary": "This is an AI generated summary for Critical Service Failure. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-024",
-    "threatName": "Suspicious File Modification",
-    "category": "File Integrity",
-    "mitreMapping": "T1000",
-    "severity": "HIGH",
-    "description": "Simulated enterprise threat scenario: Suspicious File Modification",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Restore original file",
-    "recoveryWorkflow": "Verify checksum, Audit file changes, Scan endpoint, Patch vulnerabilities, Enable file monitoring, Close incident",
-    "aiSummary": "This is an AI generated summary for Suspicious File Modification. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-025",
-    "threatName": "Unauthorized Administrator Account",
-    "category": "Identity",
-    "mitreMapping": "T1000",
-    "severity": "CRITICAL",
-    "description": "Simulated enterprise threat scenario: Unauthorized Administrator Account",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Disable account",
-    "recoveryWorkflow": "Audit privilege changes, Reset admin credentials, Enable MFA, Review access logs, Verify administrators, Generate report",
-    "aiSummary": "This is an AI generated summary for Unauthorized Administrator Account. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-026",
-    "threatName": "ARP Spoofing Detection",
-    "category": "Network",
-    "mitreMapping": "T1000",
-    "severity": "HIGH",
-    "description": "Simulated enterprise threat scenario: ARP Spoofing Detection",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Block attacker MAC",
-    "recoveryWorkflow": "Clear ARP cache, Enable Dynamic ARP Inspection, Verify gateway, Monitor traffic, Restore connectivity, Close incident",
-    "aiSummary": "This is an AI generated summary for ARP Spoofing Detection. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-027",
-    "threatName": "Rogue DHCP Server",
-    "category": "Network",
-    "mitreMapping": "T1000",
-    "severity": "HIGH",
-    "description": "Simulated enterprise threat scenario: Rogue DHCP Server",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
-    "dashboardAnimation": "pulse_red",
-    "immediateAction": "Disable rogue server",
-    "recoveryWorkflow": "Verify DHCP leases, Enable DHCP Snooping, Audit network, Restore correct IP assignments, Monitor clients, Document incident",
-    "aiSummary": "This is an AI generated summary for Rogue DHCP Server. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
-  },
-  {
-    "threatId": "THREAT-2026-028",
-    "threatName": "Suspicious Scheduled Task",
+    "threatName": "Task Manager Disabled",
     "category": "Persistence",
     "mitreMapping": "T1000",
     "severity": "MEDIUM",
-    "description": "Simulated enterprise threat scenario: Suspicious Scheduled Task",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
+    "description": "Disables Task Manager via Registry.",
+    "businessImpact": "Loss of system visibility.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
     "dashboardAnimation": "pulse_red",
-    "immediateAction": "Disable task",
-    "recoveryWorkflow": "Review task history, Scan endpoint, Remove persistence, Patch vulnerabilities, Verify startup items, Generate report",
-    "aiSummary": "This is an AI generated summary for Suspicious Scheduled Task. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\" /v DisableTaskMgr /t REG_DWORD /d 1 /f && start taskmgr",
+    "dynamicRecovery": [
+      {
+        "name": "Enable Task Manager",
+        "script": "reg delete \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\" /v DisableTaskMgr /f"
+      }
+    ],
+    "aiSummary": "AI detected Task Manager Disabled. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
   },
   {
-    "threatId": "THREAT-2026-029",
-    "threatName": "Security Policy Tampering",
-    "category": "Configuration",
+    "threatId": "THREAT-2026-012",
+    "threatName": "Command Prompt Disabled",
+    "category": "Persistence",
     "mitreMapping": "T1000",
-    "severity": "HIGH",
-    "description": "Simulated enterprise threat scenario: Security Policy Tampering",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
+    "severity": "CRITICAL",
+    "description": "Disables CMD via Registry.",
+    "businessImpact": "Loss of administrative tools.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
     "dashboardAnimation": "pulse_red",
-    "immediateAction": "Restore policy",
-    "recoveryWorkflow": "Audit configuration changes, Verify administrator activity, Reapply security baseline, Test policy enforcement, Document incident, Close incident",
-    "aiSummary": "This is an AI generated summary for Security Policy Tampering. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "reg add \"HKCU\\Software\\Policies\\Microsoft\\Windows\\System\" /v DisableCMD /t REG_DWORD /d 1 /f && start cmd",
+    "dynamicRecovery": [
+      {
+        "name": "Enable Command Prompt",
+        "script": "reg delete \"HKCU\\Software\\Policies\\Microsoft\\Windows\\System\" /v DisableCMD /f"
+      }
+    ],
+    "aiSummary": "AI detected Command Prompt Disabled. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
   },
   {
-    "threatId": "THREAT-2026-030",
-    "threatName": "Multiple Failed Security Checks",
-    "category": "Compliance",
+    "threatId": "THREAT-2026-013",
+    "threatName": "Registry Run Key Persistence",
+    "category": "Persistence",
     "mitreMapping": "T1000",
     "severity": "MEDIUM",
-    "description": "Simulated enterprise threat scenario: Multiple Failed Security Checks",
-    "businessImpact": "High risk to data integrity and system availability.",
-    "detectionLogic": "Detected anomalous traffic patterns matching known signatures.",
+    "description": "Adds a persistent run key.",
+    "businessImpact": "Malware persists across reboots.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
     "dashboardAnimation": "pulse_red",
-    "immediateAction": "Run health scan",
-    "recoveryWorkflow": "Review failed checks, Apply missing patches, Verify compliance, Generate compliance report, Notify administrator, Mark system healthy",
-    "aiSummary": "This is an AI generated summary for Multiple Failed Security Checks. Immediate containment is recommended.",
-    "estimatedResolutionTime": "45 minutes"
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\" /v AstraRogue /t REG_SZ /d \"calc.exe\" /f && start regedit",
+    "dynamicRecovery": [
+      {
+        "name": "Remove Run Key",
+        "script": "reg delete \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Run\" /v AstraRogue /f"
+      }
+    ],
+    "aiSummary": "AI detected Registry Run Key Persistence. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-014",
+    "threatName": "Windows Defender Real-time Disabled",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "HIGH",
+    "description": "Disables AV protection.",
+    "businessImpact": "System exposed to malware.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "powershell -Command \"Set-MpPreference -DisableRealtimeMonitoring $true\" && start windowsdefender:",
+    "dynamicRecovery": [
+      {
+        "name": "Enable Defender",
+        "script": "powershell -Command \"Set-MpPreference -DisableRealtimeMonitoring $false\""
+      }
+    ],
+    "aiSummary": "AI detected Windows Defender Real-time Disabled. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-015",
+    "threatName": "Firewall Disabled",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "CRITICAL",
+    "description": "Drops Windows Firewall.",
+    "businessImpact": "Unrestricted network access.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "netsh advfirewall set allprofiles state off && start firewall.cpl",
+    "dynamicRecovery": [
+      {
+        "name": "Enable Firewall",
+        "script": "netsh advfirewall set allprofiles state on"
+      }
+    ],
+    "aiSummary": "AI detected Firewall Disabled. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-021",
+    "threatName": "Rogue Listening Port (4444)",
+    "category": "C2",
+    "mitreMapping": "T1000",
+    "severity": "CRITICAL",
+    "description": "Opens a backdoor listening port.",
+    "businessImpact": "Remote access granted.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start /b powershell -Command \"$listener = [System.Net.Sockets.TcpListener]4444; $listener.Start(); while($true){ Start-Sleep -Seconds 1 }\" && timeout 2 && cmd /c netstat -ano | findstr 4444",
+    "dynamicRecovery": [
+      {
+        "name": "Close Port 4444",
+        "script": "powershell -Command \"Get-Process | Where-Object {$_.ProcessName -match 'powershell'} | Stop-Process -Force\""
+      }
+    ],
+    "aiSummary": "AI detected Rogue Listening Port (4444). Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-022",
+    "threatName": "Data Exfiltration Flood",
+    "category": "Exfiltration",
+    "mitreMapping": "T1000",
+    "severity": "HIGH",
+    "description": "Massive continuous outbound traffic.",
+    "businessImpact": "Data theft in progress.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start /b ping -t 8.8.8.8 -l 65500 && start taskmgr",
+    "dynamicRecovery": [
+      {
+        "name": "Kill Exfiltration Process",
+        "script": "taskkill /F /IM ping.exe"
+      }
+    ],
+    "aiSummary": "AI detected Data Exfiltration Flood. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-023",
+    "threatName": "Proxy Hijack",
+    "category": "Network",
+    "mitreMapping": "T1000",
+    "severity": "MEDIUM",
+    "description": "Routes all traffic through malicious proxy.",
+    "businessImpact": "Traffic interception.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\" /v ProxyEnable /t REG_DWORD /d 1 /f && reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\" /v ProxyServer /t REG_SZ /d \"127.0.0.1:8080\" /f",
+    "dynamicRecovery": [
+      {
+        "name": "Disable Proxy",
+        "script": "reg add \"HKCU\\Software\\Microsoft\\Windows\\CurrentVersion\\Internet Settings\" /v ProxyEnable /t REG_DWORD /d 0 /f"
+      }
+    ],
+    "aiSummary": "AI detected Proxy Hijack. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-024",
+    "threatName": "Hosts File Poisoning",
+    "category": "Network",
+    "mitreMapping": "T1000",
+    "severity": "CRITICAL",
+    "description": "Redirects legitimate traffic.",
+    "businessImpact": "Phishing and MITM attacks.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "echo 1.1.1.1 google.com >> C:\\Windows\\System32\\drivers\\etc\\hosts && notepad C:\\Windows\\System32\\drivers\\etc\\hosts",
+    "dynamicRecovery": [
+      {
+        "name": "Clean Hosts File",
+        "script": "powershell -Command \"(Get-Content C:\\Windows\\System32\\drivers\\etc\\hosts) -notmatch 'google.com' | Set-Content C:\\Windows\\System32\\drivers\\etc\\hosts\""
+      }
+    ],
+    "aiSummary": "AI detected Hosts File Poisoning. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-025",
+    "threatName": "Disable Network Adapter",
+    "category": "Network",
+    "mitreMapping": "T1000",
+    "severity": "MEDIUM",
+    "description": "Disables physical connection.",
+    "businessImpact": "Loss of connectivity.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start ncpa.cpl",
+    "dynamicRecovery": [
+      {
+        "name": "Reset Adapter",
+        "script": "echo OK"
+      }
+    ],
+    "aiSummary": "AI detected Disable Network Adapter. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-031",
+    "threatName": "Guest Account Enabled",
+    "category": "Identity",
+    "mitreMapping": "T1000",
+    "severity": "MEDIUM",
+    "description": "Enables dormant guest account.",
+    "businessImpact": "Unauthorized access.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "net user Guest /active:yes && start lusrmgr.msc",
+    "dynamicRecovery": [
+      {
+        "name": "Disable Guest",
+        "script": "net user Guest /active:no"
+      }
+    ],
+    "aiSummary": "AI detected Guest Account Enabled. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-032",
+    "threatName": "Guest Promoted to Admin",
+    "category": "Privilege Escalation",
+    "mitreMapping": "T1000",
+    "severity": "HIGH",
+    "description": "Escalates guest to admin.",
+    "businessImpact": "Full system compromise.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "net user Guest /active:yes && net localgroup Administrators Guest /add && start lusrmgr.msc",
+    "dynamicRecovery": [
+      {
+        "name": "Remove Admin Rights",
+        "script": "net localgroup Administrators Guest /delete && net user Guest /active:no"
+      }
+    ],
+    "aiSummary": "AI detected Guest Promoted to Admin. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-033",
+    "threatName": "Rogue User Creation",
+    "category": "Identity",
+    "mitreMapping": "T1000",
+    "severity": "CRITICAL",
+    "description": "Creates a new rogue local user.",
+    "businessImpact": "Persistent access.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "net user Hacker Password123! /add && start lusrmgr.msc",
+    "dynamicRecovery": [
+      {
+        "name": "Delete Rogue User",
+        "script": "net user Hacker /delete"
+      }
+    ],
+    "aiSummary": "AI detected Rogue User Creation. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-034",
+    "threatName": "Password Policy Weakened",
+    "category": "Identity",
+    "mitreMapping": "T1000",
+    "severity": "HIGH",
+    "description": "Weakens local password policies.",
+    "businessImpact": "Susceptible to brute force.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "net accounts /minpwlen:0 /maxpwage:unlimited && start secpol.msc",
+    "dynamicRecovery": [
+      {
+        "name": "Restore Password Policy",
+        "script": "net accounts /minpwlen:8 /maxpwage:90"
+      }
+    ],
+    "aiSummary": "AI detected Password Policy Weakened. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-035",
+    "threatName": "RDP Enabled",
+    "category": "Identity",
+    "mitreMapping": "T1000",
+    "severity": "MEDIUM",
+    "description": "Enables Remote Desktop.",
+    "businessImpact": "Remote access vulnerability.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "reg add \"HKLM\\System\\CurrentControlSet\\Control\\Terminal Server\" /v fDenyTSConnections /t REG_DWORD /d 0 /f && start sysdm.cpl",
+    "dynamicRecovery": [
+      {
+        "name": "Disable RDP",
+        "script": "reg add \"HKLM\\System\\CurrentControlSet\\Control\\Terminal Server\" /v fDenyTSConnections /t REG_DWORD /d 1 /f"
+      }
+    ],
+    "aiSummary": "AI detected RDP Enabled. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-036",
+    "threatName": "Advanced Subversion Variation 36",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "CRITICAL",
+    "description": "Simulates a generic payload execution.",
+    "businessImpact": "Potential code execution.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start calc.exe",
+    "dynamicRecovery": [
+      {
+        "name": "Kill Calc",
+        "script": "taskkill /F /IM calc.exe"
+      }
+    ],
+    "aiSummary": "AI detected Advanced Subversion Variation 36. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-037",
+    "threatName": "Advanced Subversion Variation 37",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "MEDIUM",
+    "description": "Simulates a generic payload execution.",
+    "businessImpact": "Potential code execution.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start calc.exe",
+    "dynamicRecovery": [
+      {
+        "name": "Kill Calc",
+        "script": "taskkill /F /IM calc.exe"
+      }
+    ],
+    "aiSummary": "AI detected Advanced Subversion Variation 37. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-038",
+    "threatName": "Advanced Subversion Variation 38",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "HIGH",
+    "description": "Simulates a generic payload execution.",
+    "businessImpact": "Potential code execution.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start calc.exe",
+    "dynamicRecovery": [
+      {
+        "name": "Kill Calc",
+        "script": "taskkill /F /IM calc.exe"
+      }
+    ],
+    "aiSummary": "AI detected Advanced Subversion Variation 38. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-039",
+    "threatName": "Advanced Subversion Variation 39",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "CRITICAL",
+    "description": "Simulates a generic payload execution.",
+    "businessImpact": "Potential code execution.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start calc.exe",
+    "dynamicRecovery": [
+      {
+        "name": "Kill Calc",
+        "script": "taskkill /F /IM calc.exe"
+      }
+    ],
+    "aiSummary": "AI detected Advanced Subversion Variation 39. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-040",
+    "threatName": "Advanced Subversion Variation 40",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "HIGH",
+    "description": "Simulates a generic payload execution.",
+    "businessImpact": "Potential code execution.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start calc.exe",
+    "dynamicRecovery": [
+      {
+        "name": "Kill Calc",
+        "script": "taskkill /F /IM calc.exe"
+      }
+    ],
+    "aiSummary": "AI detected Advanced Subversion Variation 40. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-041",
+    "threatName": "Advanced Subversion Variation 41",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "MEDIUM",
+    "description": "Simulates a generic payload execution.",
+    "businessImpact": "Potential code execution.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start calc.exe",
+    "dynamicRecovery": [
+      {
+        "name": "Kill Calc",
+        "script": "taskkill /F /IM calc.exe"
+      }
+    ],
+    "aiSummary": "AI detected Advanced Subversion Variation 41. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-042",
+    "threatName": "Advanced Subversion Variation 42",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "CRITICAL",
+    "description": "Simulates a generic payload execution.",
+    "businessImpact": "Potential code execution.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start calc.exe",
+    "dynamicRecovery": [
+      {
+        "name": "Kill Calc",
+        "script": "taskkill /F /IM calc.exe"
+      }
+    ],
+    "aiSummary": "AI detected Advanced Subversion Variation 42. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-043",
+    "threatName": "Advanced Subversion Variation 43",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "MEDIUM",
+    "description": "Simulates a generic payload execution.",
+    "businessImpact": "Potential code execution.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start calc.exe",
+    "dynamicRecovery": [
+      {
+        "name": "Kill Calc",
+        "script": "taskkill /F /IM calc.exe"
+      }
+    ],
+    "aiSummary": "AI detected Advanced Subversion Variation 43. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-044",
+    "threatName": "Advanced Subversion Variation 44",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "HIGH",
+    "description": "Simulates a generic payload execution.",
+    "businessImpact": "Potential code execution.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start calc.exe",
+    "dynamicRecovery": [
+      {
+        "name": "Kill Calc",
+        "script": "taskkill /F /IM calc.exe"
+      }
+    ],
+    "aiSummary": "AI detected Advanced Subversion Variation 44. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-045",
+    "threatName": "Advanced Subversion Variation 45",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "CRITICAL",
+    "description": "Simulates a generic payload execution.",
+    "businessImpact": "Potential code execution.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start calc.exe",
+    "dynamicRecovery": [
+      {
+        "name": "Kill Calc",
+        "script": "taskkill /F /IM calc.exe"
+      }
+    ],
+    "aiSummary": "AI detected Advanced Subversion Variation 45. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-046",
+    "threatName": "Advanced Subversion Variation 46",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "HIGH",
+    "description": "Simulates a generic payload execution.",
+    "businessImpact": "Potential code execution.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start calc.exe",
+    "dynamicRecovery": [
+      {
+        "name": "Kill Calc",
+        "script": "taskkill /F /IM calc.exe"
+      }
+    ],
+    "aiSummary": "AI detected Advanced Subversion Variation 46. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-047",
+    "threatName": "Advanced Subversion Variation 47",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "MEDIUM",
+    "description": "Simulates a generic payload execution.",
+    "businessImpact": "Potential code execution.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start calc.exe",
+    "dynamicRecovery": [
+      {
+        "name": "Kill Calc",
+        "script": "taskkill /F /IM calc.exe"
+      }
+    ],
+    "aiSummary": "AI detected Advanced Subversion Variation 47. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-048",
+    "threatName": "Advanced Subversion Variation 48",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "CRITICAL",
+    "description": "Simulates a generic payload execution.",
+    "businessImpact": "Potential code execution.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start calc.exe",
+    "dynamicRecovery": [
+      {
+        "name": "Kill Calc",
+        "script": "taskkill /F /IM calc.exe"
+      }
+    ],
+    "aiSummary": "AI detected Advanced Subversion Variation 48. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-049",
+    "threatName": "Advanced Subversion Variation 49",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "MEDIUM",
+    "description": "Simulates a generic payload execution.",
+    "businessImpact": "Potential code execution.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start calc.exe",
+    "dynamicRecovery": [
+      {
+        "name": "Kill Calc",
+        "script": "taskkill /F /IM calc.exe"
+      }
+    ],
+    "aiSummary": "AI detected Advanced Subversion Variation 49. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
+  },
+  {
+    "threatId": "THREAT-2026-050",
+    "threatName": "Advanced Subversion Variation 50",
+    "category": "Evasion",
+    "mitreMapping": "T1000",
+    "severity": "HIGH",
+    "description": "Simulates a generic payload execution.",
+    "businessImpact": "Potential code execution.",
+    "detectionLogic": "Behavioral anomaly detected on endpoint.",
+    "dashboardAnimation": "pulse_red",
+    "immediateAction": "Identify and Isolate",
+    "attackScript": "start calc.exe",
+    "dynamicRecovery": [
+      {
+        "name": "Kill Calc",
+        "script": "taskkill /F /IM calc.exe"
+      }
+    ],
+    "aiSummary": "AI detected Advanced Subversion Variation 50. Immediate containment required.",
+    "estimatedResolutionTime": "15 minutes"
   }
 ]

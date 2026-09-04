@@ -17,6 +17,8 @@ public class ScenarioDto {
     private String recoveryWorkflow;
     private String aiSummary;
     private String estimatedResolutionTime;
+    private String attackScript;
+    private java.util.List<java.util.Map<String, String>> dynamicRecovery;
 
     public String getThreatId() { return threatId; }
     public void setThreatId(String threatId) { this.threatId = threatId; }

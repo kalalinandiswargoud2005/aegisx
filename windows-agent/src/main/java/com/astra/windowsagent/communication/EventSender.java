@@ -1,11 +1,15 @@
 package com.astra.windowsagent.communication;
 
+import com.astra.windowsagent.config.AgentConfigHelper;
 import com.astra.windowsagent.dto.ThreatEventDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
 import java.time.Instant;
 import java.util.Map;
 
@@ -14,20 +18,20 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class EventSender {
 
-    @Value("${agent.device-id}")
-    private String deviceId;
-
-    @Value("${agent.hostname}")
-    private String hostname;
-    
-    @Value("${astra.backend.url}")
-    private String backendUrl;
-
-    // We can use a simple RestTemplate for fallback
+    private final AgentConfigHelper configHelper;
     private final RestTemplate restTemplate = new RestTemplate();
-    private final com.astra.windowsagent.service.MockHardwareService hardwareService;
 
     public void sendEvent(String threatId, String details) {
+        String deviceId = configHelper.getDeviceId();
+        if (deviceId == null || deviceId.isBlank()) {
+            log.warn("[ASTRA-EVENT] Cannot send incident before device registration completes.");
+            return;
+        }
+
+        String hostname = configHelper.getHostname();
+        String backendUrl = configHelper.getBackendUrl();
+        String deviceToken = configHelper.getDeviceToken();
+
         ThreatEventDto event = ThreatEventDto.builder()
                 .deviceId(deviceId)
                 .hostname(hostname)
@@ -35,18 +39,24 @@ public class EventSender {
                 .threatId(threatId)
                 .status("ACTIVE")
                 .severity("HIGH")
-                .metadata(Map.of("user", System.getProperty("user.name"), "details", details))
+                .metadata(Map.of("user", System.getProperty("user.name"), "details", details != null ? details : ""))
                 .build();
-                
-        // 1. Hardware Mock Print
-        hardwareService.triggerHardwareAlert(threatId, details);
 
-        // 2. Send to backend via REST (Fallback mechanism implemented first for simplicity)
+        log.info("[ASTRA-EVENT] Reporting Incident: ThreatID={}, DeviceID={}, Hostname={}", threatId, deviceId, hostname);
+
+        // Send to backend via REST
         try {
-            restTemplate.postForEntity(backendUrl + "/api/v1/agent/incident", event, Map.class);
-            log.info("Sent event to backend: {}", threatId);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_JSON);
+            if (deviceToken != null && !deviceToken.isBlank()) {
+                headers.set("X-Device-Token", deviceToken);
+            }
+            HttpEntity<ThreatEventDto> request = new HttpEntity<>(event, headers);
+
+            restTemplate.postForEntity(backendUrl + "/api/v1/agent/incident", request, Map.class);
+            log.info("[ASTRA-EVENT] Incident reported to backend successfully ({})", threatId);
         } catch (Exception e) {
-            log.error("Failed to send event to backend, caching offline (Not implemented fully): {}", e.getMessage());
+            log.warn("[ASTRA-EVENT] Failed to send incident to backend ({}): {}", threatId, e.getMessage());
         }
     }
 }

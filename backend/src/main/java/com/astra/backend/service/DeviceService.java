@@ -17,6 +17,10 @@ public class DeviceService {
         return deviceRepository.findAll();
     }
 
+    public Device getDeviceById(java.util.UUID id) {
+        return deviceRepository.findById(id).orElse(null);
+    }
+
     public void deleteDevice(java.util.UUID id) {
         deviceRepository.deleteById(id);
     }

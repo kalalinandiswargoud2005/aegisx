@@ -6,6 +6,7 @@ import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { AudioAlertService } from '@/services/AudioAlertService';
+import { useScopedDevice } from '@/contexts/ScopedDeviceContext';
 
 const SEVERITY_RANK: Record<string, number> = {
   'CRITICAL': 4,
@@ -30,10 +31,11 @@ function sortBySeverity(arr: any[]) {
 export function Recovery() {
   const { subscribe } = useWebSocket();
   const queryClient = useQueryClient();
+  const { scopedDeviceId } = useScopedDevice();
 
-  // Response mode: AUTOMATED or MANUAL (from Settings)
-  const [responseMode] = useState<'AUTOMATED' | 'MANUAL'>(
-    () => (localStorage.getItem('astra_response_mode') as 'AUTOMATED' | 'MANUAL') || 'AUTOMATED'
+  // Response mode: AUTOMATED or MANUAL (defaults to MANUAL for user control)
+  const [responseMode, setResponseMode] = useState<'AUTOMATED' | 'MANUAL'>(
+    () => (localStorage.getItem('astra_response_mode') as 'AUTOMATED' | 'MANUAL') || 'MANUAL'
   );
   const isManual = responseMode === 'MANUAL';
 
@@ -63,7 +65,14 @@ export function Recovery() {
   // Sync server data into queue; only set active if nothing is active yet
   useEffect(() => {
     if (!fetchedThreats) return;
-    const sorted = sortBySeverity(fetchedThreats);
+    
+    // Filter threats by scoped device if we are in standalone mode
+    let relevantThreats = fetchedThreats;
+    if (scopedDeviceId) {
+      relevantThreats = relevantThreats.filter((t: any) => t.target && t.target.includes(scopedDeviceId));
+    }
+    
+    const sorted = sortBySeverity(relevantThreats);
     setQueue(sorted);
     if (!activeIncidentRef.current && sorted.length > 0) {
       setActiveIncident(sorted[0]);
@@ -81,6 +90,11 @@ export function Recovery() {
     const unsubscribe = subscribe('timeline', (payload: any) => {
       if (payload.event !== 'NEW_INCIDENT') return;
       const newIncident = payload.incident;
+
+      // Ignore threats not for this device in scoped mode
+      if (scopedDeviceId && newIncident.target && !newIncident.target.includes(scopedDeviceId)) {
+        return; 
+      }
 
       setQueue(prev => {
         // Avoid duplicates
@@ -114,7 +128,10 @@ export function Recovery() {
     }
   }, []);
 
+  const executingStepRef = useRef<number | null>(null);
+
   useEffect(() => {
+    executingStepRef.current = null;
     if (activeIncident?.id) {
       fetchSteps(activeIncident.id);
     } else {
@@ -123,32 +140,122 @@ export function Recovery() {
     }
   }, [activeIncident?.id, fetchSteps]);
 
+  const { data: devices = [] } = useQuery({ queryKey: ['devices'], queryFn: async () => (await api.get('/devices')).data });
+  const [isExecutingStep, setIsExecutingStep] = useState(false);
+
   // ── Auto-advance steps (only in AUTOMATED mode) ───────────────────────
   useEffect(() => {
-    if (isManual) return;                              // ← skip in manual mode
-    if (!activeIncident || steps.length === 0 || isResolving) return;
+    if (isManual || !activeIncident || steps.length === 0 || isResolving || isExecutingStep) return;
 
-    const timer = setInterval(() => {
-      setCurrentStep(prev => {
-        if (prev <= steps.length) {
-          return prev + 1;
-        } else {
-          clearInterval(timer);
-          handleResolve();
-          return prev;
-        }
-      });
-    }, 2500);
+    if (currentStep > steps.length) {
+      handleResolve();
+      return;
+    }
 
-    return () => clearInterval(timer);
-  }, [activeIncident?.id, steps.length, isResolving, isManual]);
+    if (executingStepRef.current === currentStep) return;
+
+    const executeCurrentStep = async () => {
+      executingStepRef.current = currentStep;
+      setIsExecutingStep(true);
+      const stepIndex = currentStep - 1;
+      const stepText = steps[stepIndex] || "Unknown step";
+      
+      const targetDevice = devices.find((d: any) => d.status === 'ONLINE') || devices[0];
+      if (!targetDevice) {
+        // If no device, simulate delay
+        setTimeout(() => {
+          setCurrentStep(prev => prev + 1);
+          setIsExecutingStep(false);
+        }, 2500);
+        return;
+      }
+
+      try {
+        const stepObj = steps[stepIndex] as any;
+        const script = stepObj?.script;
+        const resolvedTitle = stepObj?.title || (typeof stepText === 'string' ? stepText : "Recovery Playbook Step");
+        
+        // Send command to device with structured parameters
+        await api.post(`/devices/${targetDevice.id}/command`, { 
+          commandType: (script && script.length > 0) ? 'EXECUTE_DYNAMIC_SCRIPT' : 'RECOVERY_STEP', 
+          target: (script && script.length > 0) ? script : resolvedTitle,
+          parameters: JSON.stringify({
+            stepNumber: currentStep,
+            totalSteps: steps.length,
+            title: resolvedTitle
+          }),
+          incidentId: activeIncident.id
+        });
+        
+        // Subscribe to terminal output for completion
+        const unsub = subscribe(`device/${targetDevice.id}/terminal`, (data: any) => {
+          if (data.result && (data.result.includes("SUCCESS") || data.result.includes("VERIFIED"))) {
+            unsub();
+            setCurrentStep(prev => prev + 1);
+            setIsExecutingStep(false);
+          } else if (data.result && (data.result.includes("FAILED") || data.result.includes("ERROR") || data.result.includes("REJECTED"))) {
+            unsub();
+            toast.error("Recovery step reported failure on target device");
+            // Allow retry or advance after delay
+            setTimeout(() => {
+              setCurrentStep(prev => prev + 1);
+              setIsExecutingStep(false);
+            }, 1500);
+          }
+        });
+        
+      } catch (err) {
+        console.error("Failed to execute recovery step", err);
+        toast.error("Failed to execute recovery step on device");
+        setIsExecutingStep(false);
+      }
+    };
+
+    executeCurrentStep();
+  }, [activeIncident?.id, steps, currentStep, isResolving, isManual, isExecutingStep, devices, subscribe]);
 
   // ── Manual: advance one step at a time ────────────────────────────────
   const handleNextStep = () => {
+    if (isExecutingStep) return; // Prevent next if currently executing
     AudioAlertService.unlockAudioContext();
     AudioAlertService.playNotificationSound();
+    
+    // In manual mode, we also want to execute the step on the device
     if (currentStep <= steps.length) {
-      setCurrentStep(prev => prev + 1);
+      const stepIndex = currentStep - 1;
+      const stepText = steps[stepIndex] || "Unknown step";
+      const stepObj = steps[stepIndex] as any;
+      const script = stepObj?.script;
+      const resolvedTitle = stepObj?.title || (typeof stepText === 'string' ? stepText : "Recovery Playbook Step");
+      
+      const targetDevice = devices.find((d: any) => d.status === 'ONLINE') || devices[0];
+      if (!targetDevice) {
+        setCurrentStep(prev => prev + 1);
+        return;
+      }
+
+      setIsExecutingStep(true);
+      api.post(`/devices/${targetDevice.id}/command`, { 
+        commandType: (script && script.length > 0) ? 'EXECUTE_DYNAMIC_SCRIPT' : 'RECOVERY_STEP', 
+        target: (script && script.length > 0) ? script : resolvedTitle,
+        parameters: JSON.stringify({
+          stepNumber: currentStep,
+          totalSteps: steps.length,
+          title: resolvedTitle
+        }),
+        incidentId: activeIncident?.id
+      }).then(() => {
+        const unsub = subscribe(`device/${targetDevice.id}/terminal`, (data: any) => {
+          if (data.result && (data.result.includes("SUCCESS") || data.result.includes("VERIFIED"))) {
+            unsub();
+            setCurrentStep(prev => prev + 1);
+            setIsExecutingStep(false);
+          }
+        });
+      }).catch(() => {
+        setIsExecutingStep(false);
+        setCurrentStep(prev => prev + 1);
+      });
     }
   };
 
@@ -157,6 +264,16 @@ export function Recovery() {
     if (!activeIncident) return;
     setIsResolving(true);
     try {
+      // Send final resolution victory HUD to target device
+      const targetDevice = devices.find((d: any) => d.status === 'ONLINE') || devices[0];
+      if (targetDevice) {
+        api.post(`/devices/${targetDevice.id}/command`, {
+          commandType: 'FINAL_RESOLUTION',
+          target: activeIncident.name,
+          incidentId: activeIncident.id
+        }).catch(() => {});
+      }
+
       await AudioAlertService.unlockAudioContext();
       await api.put(`/threats/${activeIncident.id}/resolve`);
       toast.success(`Threat "${activeIncident.name}" resolved`);
@@ -209,19 +326,42 @@ export function Recovery() {
     <PageContainer>
       <PageHeader
         title="System Recovery"
-        description="Automated incident response and recovery wizard."
+        description="Incident response and endpoint remediation hub."
       >
-        {activeIncident && (
-          <div className="flex items-center gap-2 px-4 py-2 rounded-lg border border-danger/30 bg-danger/5 cyber-cut">
-            <AlertTriangle className="text-danger" size={16} />
-            <span className="text-sm text-white/80 font-mono">
-              Resolving: <strong className="text-white">{activeIncident.name}</strong>
-            </span>
-            <span className={`px-2 py-0.5 text-[10px] rounded-full font-bold cyber-cut ${SEVERITY_COLORS[activeIncident.severity] || SEVERITY_COLORS.LOW}`}>
-              {activeIncident.severity}
-            </span>
+        <div className="flex items-center flex-wrap gap-3">
+          {/* Mode Switcher Toggle */}
+          <div className="flex items-center gap-1.5 bg-black/50 px-2 py-1 rounded-lg border border-white/10">
+            <span className="text-[11px] font-mono text-white/50">Execution Mode:</span>
+            <button
+              onClick={() => {
+                const next = isManual ? 'AUTOMATED' : 'MANUAL';
+                localStorage.setItem('astra_response_mode', next);
+                setResponseMode(next);
+                toast.success(`Switched to ${next} recovery mode`);
+              }}
+              className={`px-2.5 py-1 text-xs font-mono rounded font-bold transition-all flex items-center gap-1.5 ${
+                isManual 
+                  ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50' 
+                  : 'bg-primary/20 text-primary border border-primary/50'
+              }`}
+            >
+              <span className={`w-2 h-2 rounded-full ${isManual ? 'bg-amber-400' : 'bg-primary animate-pulse'}`} />
+              {isManual ? 'MANUAL (User Guided)' : 'AUTOMATED (Auto Playbook)'}
+            </button>
           </div>
-        )}
+
+          {activeIncident && (
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-danger/30 bg-danger/5 cyber-cut">
+              <AlertTriangle className="text-danger" size={15} />
+              <span className="text-xs text-white/80 font-mono">
+                Resolving: <strong className="text-white">{activeIncident.name}</strong>
+              </span>
+              <span className={`px-2 py-0.5 text-[10px] rounded-full font-bold cyber-cut ${SEVERITY_COLORS[activeIncident.severity] || SEVERITY_COLORS.LOW}`}>
+                {activeIncident.severity}
+              </span>
+            </div>
+          )}
+        </div>
       </PageHeader>
 
       {noThreats && (
@@ -371,10 +511,19 @@ export function Recovery() {
                 {!allWizardDone && steps.length > 0 && (
                   <button
                     onClick={handleNextStep}
-                    disabled={currentStep > steps.length}
-                    className="w-full py-2 rounded-lg bg-accent/10 border border-accent/40 text-accent text-sm font-mono font-semibold hover:bg-accent/20 transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                    disabled={isExecutingStep || currentStep > steps.length}
+                    className="w-full py-2.5 rounded-lg bg-accent/20 border border-accent/60 text-accent text-sm font-mono font-semibold hover:bg-accent/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
                   >
-                    ▶ Next Step ({currentStep - 1} / {steps.length - 1})
+                    {isExecutingStep ? (
+                      <>
+                        <RotateCcw size={14} className="animate-spin text-accent" />
+                        <span>Executing Step on Target Device...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>▶ Execute Step {currentStep - 1} of {steps.length - 1}</span>
+                      </>
+                    )}
                   </button>
                 )}
                 {allWizardDone && (

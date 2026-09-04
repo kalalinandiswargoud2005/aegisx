@@ -10,15 +10,15 @@ import {
 } from 'lucide-react';
 
 const menuItems = [
-  { icon: LayoutDashboard, label: 'Dashboard', path: '/dashboard' },
-  { icon: Laptop, label: 'Devices', path: '/devices' },
-  { icon: Eye, label: 'Watch Deck', path: '/watch' },
-  { icon: Zap, label: 'Simulation', path: '/simulation' },
-  { icon: ShieldAlert, label: 'Threat Center', path: '/threats' },
+  { icon: LayoutDashboard, label: 'Command Center', path: '/dashboard' },
+  { icon: Laptop, label: 'Active Nodes', path: '/devices' },
+  { icon: Eye, label: 'Global Map', path: '/watch' },
+  { icon: Zap, label: 'Threat Vectors', path: '/simulation' },
+  { icon: ShieldAlert, label: 'Incident Logs', path: '/threats' },
   { icon: RotateCcw, label: 'Recovery', path: '/recovery' },
-  { icon: Bot, label: 'AI Assistant', path: '/ai-assistant' },
   { icon: FileText, label: 'Analytics & Reports', path: '/reports' },
-  { icon: Settings, label: 'Settings', path: '/settings' },
+  { icon: Bot, label: 'AI Assistant', path: '/ai-assistant' },
+  { icon: Settings, label: 'System Parameters', path: '/settings' },
   { icon: Info, label: 'About', path: '/about' },
 ];
 
@@ -35,8 +35,13 @@ const itemVariants = {
   show: { opacity: 1, x: 0 }
 };
 
+import { useScopedDevice } from '@/contexts/ScopedDeviceContext';
+
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const { isScoped } = useScopedDevice();
+
+  const filteredMenuItems = menuItems;
 
   return (
     <motion.aside
@@ -87,7 +92,7 @@ export function Sidebar() {
         animate="show"
         className="flex-1 space-y-2 px-3 py-6 overflow-y-auto overflow-x-hidden"
       >
-        {menuItems.map((item) => {
+        {filteredMenuItems.map((item) => {
           const Icon = item.icon;
           return (
             <motion.div key={item.path} variants={itemVariants}>

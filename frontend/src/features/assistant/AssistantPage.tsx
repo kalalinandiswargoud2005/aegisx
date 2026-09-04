@@ -5,6 +5,9 @@ import React, {
   useCallback,
 } from 'react';
 
+import { useAssistant } from '@/providers/AssistantProvider';
+import { JarvisCore } from '@/components/JarvisCore';
+
 import {
   Bot,
   Send,
@@ -116,8 +119,9 @@ const ThoughtAccordion: React.FC<{ thought: string }> = ({
    MAIN ASSISTANT PAGE
 ========================================================= */
 
-export default function AssistantPage() {
+export function AssistantPage({ isGlobalMode = false }: { isGlobalMode?: boolean }) {
   const { subscribe, isConnected } = useWebSocket();
+  const { openAssistant, isAssistantOpen } = useAssistant();
 
   /* =======================================================
      THREAT STATE
@@ -756,10 +760,10 @@ Prevention
         ================================================= */
 
         const GEMINI_MODELS = [
+          'gemini-3.6-flash',
+          'gemini-3.6-pro',
           'gemini-2.5-flash',
-          'gemini-2.0-flash',
-          'gemini-1.5-flash',
-          'gemini-1.5-pro',
+          'gemini-2.5-pro',
         ];
 
         let responseStream: any = null;
@@ -932,6 +936,8 @@ Prevention
   ======================================================= */
 
   useEffect(() => {
+    if (!isGlobalMode) return; // Only global instance handles the microphone
+
     const SpeechRecognition =
       (window as any)
         .SpeechRecognition ||
@@ -991,26 +997,69 @@ Prevention
           finalText + ' ';
       }
 
-      const fullSpeech = (
-        finalTranscriptRef.current + interim
-      ).trim();
+      let processedSpeech = (finalTranscriptRef.current + interim).toLowerCase().trim();
+      
+      let wakeWordFound = false;
+      // Wake Word check
+      if (
+        processedSpeech.includes('hey astra') || 
+        processedSpeech.includes('hello astra') || 
+        processedSpeech.includes('hi astra') || 
+        processedSpeech.includes('wakeup astra')
+      ) {
+          wakeWordFound = true;
+          if (!isAssistantOpen) {
+              openAssistant();
+          }
+          processedSpeech = processedSpeech.replace(/.*(hey astra|hello astra|hi astra|wakeup astra)/g, '').trim();
+          
+          if (!finalText && processedSpeech.length === 0) {
+              // Just woke up, don't set input yet if there's no command following
+              return;
+          }
+      }
 
-      setInput(fullSpeech);
+      // If the assistant is closed and the wake word wasn't spoken, ignore the speech
+      if (!isAssistantOpen && !wakeWordFound) {
+          if (silenceTimerRef.current) {
+              clearTimeout(silenceTimerRef.current);
+          }
+          // Clear the buffer after a short silence so it doesn't grow infinitely
+          silenceTimerRef.current = setTimeout(() => {
+              finalTranscriptRef.current = '';
+              setInput('');
+          }, 1200);
+          return;
+      }
+
+      // Stop Word check
+      if (processedSpeech.includes('stop')) {
+          if (window.speechSynthesis) {
+              window.speechSynthesis.cancel();
+          }
+          stopSpeaking(); // existing helper function
+          processedSpeech = '';
+          finalTranscriptRef.current = '';
+          setInput('');
+          return;
+      }
+
+      setInput(processedSpeech);
 
       /* Hands-Free Auto-Submit on 1.2s Silence */
       if (silenceTimerRef.current) {
         clearTimeout(silenceTimerRef.current);
       }
 
-      if (fullSpeech.length > 2) {
+      if (processedSpeech.length > 2) {
         silenceTimerRef.current = setTimeout(() => {
-          if (fullSpeech.trim()) {
+          if (processedSpeech.trim()) {
             isListeningRef.current = false;
             setIsListening(false);
             try {
               recognitionRef.current?.stop();
             } catch (_) {}
-            sendMessage(fullSpeech);
+            sendMessage(processedSpeech);
             finalTranscriptRef.current = '';
           }
         }, 1200);
@@ -1022,14 +1071,20 @@ Prevention
     ) => {
       if (
         event.error === 'aborted' ||
-        event.error === 'no-speech'
+        event.error === 'no-speech' ||
+        event.error === 'network'
       ) {
         return;
       }
-      isListeningRef.current = false;
-      setIsListening(false);
+      
+      // For severe errors (like not-allowed), we stop listening permanently
+      if (event.error === 'not-allowed' || event.error === 'audio-capture') {
+          isListeningRef.current = false;
+          setIsListening(false);
+      }
+      
       console.warn(
-        'Speech recognition status:',
+        'Speech recognition error:',
         event.error
       );
     };
@@ -1184,8 +1239,21 @@ Prevention
      UI
   ======================================================= */
 
+  if (isGlobalMode) {
+      return (
+          <div className="w-full h-full bg-background overflow-hidden relative">
+              <JarvisCore 
+                  isSpeaking={isSpeaking}
+                  isThinking={isThinking}
+                  isListening={isListening}
+                  transcript={input}
+              />
+          </div>
+      );
+  }
+
   return (
-    <div className="flex flex-col h-[calc(100vh-4rem)] bg-background">
+    <div className={`flex flex-col bg-background h-[calc(100vh-4rem)]`}>
 
       {/* ===================================================
           HEADER
@@ -1709,373 +1777,6 @@ Prevention
               >
                 <Send className="w-4 h-4" />
               </button>
-
-            </div>
-
-          </div>
-
-        </div>
-
-        {/* =================================================
-            DIVIDER
-        ================================================= */}
-
-        <div className="hidden md:block w-px bg-border-color flex-shrink-0 relative z-10" />
-
-        {/* =================================================
-            LIVE ACTIVITY FEED
-        ================================================= */}
-
-        <div
-          className={`w-full md:w-80 lg:w-96 flex-shrink-0 flex flex-col ${
-            activePanel === 'chat'
-              ? 'hidden md:flex'
-              : 'flex'
-          } md:flex bg-surface/30 backdrop-blur relative z-10 border-l border-border-color`}
-        >
-
-          {/* Header */}
-
-          <div className="px-4 py-3 border-b border-border-color flex items-center justify-between flex-shrink-0">
-
-            <div className="flex items-center gap-2">
-
-              <Activity className="w-4 h-4 text-primary" />
-
-              <span className="text-xs font-bold text-white tracking-widest uppercase font-mono">
-                Live Defense Feed
-              </span>
-
-            </div>
-
-            <div
-              className={`flex items-center gap-1.5 text-[10px] font-semibold px-2 py-1 rounded-none border font-mono tracking-widest ${
-                defenseMode ===
-                'auto'
-                  ? 'text-success border-success/30 bg-success/5'
-                  : defenseMode ===
-                    'suggested'
-                  ? 'text-warning border-warning/30 bg-warning/5'
-                  : 'text-white/50 border-white/10 bg-surface'
-              }`}
-            >
-
-              <div
-                className={`w-1.5 h-1.5 rounded-full ${
-                  defenseMode ===
-                  'auto'
-                    ? 'bg-success animate-pulse'
-                    : defenseMode ===
-                      'suggested'
-                    ? 'bg-warning animate-pulse'
-                    : 'bg-white/30'
-                }`}
-              />
-
-              {defenseMode ===
-              'auto'
-                ? 'AUTO'
-                : defenseMode ===
-                  'suggested'
-                ? 'SUGGEST'
-                : 'PAUSED'}
-
-            </div>
-
-          </div>
-
-          {/* Status */}
-
-          {defenseMode ===
-            'auto' && (
-            <div className="mx-3 mt-3 rounded-none border border-success/30 bg-success/5 p-3 flex-shrink-0 cyber-cut">
-
-              <div className="flex items-center gap-2 mb-1">
-
-                <Zap className="w-3.5 h-3.5 text-success" />
-
-                <span className="text-[10px] font-bold text-success tracking-widest font-mono">
-                  AUTONOMOUS MONITORING ACTIVE
-                </span>
-
-              </div>
-
-              <p className="text-[10px] text-success/70 font-mono mt-2">
-
-                ASTRA is monitoring security events. Recovery actions require user approval.
-
-              </p>
-
-            </div>
-          )}
-
-          {/* Feed */}
-
-          <div className="flex-1 overflow-y-auto p-3 space-y-2 mt-2 scrollbar-thin scrollbar-thumb-white/10">
-
-            {activeThreats.length ===
-              0 && (
-              <div className="text-center p-4 text-white/30 text-xs font-mono">
-
-                No active threats detected.
-
-              </div>
-            )}
-
-            {activeThreats.map(
-              (item) => (
-                <div
-                  key={item.id}
-                  className="rounded-none bg-surface border border-border-color px-3 py-2.5 hover:border-white/20 transition-colors"
-                >
-
-                  <div className="flex items-start gap-2">
-
-                    <span className="text-sm flex-shrink-0 mt-0.5">
-                      {ACTIVITY_ICONS[
-                        item.type
-                      ] || '⚠️'}
-                    </span>
-
-                    <div className="min-w-0 flex-1">
-
-                      <div
-                        className={`text-xs leading-relaxed font-mono font-medium ${
-                          ACTIVITY_COLORS[
-                            item.type
-                          ] ||
-                          'text-white'
-                        }`}
-                      >
-                        {item.message}
-                      </div>
-
-                      <div className="flex items-center gap-2 mt-1">
-
-                        <span className="text-[9px] text-white/40 font-mono">
-                          {
-                            item.timestamp
-                          }
-                        </span>
-
-                        {item.ticker && (
-                          <>
-                            <span className="text-white/20">
-                              ·
-                            </span>
-
-                            <span
-                              className={`text-[9px] font-mono ${
-                                item.ticker ===
-                                'CRITICAL'
-                                  ? 'text-danger'
-                                  : 'text-warning'
-                              }`}
-                            >
-                              {
-                                item.ticker
-                              }
-                            </span>
-                          </>
-                        )}
-
-                      </div>
-
-                    </div>
-
-                  </div>
-
-                </div>
-              )
-            )}
-
-          </div>
-
-          {/* =================================================
-              AUDIO CONTROLS
-          ================================================= */}
-
-          <div className="mx-3 mb-2 rounded-none border border-border-color bg-surface/60 flex-shrink-0 cyber-cut">
-
-            {/* Panel header */}
-
-            <div className="flex items-center gap-2 px-3 py-2 border-b border-border-color">
-
-              <SlidersHorizontal className="w-3 h-3 text-primary" />
-
-              <span className="text-[10px] font-bold text-primary tracking-widest font-mono uppercase">
-                Audio Controls
-              </span>
-
-              {!audioAvailable && (
-                <span className="ml-auto text-[9px] font-mono text-danger/80 tracking-widest uppercase">
-                  UNAVAILABLE
-                </span>
-              )}
-
-            </div>
-
-            <div className="px-3 py-2 space-y-2">
-
-              {/* Audio Alerts toggle */}
-
-              <div className="flex items-center justify-between">
-
-                <span className="text-[10px] font-mono text-white/60 tracking-widest uppercase">
-                  Audio Alerts
-                </span>
-
-                <button
-                  id="astra-audio-alerts-toggle"
-                  onClick={() => {
-                    unlockAudio();
-                    setAudioEnabled(!audioEnabled);
-                  }}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-none text-[10px] font-bold font-mono tracking-widest uppercase border transition-all cyber-cut ${
-                    audioEnabled
-                      ? 'bg-primary/10 border-primary text-primary'
-                      : 'bg-surface border-border-color text-white/40 hover:text-white/70'
-                  }`}
-                >
-                  {audioEnabled ? (
-                    <><Bell className="w-3 h-3" /> ON</>
-                  ) : (
-                    <><BellOff className="w-3 h-3" /> OFF</>
-                  )}
-                </button>
-
-              </div>
-
-              {/* Voice Alerts toggle */}
-
-              <div className="flex items-center justify-between">
-
-                <span className="text-[10px] font-mono text-white/60 tracking-widest uppercase">
-                  Voice Alerts
-                </span>
-
-                <button
-                  id="astra-voice-alerts-toggle"
-                  onClick={() => {
-                    unlockAudio();
-                    setVoiceEnabled(!voiceEnabled);
-                  }}
-                  className={`flex items-center gap-1 px-2.5 py-1 rounded-none text-[10px] font-bold font-mono tracking-widest uppercase border transition-all cyber-cut ${
-                    voiceEnabled
-                      ? 'bg-primary/10 border-primary text-primary'
-                      : 'bg-surface border-border-color text-white/40 hover:text-white/70'
-                  }`}
-                >
-                  {voiceEnabled ? (
-                    <><Volume2 className="w-3 h-3" /> ON</>
-                  ) : (
-                    <><VolumeX className="w-3 h-3" /> OFF</>
-                  )}
-                </button>
-
-              </div>
-
-              {/* Volume slider */}
-
-              <div className="flex items-center gap-2">
-
-                <span className="text-[10px] font-mono text-white/60 tracking-widest uppercase w-12 flex-shrink-0">
-                  Volume
-                </span>
-
-                <input
-                  id="astra-alert-volume"
-                  type="range"
-                  min={0}
-                  max={1}
-                  step={0.05}
-                  value={alertVolume}
-                  onChange={(e) => setAlertVolume(parseFloat(e.target.value))}
-                  className="flex-1 h-1 accent-primary cursor-pointer"
-                />
-
-                <span className="text-[10px] font-mono text-white/40 w-8 text-right">
-                  {Math.round(alertVolume * 100)}%
-                </span>
-
-              </div>
-
-              {/* Test Alert button */}
-
-              <button
-                id="astra-test-alert-btn"
-                onClick={() => {
-                  unlockAudio();
-                  playTestAlert();
-                }}
-                className="w-full py-1.5 rounded-none border border-border-color bg-surface text-[10px] font-bold font-mono tracking-widest uppercase text-white/60 hover:text-primary hover:border-primary/50 transition-all cyber-cut"
-              >
-                ⚡ Test Alert
-              </button>
-
-            </div>
-
-          </div>
-
-          {/* =================================================
-              FOOTER STATS
-          ================================================= */}
-
-          <div className="p-3 border-t border-border-color flex-shrink-0">
-
-            <div className="grid grid-cols-3 gap-2">
-
-              {[
-                {
-                  label:
-                    'THREATS',
-                  value:
-                    activeThreats.filter(
-                      (item) =>
-                        item.type ===
-                        'alert'
-                    ).length,
-                },
-                {
-                  label:
-                    'ACTIONS',
-                  value:
-                    activeThreats.filter(
-                      (item) =>
-                        item.type ===
-                        'action'
-                    ).length,
-                },
-                {
-                  label:
-                    'EVENTS',
-                  value:
-                    activeThreats.length,
-                },
-              ].map(
-                (stat) => (
-                  <div
-                    key={
-                      stat.label
-                    }
-                    className="text-center rounded-none bg-surface border border-border-color py-2 cyber-cut"
-                  >
-
-                    <div className="text-sm font-bold text-white font-mono">
-                      {
-                        stat.value
-                      }
-                    </div>
-
-                    <div className="text-[9px] text-white/40 tracking-widest">
-                      {
-                        stat.label
-                      }
-                    </div>
-
-                  </div>
-                )
-              )}
 
             </div>
 

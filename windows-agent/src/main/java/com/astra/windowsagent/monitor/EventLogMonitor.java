@@ -6,7 +6,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import java.util.Random;
 
 @Slf4j
 @Component
@@ -14,7 +13,6 @@ import java.util.Random;
 public class EventLogMonitor {
 
     private final ThreatDispatcher dispatcher;
-    private final Random random = new Random();
 
     @Scheduled(fixedRateString = "${agent.monitor.rate:15000}")
     public void check() {
@@ -32,12 +30,6 @@ public class EventLogMonitor {
                     }
                 } catch (NumberFormatException ignored) {}
             }
-
-            if (random.nextDouble() < 0.02) { 
-                log.info("EventLogMonitor triggered mock anomaly for demonstration");
-                dispatcher.dispatch("EventLogCleared", "Mock brute force attack detected");
-            }
-
         } catch (Exception e) {
             log.error("Failed to check event logs", e);
         }

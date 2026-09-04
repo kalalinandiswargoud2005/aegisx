@@ -14,6 +14,7 @@ import { useQuery } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
+import jsPDF from 'jspdf';
 
 const PIE_COLORS = ['#FF3D71', '#FF9F43', '#FFC107', '#00E5FF', '#7C3AED'];
 
@@ -34,131 +35,7 @@ export interface DetailedReportItem {
   complianceStandards: string[];
 }
 
-const DEFAULT_DETAILED_REPORTS: DetailedReportItem[] = [
-  {
-    id: 'TR-9042',
-    name: 'Ransomware.WannaCry.Payload',
-    category: 'Ransomware / File Encryption',
-    severity: 'CRITICAL',
-    targetAsset: 'SEC-NODE-WIN11',
-    targetIp: '192.168.1.140',
-    timestamp: '2026-08-13 21:05:12 UTC',
-    fileSize: '42 KB',
-    status: 'REMEDIATED',
-    vector: 'SMBv1 Remote Code Execution (EternalBlue Exploit)',
-    rootCause: 'Process vssadmin.exe invoked unauthorized Shadow Copy deletion attempt via hidden PowerShell process (PID 4912). Payload attempted to encrypt user documents using RSA-2048 keys.',
-    payloadHash: 'e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855',
-    solutions: [
-      'Terminated suspicious process tree (PID 4912 & PID 5018) via eBPF kernel signal handler.',
-      'Restored VSS volume snapshot from tamper-proof FIPS 140-3 enclave.',
-      'Dispatched binary hash to zero-day blocklist database across all network nodes.',
-      'Isolated SMB socket interface and enforced SMBv3 signed traffic policy.'
-    ],
-    complianceStandards: ['NIST CSF 2.0 (DE.CM-1)', 'FIPS 140-3 Level 3', 'ISO/IEC 27001:2022 (A.12.6.1)']
-  },
-  {
-    id: 'TR-8819',
-    name: 'Kernel.eBPF.SocketTamper',
-    category: 'Kernel Hook / Network Hijack',
-    severity: 'HIGH',
-    targetAsset: 'C2-GATEWAY-LINUX',
-    targetIp: '10.0.4.12',
-    timestamp: '2026-08-13 19:42:08 UTC',
-    fileSize: '38 KB',
-    status: 'CONTAINED',
-    vector: 'Raw Socket Injection (/dev/net/tun0)',
-    rootCause: 'eBPF kernel filter detected unauthorized packet injection attempt targeting raw socket /dev/net/tun0. Memory footprint matched Cobalt Strike beacon payload signature.',
-    payloadHash: '7f83b1657ff1fc53b92dc18148a1d65dfc2d4b1fa3d677284ddd200126d9069e',
-    solutions: [
-      'Inline network packet filtration terminated raw socket injection dynamically.',
-      'Flushed kernel routing table cache and blocked C2 egress address 185.220.101.4.',
-      'Re-generated WireGuard peer-to-peer quantum-safe key exchange.',
-      'Dispatched urgent SOC incident alert to security analytics dashboard.'
-    ],
-    complianceStandards: ['NIST CSF 2.0 (PR.DS-5)', 'ISO/IEC 27001:2022 (A.13.1.1)']
-  },
-  {
-    id: 'TR-7612',
-    name: 'ZeroDay.BufferOverflow.NPU',
-    category: 'Hardware NPU Exploit',
-    severity: 'CRITICAL',
-    targetAsset: 'IOT-SENSOR-HUB-04',
-    targetIp: '192.168.1.88',
-    timestamp: '2026-08-12 14:15:33 UTC',
-    fileSize: '51 KB',
-    status: 'ISOLATED',
-    vector: 'UDP Memory Stack Overflow (Port 8088)',
-    rootCause: 'Malformed payload in UDP port 8088 packet stream attempted stack buffer overflow against hardware NPU packet parser. Memory guard page triggered CPU exception.',
-    payloadHash: '4b227777d4dd1fc61c6f884f48641d02b4d121d3fd328cb08b5531fcacdabf8a',
-    solutions: [
-      'Hardware NPU sandbox caught memory exception and reset buffer pool in <0.8ms.',
-      'Quarantined origin IP 185.220.101.99 via automated BGP blackhole filter.',
-      'Generated neural heuristic classifier patch v2.1.4 and deployed to all edge nodes.',
-      'Enforced hardware tamper enclave lockout mode.'
-    ],
-    complianceStandards: ['FIPS 140-3 Level 3', 'SOC 2 Type II (CC6.1)']
-  },
-  {
-    id: 'TR-6540',
-    name: 'Exfiltration.USB.MassStorage',
-    category: 'Physical Peripheral / Data Theft',
-    severity: 'MEDIUM',
-    targetAsset: 'HARDWARE-APPLIANCE-01',
-    targetIp: '127.0.0.1',
-    timestamp: '2026-08-11 11:20:45 UTC',
-    fileSize: '29 KB',
-    status: 'BLOCKED',
-    vector: 'USB Autorun Executable (VID:0x0781 PID:0x5581)',
-    rootCause: 'Unauthorized USB mass storage drive connected to physical sensor port attempting automatic autorun.inf script execution for confidential file exfiltration.',
-    payloadHash: 'ef2d127de37b942baad06145e54b0c619a1f22327b2ebbcfbec78f5564afe39d',
-    solutions: [
-      'Disabled USB mass storage driver class immediately across kernel stack.',
-      'Encrypted physical USB port access and revoked device permission token.',
-      'Logged peripheral serial number and vendor ID to tamper audit ledger.'
-    ],
-    complianceStandards: ['NIST CSF 2.0 (PR.AC-3)', 'ISO/IEC 27001:2022 (A.11.2.6)']
-  },
-  {
-    id: 'TR-5210',
-    name: 'MITM.SSL.CertificateSpoofing',
-    category: 'Man-In-The-Middle / SSL Interception',
-    severity: 'HIGH',
-    targetAsset: 'WORKSTATION-SEC-04',
-    targetIp: '192.168.1.112',
-    timestamp: '2026-08-10 16:09:14 UTC',
-    fileSize: '34 KB',
-    status: 'REMEDIATED',
-    vector: 'Rogue CA Certificate Injection (Port 443)',
-    rootCause: 'Self-signed untrusted TLS certificate presented during HTTPS handshake on port 443 attempting to intercept encrypted WebSockets telemetry stream.',
-    payloadHash: '01ba4719c80b6fe911b091a7c05124b64eeece964e09c058ef8f9805daca546b',
-    solutions: [
-      'Certificate pin verification rejected untrusted handshake attempt.',
-      'Switched C2 telemetry transport link to backup Kyber-1024 post-quantum tunnel.',
-      'Re-issued client certificate credentials and revoked rogue CA footprint.'
-    ],
-    complianceStandards: ['FIPS 140-3 Level 3', 'NIST CSF 2.0 (PR.DS-2)']
-  },
-  {
-    id: 'TR-4105',
-    name: 'BruteForce.SSH.AuthFailure',
-    category: 'Authentication / Credential Stuffing',
-    severity: 'LOW',
-    targetAsset: 'EDGE-SENSOR-NODE-09',
-    targetIp: '192.168.1.205',
-    timestamp: '2026-08-09 08:33:01 UTC',
-    fileSize: '22 KB',
-    status: 'BLOCKED',
-    vector: 'Automated SSH Dictionary Attack (Port 22)',
-    rootCause: 'Over 150 failed SSH authentication attempts within 30 seconds originating from IP 198.51.100.42 attempting default root credential stuffing.',
-    payloadHash: 'b45cffe084dd3d20d928bee85e7b0f21ac0275ed8454b5c0eed74e4130003aec',
-    solutions: [
-      'Triggered Fail2ban IP ban rule blocking source address for 72 hours.',
-      'Enforced public key authentication only; disabled password login.',
-      'Updated SSH daemon configuration policy across node mesh.'
-    ],
-    complianceStandards: ['NIST CSF 2.0 (PR.AC-1)', 'ISO/IEC 27001:2022 (A.9.4.2)']
-  }
-];
+const DEFAULT_DETAILED_REPORTS: DetailedReportItem[] = [];
 
 export function Reports() {
   const [timeRange, setTimeRange] = useState<'24h' | '7d' | '30d' | 'all'>('7d');
@@ -247,75 +124,123 @@ export function Reports() {
 
   // Chart data
   const trendData = [
-    { date: 'May 19', High: 14, Medium: 10, Low: 6 },
-    { date: 'May 20', High: 18, Medium: 12, Low: 8 },
-    { date: 'May 21', High: 12, Medium: 15, Low: 10 },
-    { date: 'May 22', High: 22, Medium: 18, Low: 7 },
-    { date: 'May 23', High: 16, Medium: 14, Low: 12 },
-    { date: 'May 24', High: 25, Medium: 19, Low: 9 },
-    { date: 'May 25', High: totalThreats > 0 ? totalThreats : 24, Medium: 15, Low: 8 },
+    { date: 'May 19', High: 0, Medium: 0, Low: 0 },
+    { date: 'May 20', High: 0, Medium: 0, Low: 0 },
+    { date: 'May 21', High: 0, Medium: 0, Low: 0 },
+    { date: 'May 22', High: 0, Medium: 0, Low: 0 },
+    { date: 'May 23', High: 0, Medium: 0, Low: 0 },
+    { date: 'May 24', High: 0, Medium: 0, Low: 0 },
+    { date: 'May 25', High: totalThreats > 0 ? totalThreats : 0, Medium: 0, Low: 0 },
   ];
 
   const pieData = analytics?.pieData && analytics.pieData.length > 0 
     ? analytics.pieData 
     : [
-        { name: 'Ransomware & Exploits', value: 40 },
-        { name: 'Kernel & Socket Tamper', value: 30 },
-        { name: 'Peripheral & Exfiltration', value: 20 },
-        { name: 'Auth & MITM Intercept', value: 10 },
+        { name: 'Ransomware & Exploits', value: 0 },
+        { name: 'Kernel & Socket Tamper', value: 0 },
+        { name: 'Peripheral & Exfiltration', value: 0 },
+        { name: 'Auth & MITM Intercept', value: 0 },
       ];
 
-  // Download Individual Threat Report
   const handleDownloadSingleReport = (report: DetailedReportItem) => {
     try {
-      const content = `================================================================================
-                     ASTRA CYBERSECURITY ENTERPRISE APPLIANCE
-                       INDIVIDUAL THREAT INCIDENT AUDIT REPORT
-================================================================================
+      const doc = new jsPDF();
+      let yPos = 20;
+      const leftMargin = 20;
 
-[REPORT METADATA]
-Report ID         : #${report.id}
-Date & Time       : ${report.timestamp}
-Security Status   : ${report.status}
-Severity Level    : ${report.severity}
-Audit File Size   : ${report.fileSize}
+      const addSection = (title: string, yPos: number) => {
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.setTextColor(5, 217, 232);
+        doc.text(title, leftMargin, yPos);
+        doc.setDrawColor(5, 217, 232);
+        doc.line(leftMargin, yPos + 2, 190, yPos + 2);
+        doc.setTextColor(0, 0, 0);
+        return yPos + 10;
+      };
 
-[TARGET ASSET INFORMATION]
-Target Asset Name : ${report.targetAsset}
-Target IP Address : ${report.targetIp}
-Threat Category   : ${report.category}
-Threat Identifier : ${report.name}
+      doc.setFont('helvetica', 'bold');
+      doc.setFontSize(16);
+      doc.setTextColor(20, 20, 20);
+      doc.text('ASTRA CYBERSECURITY ENTERPRISE', 105, yPos, { align: 'center' });
+      yPos += 8;
+      doc.setFontSize(12);
+      doc.text('INDIVIDUAL THREAT INCIDENT AUDIT REPORT', 105, yPos, { align: 'center' });
+      yPos += 15;
 
-[THREAT ANALYSIS & ATTACK VECTOR]
-Attack Vector     : ${report.vector}
-Payload Hash      : SHA256:${report.payloadHash}
+      yPos = addSection('REPORT METADATA', yPos);
+      doc.setFont('helvetica', 'normal');
+      doc.setFontSize(10);
+      doc.text(`Report ID: #${report.id}`, leftMargin, yPos);
+      doc.text(`Date & Time: ${report.timestamp}`, leftMargin, yPos + 6);
+      doc.text(`Security Status: ${report.status}`, leftMargin, yPos + 12);
+      doc.text(`Severity Level: ${report.severity}`, leftMargin, yPos + 18);
+      yPos += 28;
 
-Root Cause Analysis & Incident Description:
-${report.rootCause}
+      yPos = addSection('TARGET ASSET INFORMATION', yPos);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Target Asset Name: ${report.targetAsset}`, leftMargin, yPos);
+      doc.text(`Target IP Address: ${report.targetIp}`, leftMargin, yPos + 6);
+      doc.text(`Threat Category: ${report.category}`, leftMargin, yPos + 12);
+      doc.text(`Threat Identifier: ${report.name}`, leftMargin, yPos + 18);
+      yPos += 28;
 
-[AUTOMATED REMEDIATION & STEP-BY-STEP SOLUTION EXECUTED]
-${report.solutions.map((sol, i) => `Step ${i + 1}: ${sol}`).join('\n')}
+      yPos = addSection('THREAT ANALYSIS & ATTACK VECTOR', yPos);
+      doc.setFont('helvetica', 'normal');
+      doc.text(`Attack Vector: ${report.vector}`, leftMargin, yPos);
+      
+      const payloadLines = doc.splitTextToSize(`Payload Hash (SHA-256): ${report.payloadHash}`, 170);
+      doc.text(payloadLines, leftMargin, yPos + 6);
+      yPos += 6 + (payloadLines.length * 6);
+      
+      doc.setFont('helvetica', 'bold');
+      doc.text('Root Cause Analysis & Incident Description:', leftMargin, yPos);
+      yPos += 6;
+      doc.setFont('helvetica', 'normal');
+      const rootCauseLines = doc.splitTextToSize(report.rootCause, 170);
+      doc.text(rootCauseLines, leftMargin, yPos);
+      yPos += (rootCauseLines.length * 6) + 6;
 
-[COMPLIANCE FRAMEWORK ALIGNMENTS]
-${report.complianceStandards.map(std => ` - ${std}`).join('\n')}
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
 
-================================================================================
-Generated by ASTRA Aegis AI Security Engine v2.1.0-Enterprise
-Confidential & Proprietary Audit Record - All Rights Reserved
-================================================================================`;
+      yPos = addSection('AUTOMATED REMEDIATION & SOLUTIONS', yPos);
+      doc.setFont('helvetica', 'normal');
+      report.solutions.forEach((sol, i) => {
+        const solLines = doc.splitTextToSize(`Step ${i + 1}: ${sol}`, 170);
+        doc.text(solLines, leftMargin, yPos);
+        yPos += (solLines.length * 6);
+        if (yPos > 270) {
+          doc.addPage();
+          yPos = 20;
+        }
+      });
+      yPos += 6;
 
-      const blob = new Blob([content], { type: 'text/plain;charset=utf-8' });
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.setAttribute('download', `ASTRA_Report_${report.id}_${report.name.replace(/[^a-zA-Z0-9]/g, '_')}.txt`);
-      document.body.appendChild(link);
-      link.click();
-      link.parentNode?.removeChild(link);
-      toast.success(`Downloaded Security Report #${report.id} (${report.name})`);
+      if (yPos > 250) {
+        doc.addPage();
+        yPos = 20;
+      }
+
+      yPos = addSection('COMPLIANCE FRAMEWORK ALIGNMENTS', yPos);
+      doc.setFont('helvetica', 'normal');
+      report.complianceStandards.forEach((std) => {
+        doc.text(`• ${std}`, leftMargin, yPos);
+        yPos += 6;
+      });
+
+      doc.setFontSize(8);
+      doc.setTextColor(100, 100, 100);
+      doc.text('Generated by ASTRA Aegis AI Security Engine v2.1.0-Enterprise', 105, 285, { align: 'center' });
+      doc.text('Confidential & Proprietary Audit Record - All Rights Reserved', 105, 290, { align: 'center' });
+
+      doc.save(`ASTRA_Report_${report.id}_${report.name.replace(/[^a-zA-Z0-9]/g, '_')}.pdf`);
+      toast.success(`Downloaded Security Report #${report.id} (${report.name}) as PDF`);
     } catch (e) {
       console.error('Failed to download report', e);
-      toast.error('Failed to generate report download');
+      toast.error('Failed to generate PDF report');
     }
   };
 
@@ -689,7 +614,7 @@ Confidential & Proprietary Audit Record - All Rights Reserved
                             title="Download Comprehensive Incident Audit Report (.txt)"
                           >
                             <Download size={14} />
-                            <span>Download</span>
+                            <span>Download PDF</span>
                           </Button>
                         </div>
                       </td>
@@ -832,7 +757,7 @@ Confidential & Proprietary Audit Record - All Rights Reserved
                   className="text-black font-bold bg-primary hover:bg-cyan-300 shadow-[0_0_15px_rgba(5,217,232,0.4)] text-xs flex items-center gap-1.5 px-4 h-9 cursor-pointer"
                 >
                   <Download size={15} />
-                  <span>Download Full Report (.txt)</span>
+                  <span>Download Full Report (.pdf)</span>
                 </Button>
               </div>
             </motion.div>

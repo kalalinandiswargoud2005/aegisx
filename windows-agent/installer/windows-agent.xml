@@ -1,16 +1,24 @@
 <service>
   <id>ASTRA-Windows-Agent</id>
-  <name>ASTRA Windows Agent</name>
-  <description>Enterprise Monitoring Agent for ASTRA Security Platform</description>
+  <name>ASTRA Windows EDR Agent</name>
+  <description>ASTRA Autonomous Threat Intelligence and Endpoint Security Response Agent.</description>
   
   <executable>java</executable>
-  <arguments>-jar "%BASE%\windows-agent-1.0.0.jar"</arguments>
+  <arguments>-Djava.awt.headless=true -Xmx512m -jar "%BASE%\windows-agent.jar"</arguments>
   
-  <log mode="roll"></log>
+  <log mode="roll">
+    <logpath>%BASE%\logs</logpath>
+  </log>
+  
   <startmode>Automatic</startmode>
-  <delayedAutoStart>true</delayedAutoStart>
+  <delayedAutoStart>false</delayedAutoStart>
   <stoptimeout>15sec</stoptimeout>
   
-  <!-- Ensures the service restarts automatically if it crashes -->
   <onfailure action="restart" delay="10 sec"/>
+  <onfailure action="restart" delay="20 sec"/>
+  <resetfailure>1 hour</resetfailure>
+  
+  <serviceaccount>
+    <username>NT AUTHORITY\SYSTEM</username>
+  </serviceaccount>
 </service>

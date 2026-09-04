@@ -1,0 +1,18 @@
+<service>
+  <id>AstraEDR</id>
+  <name>ASTRA Autonomous EDR Service</name>
+  <description>Enterprise Autonomous Threat Intelligence and Endpoint Security Response Agent for ASTRA Platform.</description>
+  <executable>%JAVA_HOME%\bin\java.exe</executable>
+  <arguments>-Xmx512m -jar "%BASE%\windows-agent.jar"</arguments>
+  <logmode>rotate</logmode>
+  <logpath>%BASE%\logs</logpath>
+  <startmode>Automatic</startmode>
+  <env name="ASTRA_HOME" value="%BASE%"/>
+  <onfailure action="restart" delay="10 sec"/>
+  <onfailure action="restart" delay="20 sec"/>
+  <onfailure action="restart" delay="30 sec"/>
+  <resetfailure>1 hour</resetfailure>
+  <serviceaccount>
+    <username>NT AUTHORITY\SYSTEM</username>
+  </serviceaccount>
+</service>

@@ -1,11 +1,13 @@
 package com.astra.windowsagent.monitor;
 
 import com.astra.windowsagent.dispatcher.ThreatDispatcher;
+import com.astra.windowsagent.util.CommandRunner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import java.util.Random;
+
+import jakarta.annotation.PostConstruct;
 
 @Slf4j
 @Component
@@ -13,15 +15,40 @@ import java.util.Random;
 public class RDPMonitor {
 
     private final ThreatDispatcher dispatcher;
-    private final Random random = new Random();
+    private boolean wasRdpEnabled = false;
 
-    @Scheduled(fixedRateString = "${agent.monitor.rate:60000}")
+    @PostConstruct
+    public void init() {
+        wasRdpEnabled = isRdpCurrentlyEnabled();
+        log.info("Initialized baseline RDP enabled state: {}", wasRdpEnabled);
+    }
+
+    @Scheduled(fixedRateString = "${agent.monitor.rate:15000}")
     public void check() {
-        // Lightweight Mock Implementation
-        // In a real scenario, this would query WMI, PowerShell, or OSHI
-        if (random.nextDouble() < 0.05) { // 5% chance to trigger an anomaly for demonstration
-            log.warn("RDPMonitor detected an anomaly!");
-            dispatcher.dispatch("RDPAlert", "RDPMonitor detected suspicious activity");
+        try {
+            boolean isRdpEnabled = isRdpCurrentlyEnabled();
+            if (isRdpEnabled && !wasRdpEnabled) {
+                log.warn("Remote Desktop (RDP) was enabled on endpoint!");
+                dispatcher.dispatch("RDPEnabled", "Remote Desktop (Terminal Services) was enabled unexpectedly");
+                wasRdpEnabled = true;
+            } else if (!isRdpEnabled && wasRdpEnabled) {
+                log.info("Remote Desktop (RDP) was disabled.");
+                wasRdpEnabled = false;
+            }
+        } catch (Exception e) {
+            log.error("Failed to check RDP status", e);
         }
+    }
+
+    private boolean isRdpCurrentlyEnabled() {
+        try {
+            String output = CommandRunner.runPowerShell("(Get-ItemProperty -Path 'HKLM:\\System\\CurrentControlSet\\Control\\Terminal Server' -Name 'fDenyTSConnections' -ErrorAction SilentlyContinue).fDenyTSConnections");
+            if (output != null && !output.trim().isEmpty()) {
+                return "0".equals(output.trim());
+            }
+        } catch (Exception e) {
+            log.error("Failed to query RDP registry setting", e);
+        }
+        return false;
     }
 }

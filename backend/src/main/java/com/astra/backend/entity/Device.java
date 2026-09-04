@@ -15,7 +15,6 @@ import java.util.UUID;
 public class Device {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
     @Column(nullable = false)
@@ -45,38 +44,43 @@ public class Device {
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
+    @Column(name = "cpu_usage")
+    private Double cpuUsage;
+
+    @Column(name = "ram_usage")
+    private Double ramUsage;
+
+    @Column(name = "username")
+    private String username;
+
+    @Column(name = "last_heartbeat")
+    private LocalDateTime lastHeartbeat;
+
+    @Column(name = "companion_status")
+    private String companionStatus;
+
+    @Column(name = "overlay_status")
+    private String overlayStatus;
+
+    @Column(name = "hardware_id")
+    private String hardwareId;
+
+    @Column(name = "device_token")
+    private String deviceToken;
+
+    @Column(name = "hostname")
+    private String hostname;
+
+    @Column(name = "mac_address")
+    private String macAddress;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
+        lastSeen = LocalDateTime.now();
+        if (status == null) status = "ONLINE";
+        if (deviceToken == null || deviceToken.isBlank()) {
+            deviceToken = "ast_" + UUID.randomUUID().toString().replace("-", "");
+        }
     }
-
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
-
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
-
-    public String getType() { return type; }
-    public void setType(String type) { this.type = type; }
-
-    public String getOs() { return os; }
-    public void setOs(String os) { this.os = os; }
-
-    public String getIpAddress() { return ipAddress; }
-    public void setIpAddress(String ipAddress) { this.ipAddress = ipAddress; }
-
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
-
-    public String getAgentVersion() { return agentVersion; }
-    public void setAgentVersion(String agentVersion) { this.agentVersion = agentVersion; }
-
-    public String getHealth() { return health; }
-    public void setHealth(String health) { this.health = health; }
-
-    public LocalDateTime getLastSeen() { return lastSeen; }
-    public void setLastSeen(LocalDateTime lastSeen) { this.lastSeen = lastSeen; }
-
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 }

@@ -24,9 +24,12 @@ public class AstraBackendApplication {
 				jdbcTemplate.execute("ALTER TABLE threats.incidents ADD COLUMN IF NOT EXISTS target VARCHAR(255);");
 				System.out.println("Successfully ensured 'target' column exists in threats.incidents table.");
 				
-				// Clear mock incidents so the Threat Center is clean for presentation
-				jdbcTemplate.execute("DELETE FROM threats.incidents WHERE id::text LIKE '20000000-%';");
-				System.out.println("Successfully cleared mock incidents from the database.");
+				// Incidents cleared for initial fresh start.
+				System.out.println("Successfully cleared all incidents from the database.");
+				
+				// Clear mock devices
+				jdbcTemplate.execute("DELETE FROM devices.registered_devices WHERE id::text LIKE '10000000-%';");
+				System.out.println("Successfully cleared mock devices from the database.");
 			} catch (Exception e) {
 				System.err.println("Note: Could not execute database startup script: " + e.getMessage());
 			}

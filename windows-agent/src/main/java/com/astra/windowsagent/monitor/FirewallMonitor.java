@@ -1,11 +1,11 @@
 package com.astra.windowsagent.monitor;
 
 import com.astra.windowsagent.dispatcher.ThreatDispatcher;
+import com.astra.windowsagent.util.CommandRunner;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
-import java.util.Random;
 
 @Slf4j
 @Component
@@ -13,15 +13,25 @@ import java.util.Random;
 public class FirewallMonitor {
 
     private final ThreatDispatcher dispatcher;
-    private final Random random = new Random();
+    private boolean wasFirewallDisabled = false;
 
-    @Scheduled(fixedRateString = "${agent.monitor.rate:60000}")
+    @Scheduled(fixedRateString = "${agent.monitor.rate:15000}")
     public void check() {
-        // Lightweight Mock Implementation
-        // In a real scenario, this would query WMI, PowerShell, or OSHI
-        if (random.nextDouble() < 0.05) { // 5% chance to trigger an anomaly for demonstration
-            log.warn("FirewallMonitor detected an anomaly!");
-            dispatcher.dispatch("FirewallDisabled", "FirewallMonitor detected suspicious activity");
+        try {
+            String output = CommandRunner.runPowerShell("(Get-NetFirewallProfile).Enabled");
+            if (output != null && !output.isEmpty()) {
+                boolean hasDisabledProfile = output.toLowerCase().contains("false");
+                if (hasDisabledProfile && !wasFirewallDisabled) {
+                    log.warn("Windows Firewall profile was disabled!");
+                    dispatcher.dispatch("FirewallDisabled", "One or more Windows Firewall profiles (Domain/Private/Public) were turned off");
+                    wasFirewallDisabled = true;
+                } else if (!hasDisabledProfile && wasFirewallDisabled) {
+                    log.info("Windows Firewall profiles restored to enabled.");
+                    wasFirewallDisabled = false;
+                }
+            }
+        } catch (Exception e) {
+            log.error("Failed to check Firewall status", e);
         }
     }
 }

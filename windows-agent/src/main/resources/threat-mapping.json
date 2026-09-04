@@ -15,5 +15,12 @@
   "RDPEnabled": "THREAT-2026-016",
   "FileIntegrityViolation": "THREAT-2026-024",
   "EventLogCleared": "THREAT-2026-016",
-  "SecurityCenterAlert": "THREAT-2026-029"
+  "SecurityCenterAlert": "THREAT-2026-029",
+  "SimulatedRansomware": "THREAT-001",
+  "SimulatedRegistryHijack": "THREAT-002",
+  "SimulatedBackdoor": "THREAT-003",
+  "SimulatedExfiltration": "THREAT-004",
+  "SimulatedPrivilegeEscalation": "THREAT-005",
+  "SimulatedWallpaperHijack": "THREAT-006",
+  "SimulatedGhostTyper": "THREAT-007"
 }

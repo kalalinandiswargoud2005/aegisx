@@ -35,8 +35,10 @@ export function CyberBackground() {
         transition={{ type: "tween", ease: "backOut", duration: 1.5 }}
       />
       
-      {/* Base Grid */}
-      <div className="absolute inset-0 cyber-grid opacity-20"></div>
+      {/* 3D Base Grid */}
+      <div className="absolute inset-0 overflow-hidden perspective-[1000px]">
+        <div className="cyber-grid-3d opacity-30"></div>
+      </div>
       
       {/* Slow Moving Scanline */}
       <motion.div 

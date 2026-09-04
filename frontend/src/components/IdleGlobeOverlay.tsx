@@ -2,44 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-
-interface City {
-  name: string;
-  x: number;
-  y: number;
-  country: string;
-}
-
-const GLOBAL_NODES: City[] = [
-  { name: 'SAN FRANCISCO', x: 0.18, y: 0.38, country: 'USA' },
-  { name: 'NEW YORK', x: 0.29, y: 0.35, country: 'USA' },
-  { name: 'LONDON', x: 0.48, y: 0.28, country: 'UK' },
-  { name: 'BERLIN', x: 0.53, y: 0.26, country: 'GERMANY' },
-  { name: 'TOKYO', x: 0.85, y: 0.38, country: 'JAPAN' },
-  { name: 'SEOUL', x: 0.82, y: 0.36, country: 'SOUTH KOREA' },
-  { name: 'MUMBAI', x: 0.69, y: 0.48, country: 'INDIA' },
-  { name: 'SINGAPORE', x: 0.78, y: 0.58, country: 'SINGAPORE' },
-  { name: 'SYDNEY', x: 0.89, y: 0.78, country: 'AUSTRALIA' },
-  { name: 'SAO PAULO', x: 0.35, y: 0.72, country: 'BRAZIL' },
-  { name: 'CAIRO', x: 0.57, y: 0.44, country: 'EGYPT' },
-];
-
-interface LaserBeam {
-  id: number;
-  src: City;
-  dst: City;
-  progress: number;
-  color: string;
-  speed: number;
-}
-
-const BEAM_COLORS = ['#ef4444', '#05d9e8', '#f97316', '#a855f7', '#10b981'];
+import { ParticleField, MouseSpotlight, PulseRings } from '@/pages/Landing';
 
 export function IdleGlobeOverlay() {
   const navigate = useNavigate();
   const [isIdle, setIsIdle] = useState(false);
-  const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const laserBeamsRef = useRef<LaserBeam[]>([]);
   const idleTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const resetIdleTimer = () => {
@@ -57,7 +24,6 @@ export function IdleGlobeOverlay() {
 
   // 1. Inactivity & Manual Trigger Listener
   useEffect(() => {
-    // ANY keypress or click when idle returns immediately to dashboard
     const handleKeyDown = () => {
       if (isIdle) {
         handleExitToDashboard();
@@ -92,116 +58,17 @@ export function IdleGlobeOverlay() {
     };
   }, [isIdle]);
 
-  // 2. Spawn Laser Beams
-  useEffect(() => {
-    if (!isIdle) return;
-
-    const spawnInterval = setInterval(() => {
-      const src = GLOBAL_NODES[Math.floor(Math.random() * GLOBAL_NODES.length)];
-      let dst = GLOBAL_NODES[Math.floor(Math.random() * GLOBAL_NODES.length)];
-      while (dst.name === src.name) {
-        dst = GLOBAL_NODES[Math.floor(Math.random() * GLOBAL_NODES.length)];
-      }
-
-      const color = BEAM_COLORS[Math.floor(Math.random() * BEAM_COLORS.length)];
-      const newBeam: LaserBeam = {
-        id: Date.now() + Math.random(),
-        src,
-        dst,
-        progress: 0,
-        color,
-        speed: 0.01 + Math.random() * 0.012,
-      };
-
-      laserBeamsRef.current = [newBeam, ...laserBeamsRef.current].slice(0, 14);
-    }, 900);
-
-    return () => clearInterval(spawnInterval);
-  }, [isIdle]);
-
-  // 3. Canvas Rendering
-  useEffect(() => {
-    if (!isIdle || !canvasRef.current) return;
-    const canvas = canvasRef.current;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    let animId: number;
-
-    const render = () => {
-      const width = (canvas.width = canvas.offsetWidth);
-      const height = (canvas.height = canvas.offsetHeight);
-
-      ctx.clearRect(0, 0, width, height);
-
-      // Draw Connection Lines
-      ctx.strokeStyle = 'rgba(5, 217, 232, 0.08)';
-      ctx.lineWidth = 1;
-      GLOBAL_NODES.forEach((node1, idx) => {
-        GLOBAL_NODES.slice(idx + 1).forEach((node2) => {
-          ctx.beginPath();
-          ctx.moveTo(node1.x * width, node1.y * height);
-          ctx.lineTo(node2.x * width, node2.y * height);
-          ctx.stroke();
-        });
-      });
-
-      // Draw Laser Arc Beams
-      laserBeamsRef.current.forEach((beam) => {
-        beam.progress += beam.speed;
-        if (beam.progress > 1) beam.progress = 0;
-
-        const x1 = beam.src.x * width;
-        const y1 = beam.src.y * height;
-        const x2 = beam.dst.x * width;
-        const y2 = beam.dst.y * height;
-
-        const midX = (x1 + x2) / 2;
-        const midY = (y1 + y2) / 2 - Math.abs(x2 - x1) * 0.25;
-
-        // Firing Arc
-        ctx.strokeStyle = beam.color;
-        ctx.lineWidth = 2;
-        ctx.shadowColor = beam.color;
-        ctx.shadowBlur = 12;
-        ctx.beginPath();
-        ctx.moveTo(x1, y1);
-        ctx.quadraticCurveTo(midX, midY, x2, y2);
-        ctx.stroke();
-        ctx.shadowBlur = 0;
-
-        // Moving Pulse Bullet
-        const t = beam.progress;
-        const bx = (1 - t) * (1 - t) * x1 + 2 * (1 - t) * t * midX + t * t * x2;
-        const by = (1 - t) * (1 - t) * y1 + 2 * (1 - t) * t * midY + t * t * y2;
-
-        ctx.fillStyle = '#ffffff';
-        ctx.shadowColor = beam.color;
-        ctx.shadowBlur = 15;
-        ctx.beginPath();
-        ctx.arc(bx, by, 5, 0, Math.PI * 2);
-        ctx.fill();
-        ctx.shadowBlur = 0;
-
-        // Target Impact Ring
-        if (t > 0.88) {
-          ctx.strokeStyle = beam.color;
-          ctx.lineWidth = 1.5;
-          ctx.beginPath();
-          ctx.arc(x2, y2, (t - 0.88) * 140, 0, Math.PI * 2);
-          ctx.stroke();
-        }
-      });
-
-      animId = requestAnimationFrame(render);
-    };
-
-    render();
-
-    return () => cancelAnimationFrame(animId);
-  }, [isIdle]);
-
   if (!isIdle) return null;
+
+  const tagline = ['DETECT', 'DEFEND', 'DEFEAT'];
+  const letterVariants: any = {
+    hidden: { opacity: 0, y: 80 },
+    visible: (i: number) => ({
+      opacity: 1,
+      y: 0,
+      transition: { delay: 0.2 + i * 0.06, duration: 0.7, ease: [0.22, 1, 0.36, 1] },
+    }),
+  };
 
   return (
     <AnimatePresence>
@@ -209,47 +76,56 @@ export function IdleGlobeOverlay() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.2 }}
+        transition={{ duration: 0.5 }}
         onClick={handleExitToDashboard}
-        className="fixed inset-0 z-50 flex flex-col justify-between bg-[#020617] text-white font-mono select-none overflow-hidden cursor-pointer"
+        className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#02020a] text-white font-mono select-none overflow-hidden cursor-pointer"
       >
-        {/* Background Visual Layers */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-cyan-950/40 via-[#020617] to-[#020617] pointer-events-none" />
-        <div className="absolute inset-0 cyber-grid opacity-25 pointer-events-none" />
+        {/* Layered background */}
+        <ParticleField />
+        <MouseSpotlight />
+        <PulseRings />
 
-        {/* Vector World Map Background */}
+        {/* Deep radial glow in center */}
         <div
-          className="absolute inset-0 bg-contain bg-center bg-no-repeat opacity-50 filter drop-shadow-[0_0_35px_rgba(5,217,232,0.4)] pointer-events-none"
+          className="absolute inset-0 pointer-events-none z-[1]"
           style={{
-            backgroundImage: `url('https://upload.wikimedia.org/wikipedia/commons/8/80/World_map_-_low_resolution.svg')`,
-            filter: 'invert(58%) sepia(85%) saturate(452%) hue-rotate(140deg) brightness(95%) contrast(92%)',
+            background:
+              'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(5,217,232,0.06) 0%, rgba(255,0,127,0.03) 50%, transparent 80%)',
           }}
         />
 
-        {/* Canvas Animation Layer */}
-        <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-10 pointer-events-none" />
-
-        {/* Pulsing City Nodes */}
-        <div className="absolute inset-0 z-20 pointer-events-none">
-          {GLOBAL_NODES.map((city) => (
-            <div
-              key={city.name}
-              className="absolute transform -translate-x-1/2 -translate-y-1/2 flex flex-col items-center"
-              style={{ left: `${city.x * 100}%`, top: `${city.y * 100}%` }}
-            >
-              <div className="relative flex items-center justify-center w-4 h-4">
-                <div className="absolute inset-0 rounded-full bg-primary/60 animate-ping" />
-                <div className="w-2.5 h-2.5 rounded-full bg-primary border border-black shadow-[0_0_12px_#05d9e8]" />
-              </div>
-              <span className="mt-1 text-[9px] font-mono font-bold text-cyan-300 tracking-wider opacity-80">
-                {city.name}
-              </span>
-            </div>
-          ))}
+        {/* Corner decorations */}
+        {/* TL */}
+        <div className="absolute top-0 left-0 z-10 pointer-events-none">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <path d="M2 60 L2 2 L60 2" stroke="rgba(5,217,232,0.25)" strokeWidth="1.5" fill="none"/>
+            <circle cx="2" cy="2" r="3" fill="#05D9E8" opacity="0.5"/>
+          </svg>
+        </div>
+        {/* TR */}
+        <div className="absolute top-0 right-0 z-10 pointer-events-none">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <path d="M118 60 L118 2 L60 2" stroke="rgba(5,217,232,0.25)" strokeWidth="1.5" fill="none"/>
+            <circle cx="118" cy="2" r="3" fill="#05D9E8" opacity="0.5"/>
+          </svg>
+        </div>
+        {/* BL */}
+        <div className="absolute bottom-0 left-0 z-10 pointer-events-none">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <path d="M2 60 L2 118 L60 118" stroke="rgba(255,0,127,0.2)" strokeWidth="1.5" fill="none"/>
+            <circle cx="2" cy="118" r="3" fill="#FF007F" opacity="0.4"/>
+          </svg>
+        </div>
+        {/* BR */}
+        <div className="absolute bottom-0 right-0 z-10 pointer-events-none">
+          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
+            <path d="M118 60 L118 118 L60 118" stroke="rgba(255,0,127,0.2)" strokeWidth="1.5" fill="none"/>
+            <circle cx="118" cy="118" r="3" fill="#FF007F" opacity="0.4"/>
+          </svg>
         </div>
 
         {/* Top Right Exit Button */}
-        <div className="relative z-30 flex justify-end p-6">
+        <div className="absolute top-0 right-0 z-30 flex justify-end p-6 pointer-events-auto">
           <button
             onClick={(e) => {
               e.stopPropagation();
@@ -262,17 +138,82 @@ export function IdleGlobeOverlay() {
           </button>
         </div>
 
-        {/* Bottom App Name Header (PLACED AFTER / BELOW THE MAP AT THE BOTTOM) */}
-        <div className="relative z-30 pb-10 text-center pointer-events-none">
-          <h1 className="font-rajdhani font-extrabold text-5xl sm:text-7xl md:text-8xl tracking-[0.25em] text-glow text-primary drop-shadow-[0_0_35px_rgba(5,217,232,0.8)] uppercase">
-            ASTRA
-          </h1>
-          <p className="text-xs sm:text-sm text-cyan-300/80 font-mono tracking-[0.35em] uppercase mt-1 drop-shadow-[0_0_10px_rgba(5,217,232,0.4)]">
-            VIGILANCE BEYOND BOUNDARIES
-          </p>
-          <div className="mt-4 inline-block px-4 py-1 bg-black/80 border border-primary/40 text-[11px] font-mono font-bold text-white/60 tracking-[0.2em] uppercase animate-pulse">
-            PRESS ANY KEY OR CLICK TO RETURN TO DASHBOARD
+        {/* MAIN HERO */}
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-6">
+          
+          {/* Title — split into individual letters */}
+          <div
+            className="flex justify-center font-black text-[clamp(7rem,22vw,16rem)] leading-none mb-3"
+            aria-label="ASTRA"
+          >
+            {'ASTRA'.split('').map((ch, i) => (
+              <motion.span
+                key={i}
+                custom={i}
+                variants={letterVariants}
+                initial="hidden"
+                animate="visible"
+                style={{
+                  background: 'linear-gradient(170deg, #ffffff 20%, #05D9E8 55%, #FF007F 100%)',
+                  WebkitBackgroundClip: 'text',
+                  WebkitTextFillColor: 'transparent',
+                  backgroundClip: 'text',
+                  WebkitTextStroke: '1px rgba(5,217,232,0.15)',
+                  filter: 'drop-shadow(0 0 40px rgba(5,217,232,0.6)) drop-shadow(0 0 80px rgba(5,217,232,0.25))',
+                  letterSpacing: '-0.03em',
+                  fontWeight: 900,
+                }}
+              >
+                {ch}
+              </motion.span>
+            ))}
           </div>
+
+          {/* TAGLINE — DETECT · DEFEND · DEFEAT */}
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.9 }}
+            className="mb-14 flex flex-col items-center gap-4"
+          >
+            <div className="flex items-center gap-4 md:gap-8">
+              {tagline.map((word, idx) => (
+                <React.Fragment key={word}>
+                  <motion.span
+                    initial={{ opacity: 0, y: 10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 1.0 + idx * 0.15, duration: 0.6 }}
+                    className="text-xl md:text-3xl font-black tracking-[0.15em] uppercase"
+                    style={{
+                      color: ['#05D9E8', '#FF007F', '#F3E600'][idx],
+                      textShadow: `0 0 20px ${['rgba(5,217,232,0.5)', 'rgba(255,0,127,0.5)', 'rgba(243,230,0,0.5)'][idx]}`,
+                    }}
+                  >
+                    {word}
+                  </motion.span>
+                  {idx < 2 && (
+                    <motion.span
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: 1.1 + idx * 0.15 }}
+                      className="text-white/15 text-3xl font-thin"
+                    >
+                      ·
+                    </motion.span>
+                  )}
+                </React.Fragment>
+              ))}
+            </div>
+          </motion.div>
+
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 2.0, duration: 1 }}
+            className="mt-8 inline-block px-4 py-2 bg-black/80 border border-primary/40 text-[11px] font-mono font-bold text-white/60 tracking-[0.2em] uppercase animate-pulse"
+          >
+            PRESS ANY KEY OR CLICK TO RETURN TO DASHBOARD
+          </motion.div>
         </div>
       </motion.div>
     </AnimatePresence>

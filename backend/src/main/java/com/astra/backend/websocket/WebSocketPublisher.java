@@ -24,4 +24,16 @@ public class WebSocketPublisher {
     public void broadcastTelemetry(Object telemetry) {
         messagingTemplate.convertAndSend("/topic/telemetry", telemetry);
     }
+
+    public void broadcastCommandResult(java.util.UUID deviceId, String result) {
+        messagingTemplate.convertAndSend("/topic/device/" + deviceId + "/terminal", Map.of("result", result));
+    }
+
+    public void broadcastCommandEvent(Object commandEvent) {
+        messagingTemplate.convertAndSend("/topic/commands", commandEvent);
+    }
+
+    public void broadcastDeviceStatus(Object device) {
+        messagingTemplate.convertAndSend("/topic/devices", device);
+    }
 }

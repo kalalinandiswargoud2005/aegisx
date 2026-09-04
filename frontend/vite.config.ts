@@ -14,4 +14,7 @@ export default defineConfig({
     host: true,   // expose on all network interfaces (WiFi, LAN)
     port: 5173,
   },
+  optimizeDeps: {
+    force: true,
+  },
 });

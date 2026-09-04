@@ -28,18 +28,21 @@ public class RecoveryStep {
     @Column(nullable = false)
     private String status; // Pending, In Progress, Completed
 
-    public UUID getId() { return id; }
-    public void setId(UUID id) { this.id = id; }
+    @Column(length = 2048)
+    private String script;
 
-    public String getIncidentId() { return incidentId; }
-    public void setIncidentId(String incidentId) { this.incidentId = incidentId; }
+    @Column(name = "verification_status")
+    private String verificationStatus; // UNVERIFIED, VERIFYING, VERIFIED, FAILED
 
-    public String getTitle() { return title; }
-    public void setTitle(String title) { this.title = title; }
+    @Column(name = "verification_message", columnDefinition = "TEXT")
+    private String verificationMessage;
 
-    public Integer getStepOrder() { return stepOrder; }
-    public void setStepOrder(Integer stepOrder) { this.stepOrder = stepOrder; }
+    @Column(name = "started_at")
+    private java.time.LocalDateTime startedAt;
 
-    public String getStatus() { return status; }
-    public void setStatus(String status) { this.status = status; }
+    @Column(name = "completed_at")
+    private java.time.LocalDateTime completedAt;
+
+    @Column(name = "sequence_number")
+    private Integer sequenceNumber;
 }

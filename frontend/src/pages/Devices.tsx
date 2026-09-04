@@ -7,6 +7,7 @@ import api from '@/lib/api';
 import { toast } from 'sonner';
 import { motion, AnimatePresence } from 'framer-motion';
 import { UsbDeployModal } from '@/components/UsbDeployModal';
+import { useWebSocket } from '@/providers/WebSocketProvider';
 
 const getDeviceIcon = (type: string) => {
   if (type === 'Server') return <Server size={18} className="text-primary" />;
@@ -56,8 +57,8 @@ export function Devices() {
   return (
     <PageContainer>
       <PageHeader 
-        title="Connected Devices"
-        description="Monitor endpoints and agent statuses across your network."
+        title="Active Nodes"
+        description="Monitor uplink nodes and agent telemetry across the secured perimeter."
       >
         <div className="flex items-center gap-3">
           <Button 

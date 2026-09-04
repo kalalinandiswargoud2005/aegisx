@@ -1,11 +1,13 @@
 import React from 'react';
-import { Search, Bell, Moon, Sun, Globe, Mic } from 'lucide-react';
+import { Search, Bell, Moon, Sun, Globe, Bot } from 'lucide-react';
 import { Input, Avatar, Tooltip } from '@/components/ui';
 import { useTheme } from '@/providers/theme-provider';
+import { useAssistant } from '@/providers/AssistantProvider';
 import { motion } from 'framer-motion';
 
 export function Header() {
   const { theme, setTheme } = useTheme();
+  const { toggleAssistant, isAssistantOpen } = useAssistant();
 
   return (
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between glass-panel border-b border-x-0 border-t-0 px-6 backdrop-blur-xl">
@@ -47,6 +49,21 @@ export function Header() {
           })}
         </div>
         
+        <Tooltip content="ASTRA AI Assistant">
+          <motion.button 
+            whileHover={{ scale: 1.1, backgroundColor: "rgba(0,255,65,0.1)" }}
+            whileTap={{ scale: 0.95 }}
+            onClick={toggleAssistant}
+            className={`rounded-full p-2 transition-colors border ${
+              isAssistantOpen 
+                ? 'text-primary border-primary bg-primary/10 shadow-[0_0_15px_rgba(0,255,65,0.3)]' 
+                : 'text-white/70 hover:text-primary border-transparent hover:border-primary/50'
+            }`}
+          >
+            <Bot size={20} />
+          </motion.button>
+        </Tooltip>
+
         <Tooltip content="Notifications">
           <motion.button 
             whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.1)" }}

@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.Map;
 import java.util.Random;
+
 import java.util.UUID;
 
 @Slf4j
@@ -23,60 +24,31 @@ public class SimulationService {
     private final NotificationService notificationService;
     private final com.astra.backend.repository.IncidentRepository incidentRepository;
     private final RecoveryService recoveryService;
+    private final com.astra.backend.service.CommandDispatchService commandDispatchService;
+    private final com.astra.backend.service.DeviceService deviceService;
     private final Random random = new Random();
 
-    private boolean demoModeActive = false;
-    private int currentScenarioIndex = 0;
-
-    public void startDemoMode() {
-        log.info("Starting HOD Presentation Mode...");
-        demoModeActive = true;
-        currentScenarioIndex = 0;
-        notificationService.sendNotification("simulation", Map.of("status", "STARTED", "mode", "DEMO"));
-    }
-
-    public void stopDemoMode() {
-        log.info("Stopping HOD Presentation Mode.");
-        demoModeActive = false;
-        notificationService.sendNotification("simulation", Map.of("status", "STOPPED"));
-    }
-    
-    public boolean isDemoModeActive() {
-        return demoModeActive;
-    }
-
-    @Scheduled(fixedDelay = 15000) // Trigger every 15 seconds during Demo Mode
-    public void runDemoLoop() {
-        if (!demoModeActive) return;
-
-        var scenarios = threatLibraryService.getAllScenarios();
-        if (scenarios.isEmpty()) return;
-
-        ScenarioDto scenario = scenarios.get(currentScenarioIndex % scenarios.size());
-        currentScenarioIndex++;
-        
-        triggerScenario(scenario);
-    }
-
-    public Incident triggerRandomScenario() {
+    public Incident triggerRandomScenario(String target) {
         var scenarios = threatLibraryService.getAllScenarios();
         if (scenarios.isEmpty()) return null;
         ScenarioDto scenario = scenarios.get(random.nextInt(scenarios.size()));
-        return triggerScenario(scenario);
+        return triggerScenario(scenario, target);
     }
 
     public java.util.List<ScenarioDto> getAllScenarios() {
         return threatLibraryService.getAllScenarios();
     }
 
-    public Incident triggerScenarioById(String threatId) {
+    public Incident triggerScenarioById(String threatId, String target) {
         ScenarioDto scenario = threatLibraryService.getScenarioById(threatId);
         if (scenario == null) return null;
-        return triggerScenario(scenario);
+        return triggerScenario(scenario, target);
     }
 
-    public Incident triggerScenario(ScenarioDto scenario) {
+    public Incident triggerScenario(ScenarioDto scenario, String target) {
         log.info("Triggering Simulation: {}", scenario.getThreatName());
+
+        String targetStr = target != null ? target : "SIMULATED-DEVICE-01 / 10.0.0." + (random.nextInt(254) + 1);
 
         Incident simulatedIncident = Incident.builder()
                 .id(UUID.randomUUID())
@@ -84,7 +56,7 @@ public class SimulationService {
                 .type(scenario.getCategory())
                 .severity(scenario.getSeverity())
                 .status("ACTIVE")
-                .target("SIMULATED-DEVICE-01 / 10.0.0." + (random.nextInt(254) + 1))
+                .target(targetStr)
                 .aiExplanation(scenario.getAiSummary())
                 .build();
                 
@@ -92,7 +64,11 @@ public class SimulationService {
         simulatedIncident = incidentRepository.save(simulatedIncident);
                 
         // Generate recovery steps
-        recoveryService.generateRecoveryStepsForIncident(simulatedIncident.getId(), scenario.getImmediateAction(), scenario.getRecoveryWorkflow());
+        if (scenario.getDynamicRecovery() != null && !scenario.getDynamicRecovery().isEmpty()) {
+            recoveryService.generateDynamicRecoveryStepsForIncident(simulatedIncident.getId(), scenario.getImmediateAction(), scenario.getDynamicRecovery());
+        } else {
+            recoveryService.generateRecoveryStepsForIncident(simulatedIncident.getId(), scenario.getImmediateAction(), scenario.getRecoveryWorkflow());
+        }
                 
         // Stream to WebSocket clients
         notificationService.sendNotification("threats", simulatedIncident);
@@ -103,6 +79,29 @@ public class SimulationService {
             "animation", scenario.getDashboardAnimation()
         ));
         
+        // Dispatch SHOW_THREAT_ALERT to the target device if it exists and is online
+        try {
+            java.util.List<com.astra.backend.entity.Device> devices = deviceService.getAllDevices();
+            if (!devices.isEmpty()) {
+                com.astra.backend.entity.Device targetDevice = devices.stream()
+                        .filter(d -> "ONLINE".equalsIgnoreCase(d.getStatus()))
+                        .findFirst()
+                        .orElse(devices.get(0));
+                
+                if ("ONLINE".equalsIgnoreCase(targetDevice.getStatus())) {
+                    commandDispatchService.queueCommand(
+                            targetDevice.getId(),
+                            simulatedIncident.getId(),
+                            "SHOW_THREAT_ALERT",
+                            "{\"target\":\"" + scenario.getThreatName() + "\"}"
+                    );
+                    log.info("Dispatched SHOW_THREAT_ALERT to device {}", targetDevice.getName());
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Failed to dispatch threat alert command: {}", e.getMessage());
+        }
+
         return simulatedIncident;
     }
 }

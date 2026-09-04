@@ -15,26 +15,9 @@ public class SimulationController {
 
     private final SimulationService simulationService;
 
-    @PostMapping("/demo/start")
-    public ResponseEntity<Map<String, String>> startDemo() {
-        simulationService.startDemoMode();
-        return ResponseEntity.ok(Map.of("status", "Demo Started"));
-    }
-
-    @PostMapping("/demo/stop")
-    public ResponseEntity<Map<String, String>> stopDemo() {
-        simulationService.stopDemoMode();
-        return ResponseEntity.ok(Map.of("status", "Demo Stopped"));
-    }
-
-    @GetMapping("/demo/status")
-    public ResponseEntity<Map<String, Boolean>> getDemoStatus() {
-        return ResponseEntity.ok(Map.of("active", simulationService.isDemoModeActive()));
-    }
-
     @PostMapping("/trigger/random")
-    public ResponseEntity<Incident> triggerRandom() {
-        Incident incident = simulationService.triggerRandomScenario();
+    public ResponseEntity<Incident> triggerRandom(@RequestParam(required = false) String target) {
+        Incident incident = simulationService.triggerRandomScenario(target);
         if (incident == null) return ResponseEntity.internalServerError().build();
         return ResponseEntity.ok(incident);
     }
@@ -45,9 +28,14 @@ public class SimulationController {
     }
 
     @PostMapping("/trigger/{threatId}")
-    public ResponseEntity<Incident> triggerScenarioById(@PathVariable String threatId) {
-        Incident incident = simulationService.triggerScenarioById(threatId);
-        if (incident == null) return ResponseEntity.notFound().build();
-        return ResponseEntity.ok(incident);
+    public ResponseEntity<?> triggerScenarioById(@PathVariable String threatId, @RequestParam(required = false) String target) {
+        try {
+            Incident incident = simulationService.triggerScenarioById(threatId, target);
+            if (incident == null) return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(incident);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return ResponseEntity.internalServerError().body(Map.of("error", e.getMessage() != null ? e.getMessage() : e.toString()));
+        }
     }
 }

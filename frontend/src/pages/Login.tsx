@@ -58,8 +58,8 @@ export function Login() {
               <Shield className="w-8 h-8 text-primary" />
             </div>
             <h1 className="text-2xl font-bold font-space tracking-wider text-glow">ASTRA SOC</h1>
-            <p className="text-sm text-gray-400 mt-2 font-inter text-center">
-              Enterprise Threat Simulation & Security Response Platform
+            <p className="text-sm text-primary/70 font-mono tracking-wider mt-4">
+              Enterprise Threat Attacks & Security Response Platform
             </p>
           </div>
 

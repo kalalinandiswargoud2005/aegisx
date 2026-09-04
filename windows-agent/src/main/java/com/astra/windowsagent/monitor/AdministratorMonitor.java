@@ -11,7 +11,6 @@ import jakarta.annotation.PostConstruct;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Arrays;
-import java.util.Random;
 
 @Slf4j
 @Component
@@ -19,7 +18,6 @@ import java.util.Random;
 public class AdministratorMonitor {
 
     private final ThreatDispatcher dispatcher;
-    private final Random random = new Random();
     private Set<String> knownAdmins = new HashSet<>();
 
     @PostConstruct
@@ -40,11 +38,6 @@ public class AdministratorMonitor {
                     // Add to known to prevent alert loop until remediated
                     knownAdmins.add(admin); 
                 }
-            }
-
-            if (random.nextDouble() < 0.02) { 
-                log.info("AdministratorMonitor triggered mock anomaly");
-                dispatcher.dispatch("NewAdministrator", "Mock hacker admin created");
             }
         } catch (Exception e) {
             log.error("Failed to check Administrators group", e);

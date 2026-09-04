@@ -8,8 +8,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
-import java.util.Random;
+import java.util.Set;
 
 @Slf4j
 @Component
@@ -17,8 +18,12 @@ import java.util.Random;
 public class ProcessMonitor {
 
     private final ThreatDispatcher dispatcher;
-    private final Random random = new Random();
-    private final List<String> maliciousProcesses = Arrays.asList("mimikatz", "nc", "nmap", "ransomware_sim", "netcat");
+    private final List<String> maliciousProcesses = Arrays.asList(
+        "mimikatz", "nc", "nmap", "ransomware_sim", "netcat", 
+        "wireshark", "hydra", "metasploit", "msfconsole", 
+        "attack_simulation", "simulated_malware"
+    );
+    private final Set<String> activeAlertedProcesses = new HashSet<>();
 
     @Scheduled(fixedRateString = "${agent.monitor.rate:10000}")
     public void check() {
@@ -26,20 +31,25 @@ public class ProcessMonitor {
             String output = CommandRunner.runPowerShell("Get-Process | Select-Object -ExpandProperty Name");
             if (output != null && !output.isEmpty()) {
                 String[] runningProcesses = output.split("\\r?\\n");
-                for (String process : runningProcesses) {
-                    process = process.trim().toLowerCase();
+                Set<String> currentlyRunning = new HashSet<>();
+                for (String p : runningProcesses) {
+                    currentlyRunning.add(p.trim().toLowerCase());
+                }
+
+                for (String process : currentlyRunning) {
                     for (String malicious : maliciousProcesses) {
                         if (process.equals(malicious) || process.startsWith(malicious + ".")) {
-                            log.warn("Malicious process detected: {}", process);
-                            dispatcher.dispatch("SuspiciousProcess", "Detected known malicious process: " + process);
+                            if (!activeAlertedProcesses.contains(process)) {
+                                log.warn("Malicious process detected: {}", process);
+                                dispatcher.dispatch("SuspiciousProcess", "Detected known malicious/attack process: " + process);
+                                activeAlertedProcesses.add(process);
+                            }
                         }
                     }
                 }
-            }
-
-            if (random.nextDouble() < 0.02) { 
-                log.info("ProcessMonitor triggered mock anomaly for demonstration");
-                dispatcher.dispatch("SuspiciousProcess", "Mock malicious process detected");
+                
+                // Cleanup terminated processes
+                activeAlertedProcesses.retainAll(currentlyRunning);
             }
         } catch (Exception e) {
             log.error("Failed to check processes", e);

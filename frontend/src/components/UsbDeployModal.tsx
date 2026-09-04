@@ -22,12 +22,17 @@ export function UsbDeployModal({ isOpen, onClose }: UsbDeployModalProps) {
   const [drives, setDrives] = useState<UsbDrive[]>([]);
   const [selectedDrive, setSelectedDrive] = useState<string>('');
   const [targetName, setTargetName] = useState<string>('Target-Laptop-01');
+  const [customFolderName, setCustomFolderName] = useState<string>('');
   const [serverUrl, setServerUrl] = useState<string>('');
   const [hostIp, setHostIp] = useState<string>('');
   const [isScanning, setIsScanning] = useState<boolean>(false);
   const [isDeploying, setIsDeploying] = useState<boolean>(false);
   const [progress, setProgress] = useState<number>(0);
   const [deployResult, setDeployResult] = useState<any>(null);
+
+  const previewFolderName = customFolderName.trim()
+    ? customFolderName.trim().replace(/[^a-zA-Z0-9-_]/g, '_')
+    : `ASTRA_AGENT_${(targetName.trim() || 'Target-Laptop').replace(/[^a-zA-Z0-9-_]/g, '_')}`;
 
   const fetchDrives = async () => {
     setIsScanning(true);
@@ -79,14 +84,15 @@ export function UsbDeployModal({ isOpen, onClose }: UsbDeployModalProps) {
       const res = await api.post('/usb/deploy', {
         drivePath: selectedDrive,
         targetHostname: targetName,
-        serverUrl: serverUrl
+        serverUrl: serverUrl,
+        customFolderName: customFolderName.trim() || undefined
       });
 
       clearInterval(timer);
       setProgress(100);
       setDeployResult(res.data);
       toast.success('Agent Package Flashed to USB!', {
-        description: `Staged installer ready on drive ${selectedDrive}`
+        description: `Staged installer in ${res.data.folderName || previewFolderName}`
       });
     } catch (err: any) {
       toast.error('USB Agent Deployment Failed', {
@@ -124,7 +130,7 @@ export function UsbDeployModal({ isOpen, onClose }: UsbDeployModalProps) {
           </div>
           <button
             onClick={onClose}
-            className="text-white/40 hover:text-white transition-colors p-1"
+            className="text-white/40 hover:text-white transition-colors p-1 cursor-pointer"
           >
             <X size={20} />
           </button>
@@ -189,32 +195,96 @@ export function UsbDeployModal({ isOpen, onClose }: UsbDeployModalProps) {
               )}
             </div>
 
-            {/* Target Laptop Config */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1 flex items-center gap-1.5">
-                  <Laptop size={14} className="text-secondary" /> Target Device Hostname
-                </label>
-                <input
-                  type="text"
-                  value={targetName}
-                  onChange={(e) => setTargetName(e.target.value)}
-                  placeholder="e.g. Target-Laptop-01"
-                  className="w-full bg-surface border border-border-color px-3 py-2 text-sm text-white focus:border-primary focus:outline-none font-mono"
-                />
+            {/* Target Laptop Config & Hostname Editor */}
+            <div className="space-y-3">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1 flex items-center gap-1.5">
+                    <Laptop size={14} className="text-secondary" /> Target Device Hostname
+                  </label>
+                  <input
+                    type="text"
+                    value={targetName}
+                    onChange={(e) => setTargetName(e.target.value)}
+                    placeholder="e.g. Target-Laptop-01"
+                    className="w-full bg-surface border border-border-color px-3 py-2 text-sm text-white focus:border-primary focus:outline-none font-mono"
+                  />
+                  {/* Quick Preset Chips */}
+                  <div className="flex flex-wrap gap-1.5 mt-1.5">
+                    {['Target-Laptop-01', 'Target-Laptop-02', 'Target-PC', 'SOC-Node'].map((preset) => (
+                      <button
+                        key={preset}
+                        type="button"
+                        onClick={() => setTargetName(preset)}
+                        className={`text-[10px] px-1.5 py-0.5 border cursor-pointer transition-colors ${
+                          targetName === preset
+                            ? 'border-primary bg-primary/20 text-primary font-bold'
+                            : 'border-border-color text-white/50 hover:text-white hover:border-white/40'
+                        }`}
+                      >
+                        {preset}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1 flex items-center gap-1.5">
+                    <Server size={14} className="text-primary" /> C2 Server URL
+                  </label>
+                  <input
+                    type="text"
+                    value={serverUrl}
+                    onChange={(e) => setServerUrl(e.target.value)}
+                    placeholder={`http://${hostIp}:8080`}
+                    className="w-full bg-surface border border-border-color px-3 py-2 text-sm text-white focus:border-primary focus:outline-none font-mono"
+                  />
+                  <div className="text-[10px] text-white/40 mt-1">
+                    Auto-detected LAN host IP: <span className="text-primary">{hostIp}</span>
+                  </div>
+                </div>
               </div>
 
+              {/* Custom Folder Name & Path Preview */}
               <div>
-                <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1 flex items-center gap-1.5">
-                  <Server size={14} className="text-primary" /> C2 Server URL
+                <label className="block text-xs font-bold uppercase tracking-wider text-white/70 mb-1 flex items-center justify-between">
+                  <span className="flex items-center gap-1.5">
+                    <Terminal size={14} className="text-accent" /> Custom Folder Name on USB (Optional)
+                  </span>
+                  <span className="text-[11px] text-white/40 lowercase font-normal">
+                    leave blank for auto-generated name
+                  </span>
                 </label>
                 <input
                   type="text"
-                  value={serverUrl}
-                  onChange={(e) => setServerUrl(e.target.value)}
-                  placeholder={`http://${hostIp}:8080`}
+                  value={customFolderName}
+                  onChange={(e) => setCustomFolderName(e.target.value)}
+                  placeholder={`ASTRA_AGENT_${(targetName || 'Target-Laptop').replace(/[^a-zA-Z0-9-_]/g, '_')}`}
                   className="w-full bg-surface border border-border-color px-3 py-2 text-sm text-white focus:border-primary focus:outline-none font-mono"
                 />
+                
+                {/* Live Staging Path Preview */}
+                <div className="mt-1.5 px-2.5 py-1.5 bg-[#030a1c] border border-primary/20 text-[11px] flex items-center gap-2 text-white/70">
+                  <span className="text-primary font-bold uppercase text-[10px]">Staged Path:</span>
+                  <span className="font-mono text-success">
+                    {selectedDrive || 'E:'}\{previewFolderName}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Included Staged Package Files */}
+            <div className="bg-surface/50 border border-primary/20 p-3 text-xs space-y-1.5">
+              <div className="font-bold text-primary flex items-center gap-1.5 uppercase tracking-wider text-[11px]">
+                <ShieldCheck size={13} /> Included in USB Provisioning Kit:
+              </div>
+              <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-white/70 text-[11px]">
+                <div>• <span className="text-white font-mono">windows-agent.jar</span> (EDR Core)</div>
+                <div>• <span className="text-success font-mono">Deploy-Target-Agent.bat</span> (1-Click Install)</div>
+                <div>• <span className="text-white font-mono">Install-Astra.ps1</span> (Service Engine)</div>
+                <div>• <span className="text-danger font-mono">Uninstall-Target-Agent.bat</span> (Clean Remove)</div>
+                <div>• <span className="text-secondary font-mono">Start-Target-Agent-Interactive.bat</span></div>
+                <div>• <span className="text-white font-mono">Astra-UI.vbs & AstraEDR.xml</span> (HUD)</div>
               </div>
             </div>
 
@@ -222,7 +292,7 @@ export function UsbDeployModal({ isOpen, onClose }: UsbDeployModalProps) {
             {isDeploying && (
               <div className="space-y-1.5 pt-2">
                 <div className="flex justify-between text-xs text-primary font-bold">
-                  <span>FLASHING AGENT PAYLOAD TO USB...</span>
+                  <span>FLASHING AGENT PAYLOAD & INSTALLERS TO USB...</span>
                   <span>{progress}%</span>
                 </div>
                 <div className="h-2 w-full bg-surface border border-border-color overflow-hidden">
@@ -244,7 +314,7 @@ export function UsbDeployModal({ isOpen, onClose }: UsbDeployModalProps) {
                 variant="primary"
                 onClick={handleDeploy}
                 disabled={isDeploying || !selectedDrive}
-                className="flex items-center gap-2 shadow-[0_0_20px_rgba(0,240,255,0.4)]"
+                className="flex items-center gap-2 shadow-[0_0_20px_rgba(0,240,255,0.4)] cursor-pointer"
               >
                 <Zap size={16} />
                 {isDeploying ? 'Flashing USB...' : 'Deploy Agent to USB Laptop'}
@@ -261,25 +331,42 @@ export function UsbDeployModal({ isOpen, onClose }: UsbDeployModalProps) {
                   USB PROVISIONING KIT CREATED SUCCESSFULLY!
                 </h3>
                 <p className="text-xs text-white/80 mt-1">
-                  {deployResult.message}
+                  {deployResult.message || `Files staged to ${selectedDrive}${previewFolderName}`}
                 </p>
               </div>
             </div>
 
-            <div className="bg-surface border border-border-color p-4 space-y-2">
+            <div className="bg-surface border border-border-color p-4 space-y-3">
               <div className="text-xs font-bold uppercase text-primary flex items-center gap-1.5">
-                <Terminal size={14} /> Next Steps for Targeted Laptop:
+                <Terminal size={14} /> Usage on Target Laptop:
               </div>
-              <ol className="list-decimal list-inside text-xs text-white/80 space-y-1.5 pl-1">
-                <li>Plug the USB drive into the targeted laptop.</li>
-                <li>Open the <span className="text-secondary font-bold">ASTRA_AGENT_INSTALLER</span> folder on the USB.</li>
-                <li>Right-click <span className="text-success font-bold">Deploy-Target-Agent.bat</span> and select <span className="text-warning font-bold">"Run as Administrator"</span>.</li>
-                <li>The agent will register automatically with this C2 dashboard ({serverUrl}).</li>
-              </ol>
+              <div className="text-xs text-white/60 mb-1">
+                Folder created on USB: <span className="text-success font-bold font-mono">{deployResult.folderName || previewFolderName}</span>
+              </div>
+              <div className="space-y-2 text-xs text-white/80 pl-1">
+                <div>
+                  <span className="font-bold text-success uppercase">1. One-Click Permanent Service Install (Production):</span>
+                  <div className="pl-4 text-white/70 mt-0.5">
+                    Open <span className="text-success font-bold font-mono">{deployResult.folderName || previewFolderName}</span> $\rightarrow$ Right-click <span className="text-success font-bold font-mono">Deploy-Target-Agent.bat</span> $\rightarrow$ <span className="text-warning font-bold">"Run as Administrator"</span>.
+                  </div>
+                </div>
+                <div>
+                  <span className="font-bold text-secondary uppercase">2. Quick Interactive Runner (Testing/Debug Mode):</span>
+                  <div className="pl-4 text-white/70 mt-0.5">
+                    Right-click <span className="text-secondary font-bold font-mono">Start-Target-Agent-Interactive.bat</span> $\rightarrow$ <span className="text-warning font-bold">"Run as Administrator"</span>.
+                  </div>
+                </div>
+                <div>
+                  <span className="font-bold text-danger uppercase">3. Clean Uninstallation:</span>
+                  <div className="pl-4 text-white/70 mt-0.5">
+                    Right-click <span className="text-danger font-bold font-mono">Uninstall-Target-Agent.bat</span> $\rightarrow$ <span className="text-warning font-bold">"Run as Administrator"</span>.
+                  </div>
+                </div>
+              </div>
             </div>
 
             <div className="flex justify-end pt-2">
-              <Button variant="primary" onClick={onClose} className="flex items-center gap-2">
+              <Button variant="primary" onClick={onClose} className="flex items-center gap-2 cursor-pointer">
                 <ShieldCheck size={16} /> Done & Return to Devices
               </Button>
             </div>

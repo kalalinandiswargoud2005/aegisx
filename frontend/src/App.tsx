@@ -6,7 +6,9 @@ import { ThemeProvider } from './providers/theme-provider';
 import { AuthProvider } from './features/auth/AuthContext';
 import { WebSocketProvider } from './providers/WebSocketProvider';
 import { ThreatSystemProvider } from './providers/ThreatSystemProvider';
+import { ScopedDeviceProvider } from './contexts/ScopedDeviceContext';
 import { IdleGlobeOverlay } from './components/IdleGlobeOverlay';
+import { AssistantProvider } from './providers/AssistantProvider';
 import { AppRoutes } from './routes';
 
 // Providers
@@ -28,18 +30,22 @@ export default function App() {
       <QueryClientProvider client={queryClient}>
         <AuthProvider>
           <WebSocketProvider>
-            <BrowserRouter>
-              <ThreatSystemProvider>
-                <div className="relative flex min-h-screen bg-background text-white">
-                  <div className="absolute inset-0 cyber-grid opacity-30 pointer-events-none"></div>
-                  <div className="relative flex flex-col flex-1 w-full min-w-0">
-                    <AppRoutes />
+            <ScopedDeviceProvider>
+              <AssistantProvider>
+                <BrowserRouter>
+                  <ThreatSystemProvider>
+                  <div className="relative flex min-h-screen bg-background text-white">
+                    <div className="absolute inset-0 cyber-grid opacity-30 pointer-events-none"></div>
+                    <div className="relative flex flex-col flex-1 w-full min-w-0">
+                      <AppRoutes />
+                    </div>
                   </div>
-                </div>
-                <IdleGlobeOverlay />
-                <Toaster theme="dark" position="bottom-right" />
-              </ThreatSystemProvider>
-            </BrowserRouter>
+                  <IdleGlobeOverlay />
+                  <Toaster theme="dark" position="bottom-right" />
+                </ThreatSystemProvider>
+                </BrowserRouter>
+              </AssistantProvider>
+            </ScopedDeviceProvider>
           </WebSocketProvider>
         </AuthProvider>
       </QueryClientProvider>

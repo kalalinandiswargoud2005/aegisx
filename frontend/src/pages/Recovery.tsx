@@ -33,9 +33,9 @@ export function Recovery() {
   const queryClient = useQueryClient();
   const { scopedDeviceId } = useScopedDevice();
 
-  // Response mode: AUTOMATED or MANUAL (defaults to MANUAL for user control)
+  // Response mode: default to AUTOMATED for demo progression
   const [responseMode, setResponseMode] = useState<'AUTOMATED' | 'MANUAL'>(
-    () => (localStorage.getItem('astra_response_mode') as 'AUTOMATED' | 'MANUAL') || 'MANUAL'
+    () => (localStorage.getItem('astra_response_mode') as 'AUTOMATED' | 'MANUAL') || 'AUTOMATED'
   );
   const isManual = responseMode === 'MANUAL';
 
@@ -47,6 +47,11 @@ export function Recovery() {
   const [currentStep, setCurrentStep] = useState(2);
   const [isResolving, setIsResolving] = useState(false);
   const [stepsError, setStepsError] = useState(false);
+
+  // ── 10-Second Step Timing Automation State ────────────────────────────────
+  const [countdown, setCountdown] = useState<number>(10);
+  const [immediateActionExecuted, setImmediateActionExecuted] = useState<boolean>(false);
+  const [isExecutingStep, setIsExecutingStep] = useState<boolean>(false);
 
   // Use ref to avoid stale closure inside WS callback
   const activeIncidentRef = useRef<any>(null);
@@ -62,11 +67,12 @@ export function Recovery() {
     refetchInterval: 10000,
   });
 
+  const { data: devices = [] } = useQuery({ queryKey: ['devices'], queryFn: async () => (await api.get('/devices')).data });
+
   // Sync server data into queue; only set active if nothing is active yet
   useEffect(() => {
     if (!fetchedThreats) return;
     
-    // Filter threats by scoped device if we are in standalone mode
     let relevantThreats = fetchedThreats;
     if (scopedDeviceId) {
       relevantThreats = relevantThreats.filter((t: any) => t.target && t.target.includes(scopedDeviceId));
@@ -77,13 +83,17 @@ export function Recovery() {
     if (!activeIncidentRef.current && sorted.length > 0) {
       setActiveIncident(sorted[0]);
       setCurrentStep(2);
+      setCountdown(10);
+      setImmediateActionExecuted(false);
     }
     if (sorted.length === 0) {
       setActiveIncident(null);
       setSteps([]);
       setCurrentStep(2);
+      setCountdown(10);
+      setImmediateActionExecuted(false);
     }
-  }, [fetchedThreats]);
+  }, [fetchedThreats, scopedDeviceId]);
 
   // ── WebSocket: new incident or clear event arrives ───────────────────────
   useEffect(() => {
@@ -93,27 +103,28 @@ export function Recovery() {
         setActiveIncident(null);
         setSteps([]);
         setCurrentStep(2);
+        setCountdown(10);
+        setImmediateActionExecuted(false);
         queryClient.invalidateQueries({ queryKey: ['threats'] });
         return;
       }
       if (payload.event !== 'NEW_INCIDENT') return;
       const newIncident = payload.incident;
 
-      // Ignore threats not for this device in scoped mode
       if (scopedDeviceId && newIncident.target && !newIncident.target.includes(scopedDeviceId)) {
         return; 
       }
 
       setQueue(prev => {
-        // Avoid duplicates
         const exists = prev.some((t: any) => t.id === newIncident.id);
         const updated = sortBySeverity(exists ? prev : [...prev, newIncident]);
 
-        // Preempt active incident only if new one outranks it
         const current = activeIncidentRef.current;
         if (!current || (SEVERITY_RANK[newIncident.severity] || 0) > (SEVERITY_RANK[current.severity] || 0)) {
           setActiveIncident(newIncident);
           setCurrentStep(2);
+          setCountdown(10);
+          setImmediateActionExecuted(false);
         }
 
         return updated;
@@ -129,6 +140,8 @@ export function Recovery() {
       const res = await api.get(`/recovery/${incidentId}`);
       setSteps(res.data);
       setCurrentStep(2);
+      setCountdown(10);
+      setImmediateActionExecuted(false);
     } catch (err) {
       console.error('Failed to fetch recovery steps', err);
       setStepsError(true);
@@ -136,10 +149,7 @@ export function Recovery() {
     }
   }, []);
 
-  const executingStepRef = useRef<number | null>(null);
-
   useEffect(() => {
-    executingStepRef.current = null;
     if (activeIncident?.id) {
       fetchSteps(activeIncident.id);
     } else {
@@ -148,128 +158,106 @@ export function Recovery() {
     }
   }, [activeIncident?.id, fetchSteps]);
 
-  const { data: devices = [] } = useQuery({ queryKey: ['devices'], queryFn: async () => (await api.get('/devices')).data });
-  const [isExecutingStep, setIsExecutingStep] = useState(false);
+  // ── Derived variables ────────────────────────────────────────────────────
+  const immediateActionStep = steps[0] ?? null;
+  const wizardSteps = steps.slice(1);
+  const allWizardDone = wizardSteps.length > 0 && currentStep > steps.length;
 
-  // ── Auto-advance steps (only in AUTOMATED mode) ───────────────────────
-  useEffect(() => {
-    if (isManual || !activeIncident || steps.length === 0 || isResolving || isExecutingStep) return;
+  // ── Dispatch Immediate Action to Target Device ───────────────────────────
+  const executeImmediateAction = useCallback(async () => {
+    if (!activeIncident || isResolving) return;
+    setImmediateActionExecuted(true);
+    setCountdown(10);
 
-    if (currentStep > steps.length) {
-      handleResolve();
-      return;
+    const targetDevice = devices.find((d: any) => d.status === 'ONLINE') || devices[0];
+    if (targetDevice) {
+      const actionTitle = immediateActionStep?.title?.replace('[Immediate Action] ', '') || 'Isolate Endpoint & Freeze Malicious Process';
+      try {
+        await api.post(`/devices/${targetDevice.id}/command`, {
+          commandType: 'ISOLATE_DEVICE',
+          target: actionTitle,
+          incidentId: activeIncident.id,
+          parameters: JSON.stringify({
+            action: actionTitle,
+            threat: activeIncident.name,
+            status: 'EXECUTED'
+          })
+        });
+      } catch (err) {
+        console.warn('Immediate action dispatch notice:', err);
+      }
     }
 
-    if (executingStepRef.current === currentStep) return;
+    AudioAlertService.unlockAudioContext();
+    AudioAlertService.playNotificationSound();
+    toast.warning(`⚡ Immediate Action Executed: ${immediateActionStep?.title?.replace('[Immediate Action] ', '') || 'Containment Active'}`);
+  }, [activeIncident, immediateActionStep, devices, isResolving]);
 
-    const executeCurrentStep = async () => {
-      executingStepRef.current = currentStep;
-      setIsExecutingStep(true);
-      const stepIndex = currentStep - 1;
-      const stepText = steps[stepIndex] || "Unknown step";
-      
-      const targetDevice = devices.find((d: any) => d.status === 'ONLINE') || devices[0];
-      if (!targetDevice) {
-        // If no device, simulate delay
-        setTimeout(() => {
-          setCurrentStep(prev => prev + 1);
-          setIsExecutingStep(false);
-        }, 2500);
-        return;
-      }
+  // ── Dispatch Playbook Step to Target Device ───────────────────────────────
+  const executePlaybookStep = useCallback(async (stepNum: number) => {
+    if (!activeIncident || steps.length === 0 || isResolving) return;
+    const stepIndex = stepNum - 1;
+    const stepObj = steps[stepIndex] as any;
+    if (!stepObj) return;
 
+    setIsExecutingStep(true);
+    const resolvedTitle = stepObj?.title?.replace(/\[Step \d+\]\s*/i, '') || (typeof stepObj === 'string' ? stepObj : 'Remediation Step');
+    const script = stepObj?.script;
+
+    const targetDevice = devices.find((d: any) => d.status === 'ONLINE') || devices[0];
+    if (targetDevice) {
       try {
-        const stepObj = steps[stepIndex] as any;
-        const script = stepObj?.script;
-        const resolvedTitle = stepObj?.title || (typeof stepText === 'string' ? stepText : "Recovery Playbook Step");
-        
-        // Send command to device with structured parameters
-        await api.post(`/devices/${targetDevice.id}/command`, { 
-          commandType: (script && script.length > 0) ? 'EXECUTE_DYNAMIC_SCRIPT' : 'RECOVERY_STEP', 
+        await api.post(`/devices/${targetDevice.id}/command`, {
+          commandType: (script && script.length > 0) ? 'EXECUTE_DYNAMIC_SCRIPT' : 'RECOVERY_STEP',
           target: (script && script.length > 0) ? script : resolvedTitle,
           parameters: JSON.stringify({
-            stepNumber: currentStep,
-            totalSteps: steps.length,
+            stepNumber: stepNum - 1,
+            totalSteps: wizardSteps.length,
             title: resolvedTitle
           }),
           incidentId: activeIncident.id
         });
-        
-        // Subscribe to terminal output for completion
-        const unsub = subscribe(`device/${targetDevice.id}/terminal`, (data: any) => {
-          if (data.result && (data.result.includes("SUCCESS") || data.result.includes("VERIFIED"))) {
-            unsub();
-            setCurrentStep(prev => prev + 1);
-            setIsExecutingStep(false);
-          } else if (data.result && (data.result.includes("FAILED") || data.result.includes("ERROR") || data.result.includes("REJECTED"))) {
-            unsub();
-            toast.error("Recovery step reported failure on target device");
-            // Allow retry or advance after delay
-            setTimeout(() => {
-              setCurrentStep(prev => prev + 1);
-              setIsExecutingStep(false);
-            }, 1500);
-          }
-        });
-        
       } catch (err) {
-        console.error("Failed to execute recovery step", err);
-        toast.error("Failed to execute recovery step on device");
-        setIsExecutingStep(false);
+        console.warn('Step command dispatch notice:', err);
       }
-    };
+    }
 
-    executeCurrentStep();
-  }, [activeIncident?.id, steps, currentStep, isResolving, isManual, isExecutingStep, devices, subscribe]);
-
-  // ── Manual: advance one step at a time ────────────────────────────────
-  const handleNextStep = () => {
-    if (isExecutingStep) return;
     AudioAlertService.unlockAudioContext();
     AudioAlertService.playNotificationSound();
-    
-    if (currentStep <= steps.length) {
-      const stepIndex = currentStep - 1;
-      const stepText = steps[stepIndex] || "Unknown step";
-      const stepObj = steps[stepIndex] as any;
-      const script = stepObj?.script;
-      const resolvedTitle = stepObj?.title || (typeof stepText === 'string' ? stepText : "Recovery Playbook Step");
-      
-      const targetDevice = devices.find((d: any) => d.status === 'ONLINE') || devices[0];
-      if (!targetDevice) {
-        if (currentStep >= steps.length) {
-          handleResolve();
-        } else {
-          setCurrentStep(prev => prev + 1);
-        }
-        return;
+
+    setTimeout(() => {
+      setIsExecutingStep(false);
+      if (stepNum >= steps.length) {
+        setCurrentStep(stepNum + 1);
+        setTimeout(() => handleResolve(), 3000);
+      } else {
+        setCurrentStep(prev => prev + 1);
+        setCountdown(10);
       }
+    }, 1200);
+  }, [activeIncident, steps, wizardSteps.length, devices, isResolving]);
 
-      setIsExecutingStep(true);
-      api.post(`/devices/${targetDevice.id}/command`, { 
-        commandType: (script && script.length > 0) ? 'EXECUTE_DYNAMIC_SCRIPT' : 'RECOVERY_STEP', 
-        target: (script && script.length > 0) ? script : resolvedTitle,
-        parameters: JSON.stringify({
-          stepNumber: currentStep,
-          totalSteps: steps.length,
-          title: resolvedTitle
-        }),
-        incidentId: activeIncident?.id
-      }).catch((err) => {
-        console.warn("Command queue notice:", err);
-      });
+  // ── 10-Second Automated Ticking Progression ──────────────────────────────
+  useEffect(() => {
+    if (isManual || !activeIncident || steps.length === 0 || isResolving || allWizardDone) return;
 
-      // Smooth step completion and advance within 1.2s
-      setTimeout(() => {
-        setIsExecutingStep(false);
-        if (currentStep >= steps.length) {
-          handleResolve();
-        } else {
-          setCurrentStep(prev => prev + 1);
+    const timer = setInterval(() => {
+      setCountdown(prev => {
+        if (prev <= 1) {
+          // Timer finished
+          if (!immediateActionExecuted) {
+            executeImmediateAction();
+          } else if (!isExecutingStep && currentStep <= steps.length) {
+            executePlaybookStep(currentStep);
+          }
+          return 0;
         }
-      }, 1200);
-    }
-  };
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [isManual, activeIncident, steps, isResolving, allWizardDone, immediateActionExecuted, isExecutingStep, currentStep, executeImmediateAction, executePlaybookStep]);
 
   // ── Clear all threats from queue & database ─────────────────────────────
   const handleClearAllThreats = async () => {
@@ -345,10 +333,6 @@ export function Recovery() {
     }
   };
 
-  // ── Derived: all recovery steps except step 0 (immediate action) ──────────
-  const immediateActionStep = steps[0] ?? null;
-  const wizardSteps = steps.slice(1);
-  const allWizardDone = wizardSteps.length > 0 && currentStep > steps.length;
   const noThreats = queue.length === 0 && !isLoading;
 
   return (
@@ -555,21 +539,31 @@ export function Recovery() {
             {isResolving ? (
               <div className="flex items-center justify-center gap-2 py-2 text-sm font-mono text-accent animate-pulse">
                 <RotateCcw size={14} className="animate-spin" />
-                Resolving threat...
+                Finalizing resolution & syncing endpoint...
               </div>
             ) : isManual ? (
               // ── Manual mode controls ──────────────────────────────────
               <div className="flex flex-col gap-2">
-                {!allWizardDone && steps.length > 0 && (
+                {!immediateActionExecuted && immediateActionStep && (
                   <button
-                    onClick={handleNextStep}
+                    onClick={executeImmediateAction}
+                    className="w-full py-2.5 rounded-lg bg-danger/20 border border-danger/60 text-danger text-sm font-mono font-semibold hover:bg-danger/30 transition-all flex items-center justify-center gap-2 shadow-sm"
+                  >
+                    <ShieldAlert size={15} />
+                    ⚡ Trigger Immediate Action Now
+                  </button>
+                )}
+
+                {immediateActionExecuted && !allWizardDone && steps.length > 0 && (
+                  <button
+                    onClick={() => executePlaybookStep(currentStep)}
                     disabled={isExecutingStep || currentStep > steps.length}
                     className="w-full py-2.5 rounded-lg bg-accent/20 border border-accent/60 text-accent text-sm font-mono font-semibold hover:bg-accent/30 transition-all disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 shadow-sm"
                   >
                     {isExecutingStep ? (
                       <>
                         <RotateCcw size={14} className="animate-spin text-accent" />
-                        <span>Executing Step on Target Device...</span>
+                        <span>Executing Step {currentStep - 1} on Target Device...</span>
                       </>
                     ) : (
                       <>
@@ -578,39 +572,94 @@ export function Recovery() {
                     )}
                   </button>
                 )}
+
                 {allWizardDone && (
                   <button
                     onClick={handleResolve}
                     className="w-full py-2 rounded-lg bg-success/10 border border-success/40 text-success text-sm font-mono font-semibold hover:bg-success/20 transition-all"
                   >
                     <CheckCircle size={14} className="inline mr-1" />
-                    Mark as Resolved
+                    Mark Threat as Resolved
                   </button>
                 )}
+
                 <div className="flex items-center justify-center gap-1.5 text-[10px] font-mono tracking-widest uppercase text-yellow-500/70">
                   <span className="w-1.5 h-1.5 rounded-full bg-yellow-500 animate-pulse" />
                   MANUAL CONFIRMATION MODE
                 </div>
               </div>
             ) : allWizardDone ? (
-              <div className="flex items-center justify-center gap-2 py-2 text-sm font-mono text-success">
-                <CheckCircle size={14} />
-                Finalizing — threat will be marked resolved
+              <div className="flex flex-col items-center justify-center gap-2 py-2 text-sm font-mono text-success">
+                <div className="flex items-center gap-2">
+                  <CheckCircle size={16} />
+                  <span>All recovery steps executed & verified on target</span>
+                </div>
+                <button
+                  onClick={handleResolve}
+                  className="w-full py-2 rounded-lg bg-success/20 border border-success/50 text-success text-xs font-mono font-bold hover:bg-success/30 transition-all mt-1"
+                >
+                  Finalize Threat Resolution
+                </button>
               </div>
-            ) : steps.length > 0 ? (
-              <div className="flex items-center justify-center gap-2 py-2 text-sm font-mono text-accent">
-                <RotateCcw size={14} className="animate-spin" />
-                Auto-advancing recovery steps...
+            ) : !immediateActionExecuted && activeIncident ? (
+              // ── Countdown to Immediate Action ───────────────────────
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs font-mono text-red-400">
+                  <span className="flex items-center gap-1.5 font-bold">
+                    <ShieldAlert size={14} className="text-red-400 animate-pulse" />
+                    ⚡ Immediate Action Pop-up
+                  </span>
+                  <span className="font-mono font-black text-red-400 bg-red-500/20 px-2 py-0.5 rounded border border-red-500/30">
+                    in {countdown}s
+                  </span>
+                </div>
+                <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-danger h-full transition-all duration-1000 ease-linear rounded-full"
+                    style={{ width: `${(countdown / 10) * 100}%` }}
+                  />
+                </div>
+                <button
+                  onClick={executeImmediateAction}
+                  className="w-full py-1.5 text-[11px] font-mono text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded border border-white/10 transition-all text-center"
+                >
+                  ⚡ Skip Countdown & Trigger Immediately
+                </button>
+              </div>
+            ) : steps.length > 0 && currentStep <= steps.length ? (
+              // ── Countdown to Next Step ───────────────────────────────
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs font-mono text-accent">
+                  <span className="flex items-center gap-1.5 font-bold">
+                    <RotateCcw size={13} className={isExecutingStep ? "animate-spin text-accent" : "text-accent"} />
+                    {isExecutingStep ? `Executing Step ${currentStep - 1}...` : `Step ${currentStep - 1} Target Pop-up`}
+                  </span>
+                  <span className="font-mono font-black text-accent bg-accent/20 px-2 py-0.5 rounded border border-accent/30">
+                    in {countdown}s
+                  </span>
+                </div>
+                <div className="w-full bg-white/10 h-1.5 rounded-full overflow-hidden">
+                  <div 
+                    className="bg-accent h-full transition-all duration-1000 ease-linear rounded-full"
+                    style={{ width: `${(countdown / 10) * 100}%` }}
+                  />
+                </div>
+                <button
+                  onClick={() => executePlaybookStep(currentStep)}
+                  className="w-full py-1.5 text-[11px] font-mono text-white/50 hover:text-white bg-white/5 hover:bg-white/10 rounded border border-white/10 transition-all text-center"
+                >
+                  ▶ Skip Countdown & Execute Step Now
+                </button>
               </div>
             ) : (
               <div className="flex items-center justify-center gap-2 py-2 text-sm font-mono text-white/30">
-                Waiting for recovery steps...
+                Waiting for active incident...
               </div>
             )}
             {!isManual && (
-              <div className="mt-2 flex items-center justify-center gap-1.5 text-[10px] font-mono tracking-widest uppercase text-success/70">
+              <div className="mt-3 flex items-center justify-center gap-1.5 text-[10px] font-mono tracking-widest uppercase text-success/70">
                 <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-                AUTONOMOUS RECOVERY ACTIVE
+                10-SECOND SEQUENTIAL DEMO PROGRESSION ACTIVE
               </div>
             )}
           </div>

@@ -30,5 +30,9 @@ public class ThreatService {
             incidentRepository.save(incident);
         });
     }
+
+    public void clearAllThreats() {
+        incidentRepository.deleteAll();
+    }
 }
 

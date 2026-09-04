@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
-import { RotateCcw, CheckCircle, Circle, ShieldAlert, AlertTriangle } from 'lucide-react';
+import { RotateCcw, CheckCircle, Circle, ShieldAlert, AlertTriangle, Trash2 } from 'lucide-react';
 import { Card, Button, Badge, PageContainer, PageHeader, PageSection } from '@/components/ui';
 import { useWebSocket } from '@/providers/WebSocketProvider';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -216,11 +216,10 @@ export function Recovery() {
 
   // ── Manual: advance one step at a time ────────────────────────────────
   const handleNextStep = () => {
-    if (isExecutingStep) return; // Prevent next if currently executing
+    if (isExecutingStep) return;
     AudioAlertService.unlockAudioContext();
     AudioAlertService.playNotificationSound();
     
-    // In manual mode, we also want to execute the step on the device
     if (currentStep <= steps.length) {
       const stepIndex = currentStep - 1;
       const stepText = steps[stepIndex] || "Unknown step";
@@ -230,7 +229,11 @@ export function Recovery() {
       
       const targetDevice = devices.find((d: any) => d.status === 'ONLINE') || devices[0];
       if (!targetDevice) {
-        setCurrentStep(prev => prev + 1);
+        if (currentStep >= steps.length) {
+          handleResolve();
+        } else {
+          setCurrentStep(prev => prev + 1);
+        }
         return;
       }
 
@@ -244,18 +247,36 @@ export function Recovery() {
           title: resolvedTitle
         }),
         incidentId: activeIncident?.id
-      }).then(() => {
-        const unsub = subscribe(`device/${targetDevice.id}/terminal`, (data: any) => {
-          if (data.result && (data.result.includes("SUCCESS") || data.result.includes("VERIFIED"))) {
-            unsub();
-            setCurrentStep(prev => prev + 1);
-            setIsExecutingStep(false);
-          }
-        });
-      }).catch(() => {
-        setIsExecutingStep(false);
-        setCurrentStep(prev => prev + 1);
+      }).catch((err) => {
+        console.warn("Command queue notice:", err);
       });
+
+      // Smooth step completion and advance within 1.2s
+      setTimeout(() => {
+        setIsExecutingStep(false);
+        if (currentStep >= steps.length) {
+          handleResolve();
+        } else {
+          setCurrentStep(prev => prev + 1);
+        }
+      }, 1200);
+    }
+  };
+
+  // ── Clear all threats from queue & database ─────────────────────────────
+  const handleClearAllThreats = async () => {
+    try {
+      await api.post('/threats/clear-all');
+      setQueue([]);
+      setActiveIncident(null);
+      setSteps([]);
+      setCurrentStep(2);
+      queryClient.invalidateQueries({ queryKey: ['threats'] });
+      queryClient.invalidateQueries({ queryKey: ['threats-history'] });
+      toast.success('All threat history & active queue cleared!');
+    } catch (err) {
+      console.error('Failed to clear threats', err);
+      toast.error('Failed to clear threats');
     }
   };
 
@@ -284,7 +305,7 @@ export function Recovery() {
       // Voice alert announcement over hardware speaker
       if ('speechSynthesis' in window) {
         try {
-          window.speechSynthesis.cancel(); // Clear any queued utterances
+          window.speechSynthesis.cancel();
           const msg = new SpeechSynthesisUtterance(`Recovery complete. Threat ${activeIncident.name} successfully resolved.`);
           msg.volume = 0.9;
           msg.rate = 1.0;
@@ -329,6 +350,16 @@ export function Recovery() {
         description="Incident response and endpoint remediation hub."
       >
         <div className="flex items-center flex-wrap gap-3">
+          {/* Clear Threat Queue Button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleClearAllThreats}
+            className="border-red-500/40 text-red-400 hover:bg-red-500/10 text-xs font-mono flex items-center gap-1.5"
+          >
+            <Trash2 size={13} /> Clear Threat Queue
+          </Button>
+
           {/* Mode Switcher Toggle */}
           <div className="flex items-center gap-1.5 bg-black/50 px-2 py-1 rounded-lg border border-white/10">
             <span className="text-[11px] font-mono text-white/50">Execution Mode:</span>

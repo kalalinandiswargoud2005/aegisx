@@ -35,5 +35,17 @@ public class ThreatController {
         threatService.resolveThreat(id);
         return ResponseEntity.ok().build();
     }
+
+    @DeleteMapping("/clear-all")
+    public ResponseEntity<Map<String, String>> clearAllThreats() {
+        threatService.clearAllThreats();
+        return ResponseEntity.ok(Map.of("status", "cleared", "message", "All threats and queue cleared successfully"));
+    }
+
+    @PostMapping("/clear-all")
+    public ResponseEntity<Map<String, String>> postClearAllThreats() {
+        threatService.clearAllThreats();
+        return ResponseEntity.ok(Map.of("status", "cleared", "message", "All threats and queue cleared successfully"));
+    }
 }
 

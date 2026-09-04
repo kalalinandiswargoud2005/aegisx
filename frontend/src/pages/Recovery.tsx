@@ -500,37 +500,50 @@ export function Recovery() {
 
             {/* Wizard Steps */}
             {wizardSteps.length > 0 && (
-              <div className="space-y-5 mt-2">
+              <div className="space-y-3 mt-2">
                 {wizardSteps.map((step: any, index: number) => {
                   const stepId = index + 2;
                   const done = stepId < currentStep;
                   const active = stepId === currentStep;
+                  const title = step.title?.replace(/\[Step \d+\]\s*/i, '') || (typeof step === 'string' ? step : 'Playbook Remediation Step');
                   return (
-                    <div key={step.id} className="relative flex items-start gap-4">
-                      {index !== wizardSteps.length - 1 && (
+                    <div
+                      key={step.id || index}
+                      className={`relative flex items-center justify-between p-3.5 rounded-lg border transition-all ${
+                        done
+                          ? 'border-primary/30 bg-primary/5 text-white/80'
+                          : active
+                          ? 'border-accent bg-accent/15 text-white shadow-[0_0_15px_rgba(0,255,255,0.15)] ring-1 ring-accent'
+                          : 'border-white/5 bg-surface/30 text-white/40'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3 min-w-0">
                         <div
-                          className={`absolute left-3 top-7 h-full w-px -translate-x-1/2 ${done ? 'bg-primary' : 'bg-white/10'}`}
-                        />
+                          className={`flex h-7 w-7 shrink-0 items-center justify-center rounded-full font-mono text-xs font-bold ${
+                            done
+                              ? 'bg-primary/20 text-primary border border-primary/40'
+                              : active
+                              ? 'bg-accent text-black font-black animate-pulse'
+                              : 'bg-surface text-white/30 border border-white/10'
+                          }`}
+                        >
+                          {done ? <CheckCircle size={15} /> : index + 1}
+                        </div>
+                        <p className={`text-xs md:text-sm font-medium leading-snug font-mono truncate ${!done && !active ? 'text-white/40' : 'text-white font-semibold'}`}>
+                          {title}
+                        </p>
+                      </div>
+
+                      {active && (
+                        <span className="shrink-0 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-accent/20 text-accent border border-accent/40 animate-pulse ml-2">
+                          RUNNING
+                        </span>
                       )}
-                      <div
-                        className={`relative flex h-6 w-6 shrink-0 items-center justify-center rounded-full z-10 ${
-                          done
-                            ? 'bg-primary/20 text-primary'
-                            : active
-                            ? 'bg-surface text-accent border border-accent ring-4 ring-accent/20'
-                            : 'bg-surface text-white/30 border border-white/10'
-                        }`}
-                      >
-                        {done ? <CheckCircle size={16} /> : <Circle size={10} fill="currentColor" />}
-                      </div>
-                      <div className="pt-0.5">
-                        <p className={`text-sm font-medium leading-snug ${!done && !active ? 'text-white/50' : 'text-white'}`}>
-                          {step.title}
-                        </p>
-                        <p className="text-xs text-white/40 mt-0.5">
-                          {done ? '✓ Done' : active ? '● In Progress' : 'Pending'}
-                        </p>
-                      </div>
+                      {done && (
+                        <span className="shrink-0 px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-primary/20 text-primary border border-primary/30 ml-2">
+                          RESOLVED
+                        </span>
+                      )}
                     </div>
                   );
                 })}

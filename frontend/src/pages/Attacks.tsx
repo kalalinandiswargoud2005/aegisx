@@ -307,134 +307,167 @@ export function Attacks() {
         <div className="space-y-6">
 
           {activeTab === 'LIVE' && (
-            <Card className="border-danger/30 bg-danger/5">
-              <h3 className="mb-3 text-lg font-medium text-white border-b border-border-color pb-2 flex items-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-danger animate-pulse" />
-                Live High-Impact Threat Vectors (Sandboxed in C:\Astra\Demo)
-              </h3>
-              <p className="text-xs text-white/70 mb-4 font-mono">
-                Safe, fully contained live attack simulations that control the endpoint in real time. Remediate step-by-step from the Recovery page.
-              </p>
+            <div className="space-y-6">
+              {/* Category 1: High Impact Threats with Multi-Step Recovery */}
+              <Card className="border-red-500/30 bg-red-500/5">
+                <h3 className="mb-2 text-base font-bold text-red-400 border-b border-red-500/20 pb-2 flex items-center justify-between font-mono">
+                  <span className="flex items-center gap-2">
+                    <span className="w-2.5 h-2.5 rounded-full bg-red-500 animate-pulse" />
+                    💀 Category 1: High-Impact Vectors (Step-by-Step Recovery)
+                  </span>
+                  <Badge variant="danger">Interactive</Badge>
+                </h3>
+                <p className="text-xs text-white/60 mb-3 font-mono">
+                  Triggers active sandbox payloads on target laptop. Remediate step-by-step from the Recovery page.
+                </p>
 
-              <div className="space-y-3">
-                {/* 2 High-Level Manually Controlled Threats */}
-                <div className="p-3 border border-red-500/50 bg-red-500/10 rounded">
-                  <div className="text-xs font-bold text-red-400 uppercase tracking-wider mb-2 font-mono flex items-center gap-1.5">
-                    <ShieldAlert size={14} className="text-red-400" /> High-Level Controlled Threats (Step-by-Step Resolution):
-                  </div>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                    <Button
-                      variant="primary"
-                      className="w-full py-2.5 bg-red-600/30 border border-red-500 text-red-300 font-bold hover:bg-red-600/40 flex items-center justify-center gap-2 text-xs font-mono shadow-[0_0_15px_rgba(239,68,68,0.2)]"
-                      disabled={!isTargetOnline}
-                      onClick={() => triggerLiveAttack('DARKSIDE_PAYLOAD')}
-                    >
-                      <ShieldAlert size={14} className="text-red-400" />
-                      💀 DarkSide Rogue Window & Injection
-                    </Button>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                  <button
+                    disabled={!isTargetOnline}
+                    onClick={() => triggerLiveAttack('DARKSIDE_PAYLOAD')}
+                    className="p-3 bg-red-950/40 hover:bg-red-900/50 border border-red-500/50 rounded-lg text-left transition-all group disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(239,68,68,0.15)]"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-mono font-bold text-red-300 text-xs flex items-center gap-1.5">
+                        <ShieldAlert size={14} className="text-red-400 group-hover:animate-bounce" />
+                        DarkSide Rogue Window
+                      </span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 font-mono font-black border border-red-500/30">
+                        CRITICAL
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-white/60 font-mono line-clamp-2">
+                      Spawns persistent malicious cmd window & injects background process on target laptop.
+                    </p>
+                  </button>
 
-                    <Button
-                      variant="primary"
-                      className="w-full py-2.5 bg-amber-600/30 border border-amber-500 text-amber-300 font-bold hover:bg-amber-600/40 flex items-center justify-center gap-2 text-xs font-mono shadow-[0_0_15px_rgba(245,158,11,0.2)]"
-                      disabled={!isTargetOnline}
-                      onClick={() => triggerLiveAttack('STEALTH_RAT_BACKDOOR')}
-                    >
-                      <Zap size={14} className="text-amber-400" />
-                      🌐 Stealth RAT & Workstation Lock
-                    </Button>
-                  </div>
+                  <button
+                    disabled={!isTargetOnline}
+                    onClick={() => triggerLiveAttack('STEALTH_RAT_BACKDOOR')}
+                    className="p-3 bg-amber-950/40 hover:bg-amber-900/50 border border-amber-500/50 rounded-lg text-left transition-all group disabled:opacity-40 disabled:cursor-not-allowed shadow-[0_0_15px_rgba(245,158,11,0.15)]"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-mono font-bold text-amber-300 text-xs flex items-center gap-1.5">
+                        <Zap size={14} className="text-amber-400 group-hover:animate-pulse" />
+                        Stealth RAT & Lock
+                      </span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 font-mono font-black border border-amber-500/30">
+                        CRITICAL
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-white/60 font-mono line-clamp-2">
+                      Opens TCP backdoor on target laptop and locks the workstation screen.
+                    </p>
+                  </button>
+
+                  <button
+                    disabled={!isTargetOnline}
+                    onClick={() => triggerLiveAttack('SIMULATED_RANSOMWARE')}
+                    className="p-3 bg-red-950/30 hover:bg-red-900/40 border border-red-500/30 rounded-lg text-left transition-all group disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-mono font-bold text-red-200 text-xs flex items-center gap-1.5">
+                        🔒 Ransomware Encryption
+                      </span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-red-500/20 text-red-400 font-mono font-bold">
+                        CRITICAL
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-white/50 font-mono line-clamp-1">
+                      Simulates canary file encryption in C:\Astra\Demo.
+                    </p>
+                  </button>
+
+                  <button
+                    disabled={!isTargetOnline}
+                    onClick={() => triggerLiveAttack('REGISTRY_HIJACK')}
+                    className="p-3 bg-purple-950/30 hover:bg-purple-900/40 border border-purple-500/30 rounded-lg text-left transition-all group disabled:opacity-40 disabled:cursor-not-allowed"
+                  >
+                    <div className="flex items-center justify-between mb-1">
+                      <span className="font-mono font-bold text-purple-200 text-xs flex items-center gap-1.5">
+                        ⚙️ Registry Hijack
+                      </span>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-400 font-mono font-bold">
+                        HIGH
+                      </span>
+                    </div>
+                    <p className="text-[11px] text-white/50 font-mono line-clamp-1">
+                      Simulates Task Manager policy tamper & registry hooks.
+                    </p>
+                  </button>
                 </div>
+              </Card>
 
-                {/* 10 Visual Attack Overlays & Demonstrations */}
-                <div className="pt-2">
-                  <div className="text-xs font-bold text-primary/80 uppercase tracking-wider mb-2 font-mono flex items-center gap-1.5">
-                    <Activity size={14} className="text-primary" /> Visual Attack Demonstrations & Overlays:
-                  </div>
-                  <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                    <Button
-                      variant="outline"
-                      className="border-red-500/40 text-red-400 hover:bg-red-500/10 flex items-center justify-center gap-1.5 text-xs font-mono py-2"
-                      disabled={!isTargetOnline}
-                      onClick={() => triggerLiveAttack('HACKER_WALLPAPER')}
-                    >
-                      💀 Skull Wallpaper
-                    </Button>
+              {/* Category 2: Visual Threat Demonstrations & Overlays */}
+              <Card className="border-cyan-500/30 bg-cyan-500/5">
+                <h3 className="mb-2 text-base font-bold text-cyan-400 border-b border-cyan-500/20 pb-2 flex items-center justify-between font-mono">
+                  <span className="flex items-center gap-2">
+                    <Activity size={16} className="text-cyan-400" />
+                    ⚡ Category 2: Visual Overlays & WOW Demonstrations
+                  </span>
+                  <Badge variant="default">Visual HUD</Badge>
+                </h3>
+                <p className="text-xs text-white/60 mb-3 font-mono">
+                  Renders full-screen high-tech HUD overlays directly on the target laptop screen.
+                </p>
 
-                    <Button
-                      variant="outline"
-                      className="border-green-500/40 text-green-400 hover:bg-green-500/10 flex items-center justify-center gap-1.5 text-xs font-mono py-2"
-                      disabled={!isTargetOnline}
-                      onClick={() => triggerLiveAttack('MATRIX_RAIN')}
-                    >
-                      🌧️ Matrix Rain HUD
-                    </Button>
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  <Button
+                    variant="outline"
+                    className="border-red-500/40 text-red-400 hover:bg-red-500/10 flex items-center justify-center gap-1.5 text-xs font-mono py-2.5"
+                    disabled={!isTargetOnline}
+                    onClick={() => triggerLiveAttack('HACKER_WALLPAPER')}
+                  >
+                    💀 Skull Wallpaper
+                  </Button>
 
-                    <Button
-                      variant="outline"
-                      className="border-yellow-500/40 text-yellow-400 hover:bg-yellow-500/10 flex items-center justify-center gap-1.5 text-xs font-mono py-2"
-                      disabled={!isTargetOnline}
-                      onClick={() => triggerLiveAttack('GHOST_TYPER')}
-                    >
-                      ⌨️ Ghost Typer
-                    </Button>
+                  <Button
+                    variant="outline"
+                    className="border-green-500/40 text-green-400 hover:bg-green-500/10 flex items-center justify-center gap-1.5 text-xs font-mono py-2.5"
+                    disabled={!isTargetOnline}
+                    onClick={() => triggerLiveAttack('MATRIX_RAIN')}
+                  >
+                    🌧️ Matrix Rain HUD
+                  </Button>
 
-                    <Button
-                      variant="outline"
-                      className="border-fuchsia-500/40 text-fuchsia-400 hover:bg-fuchsia-500/10 flex items-center justify-center gap-1.5 text-xs font-mono py-2"
-                      disabled={!isTargetOnline}
-                      onClick={() => triggerLiveAttack('CYBER_GLITCH')}
-                    >
-                      ⚡ Memory Glitch
-                    </Button>
+                  <Button
+                    variant="outline"
+                    className="border-yellow-500/40 text-yellow-400 hover:bg-yellow-500/10 flex items-center justify-center gap-1.5 text-xs font-mono py-2.5"
+                    disabled={!isTargetOnline}
+                    onClick={() => triggerLiveAttack('GHOST_TYPER')}
+                  >
+                    ⌨️ Ghost Typer
+                  </Button>
 
-                    <Button
-                      variant="outline"
-                      className="border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10 flex items-center justify-center gap-1.5 text-xs font-mono py-2"
-                      disabled={!isTargetOnline}
-                      onClick={() => triggerLiveAttack('RADAR_BEACON')}
-                    >
-                      📡 Radar Beacon
-                    </Button>
+                  <Button
+                    variant="outline"
+                    className="border-fuchsia-500/40 text-fuchsia-400 hover:bg-fuchsia-500/10 flex items-center justify-center gap-1.5 text-xs font-mono py-2.5"
+                    disabled={!isTargetOnline}
+                    onClick={() => triggerLiveAttack('CYBER_GLITCH')}
+                  >
+                    ⚡ Memory Glitch
+                  </Button>
 
-                    <Button
-                      variant="outline"
-                      className="border-blue-500/40 text-blue-400 hover:bg-blue-500/10 flex items-center justify-center gap-1.5 text-xs font-mono py-2"
-                      disabled={!isTargetOnline}
-                      onClick={() => triggerLiveAttack('HEX_SHIELD')}
-                    >
-                      🛡️ Hex Shield HUD
-                    </Button>
+                  <Button
+                    variant="outline"
+                    className="border-cyan-500/40 text-cyan-400 hover:bg-cyan-500/10 flex items-center justify-center gap-1.5 text-xs font-mono py-2.5"
+                    disabled={!isTargetOnline}
+                    onClick={() => triggerLiveAttack('RADAR_BEACON')}
+                  >
+                    📡 Radar Beacon
+                  </Button>
 
-                    <Button
-                      variant="outline"
-                      className="border-orange-500/40 text-orange-400 hover:bg-orange-500/10 flex items-center justify-center gap-1.5 text-xs font-mono py-2"
-                      disabled={!isTargetOnline}
-                      onClick={() => triggerLiveAttack('SIMULATED_RANSOMWARE')}
-                    >
-                      🔒 Ransomware Test
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      className="border-purple-500/40 text-purple-400 hover:bg-purple-500/10 flex items-center justify-center gap-1.5 text-xs font-mono py-2"
-                      disabled={!isTargetOnline}
-                      onClick={() => triggerLiveAttack('REGISTRY_HIJACK')}
-                    >
-                      ⚙️ Registry Tamper
-                    </Button>
-
-                    <Button
-                      variant="outline"
-                      className="border-teal-500/40 text-teal-400 hover:bg-teal-500/10 flex items-center justify-center gap-1.5 text-xs font-mono py-2"
-                      disabled={!isTargetOnline}
-                      onClick={() => triggerLiveAttack('SHOW_TEST_ENFORCEMENT')}
-                    >
-                      ✅ Safe Test HUD
-                    </Button>
-                  </div>
+                  <Button
+                    variant="outline"
+                    className="border-blue-500/40 text-blue-400 hover:bg-blue-500/10 flex items-center justify-center gap-1.5 text-xs font-mono py-2.5"
+                    disabled={!isTargetOnline}
+                    onClick={() => triggerLiveAttack('HEX_SHIELD')}
+                  >
+                    🛡️ Hex Shield HUD
+                  </Button>
                 </div>
-              </div>
-            </Card>
+              </Card>
+            </div>
           )}
 
           {activeTab === 'REMEDIATION' && (

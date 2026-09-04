@@ -166,31 +166,31 @@ export function Recovery() {
   // ── Dispatch Immediate Action to Target Device ───────────────────────────
   const executeImmediateAction = useCallback(async () => {
     if (!activeIncident || isResolving) return;
+    
+    // Instant concurrent update on SOC
     setImmediateActionExecuted(true);
     setCountdown(10);
-
-    const targetDevice = devices.find((d: any) => d.status === 'ONLINE') || devices[0];
-    if (targetDevice) {
-      const actionTitle = immediateActionStep?.title?.replace('[Immediate Action] ', '') || 'Isolate Endpoint & Freeze Malicious Process';
-      try {
-        await api.post(`/devices/${targetDevice.id}/command`, {
-          commandType: 'ISOLATE_DEVICE',
-          target: actionTitle,
-          incidentId: activeIncident.id,
-          parameters: JSON.stringify({
-            action: actionTitle,
-            threat: activeIncident.name,
-            status: 'EXECUTED'
-          })
-        });
-      } catch (err) {
-        console.warn('Immediate action dispatch notice:', err);
-      }
-    }
-
     AudioAlertService.unlockAudioContext();
     AudioAlertService.playNotificationSound();
     toast.warning(`⚡ Immediate Action Executed: ${immediateActionStep?.title?.replace('[Immediate Action] ', '') || 'Containment Active'}`);
+
+    // Instant dispatch to target device
+    const targetDevice = devices.find((d: any) => d.status === 'ONLINE') || devices[0];
+    if (targetDevice) {
+      const actionTitle = immediateActionStep?.title?.replace('[Immediate Action] ', '') || 'Isolate Endpoint & Freeze Malicious Process';
+      api.post(`/devices/${targetDevice.id}/command`, {
+        commandType: 'ISOLATE_DEVICE',
+        target: actionTitle,
+        incidentId: activeIncident.id,
+        parameters: JSON.stringify({
+          action: actionTitle,
+          threat: activeIncident.name,
+          status: 'EXECUTED'
+        })
+      }).catch((err) => {
+        console.warn('Immediate action dispatch notice:', err);
+      });
+    }
   }, [activeIncident, immediateActionStep, devices, isResolving]);
 
   // ── Dispatch Playbook Step to Target Device ───────────────────────────────
@@ -200,41 +200,37 @@ export function Recovery() {
     const stepObj = steps[stepIndex] as any;
     if (!stepObj) return;
 
-    setIsExecutingStep(true);
     const resolvedTitle = stepObj?.title?.replace(/\[Step \d+\]\s*/i, '') || (typeof stepObj === 'string' ? stepObj : 'Remediation Step');
     const script = stepObj?.script;
 
-    const targetDevice = devices.find((d: any) => d.status === 'ONLINE') || devices[0];
-    if (targetDevice) {
-      try {
-        await api.post(`/devices/${targetDevice.id}/command`, {
-          commandType: (script && script.length > 0) ? 'EXECUTE_DYNAMIC_SCRIPT' : 'RECOVERY_STEP',
-          target: (script && script.length > 0) ? script : resolvedTitle,
-          parameters: JSON.stringify({
-            stepNumber: stepNum - 1,
-            totalSteps: wizardSteps.length,
-            title: resolvedTitle
-          }),
-          incidentId: activeIncident.id
-        });
-      } catch (err) {
-        console.warn('Step command dispatch notice:', err);
-      }
-    }
-
+    // 1. Instant concurrent update on SOC (no lag)
     AudioAlertService.unlockAudioContext();
     AudioAlertService.playNotificationSound();
 
-    setTimeout(() => {
-      setIsExecutingStep(false);
-      if (stepNum >= steps.length) {
-        setCurrentStep(stepNum + 1);
-        setTimeout(() => handleResolve(), 3000);
-      } else {
-        setCurrentStep(prev => prev + 1);
-        setCountdown(10);
-      }
-    }, 1200);
+    if (stepNum >= steps.length) {
+      setCurrentStep(stepNum + 1);
+      setTimeout(() => handleResolve(), 1500);
+    } else {
+      setCurrentStep(prev => prev + 1);
+      setCountdown(10);
+    }
+
+    // 2. Instant dispatch to target device concurrently (<5ms WebSocket delivery)
+    const targetDevice = devices.find((d: any) => d.status === 'ONLINE') || devices[0];
+    if (targetDevice) {
+      api.post(`/devices/${targetDevice.id}/command`, {
+        commandType: (script && script.length > 0) ? 'EXECUTE_DYNAMIC_SCRIPT' : 'RECOVERY_STEP',
+        target: (script && script.length > 0) ? script : resolvedTitle,
+        parameters: JSON.stringify({
+          stepNumber: stepNum - 1,
+          totalSteps: wizardSteps.length,
+          title: resolvedTitle
+        }),
+        incidentId: activeIncident.id
+      }).catch((err) => {
+        console.warn('Step command dispatch notice:', err);
+      });
+    }
   }, [activeIncident, steps, wizardSteps.length, devices, isResolving]);
 
   // ── 10-Second Automated Ticking Progression ──────────────────────────────

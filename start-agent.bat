@@ -25,6 +25,11 @@ if not exist "windows-agent.jar" (
 set BACKEND_URL=%1
 if "%BACKEND_URL%"=="" set BACKEND_URL=https://aegisx-backend-2k67.onrender.com
 
+echo [*] Releasing port 8082 (terminating any previous agent instance)...
+for /f "tokens=5" %%a in ('netstat -aon ^| findstr :8082 ^| findstr LISTENING') do (
+    taskkill /f /pid %%a >nul 2>&1
+)
+
 echo [3/3] Launching ASTRA Windows Agent connecting to: %BACKEND_URL%
 echo.
 echo -----------------------------------------------------------------------

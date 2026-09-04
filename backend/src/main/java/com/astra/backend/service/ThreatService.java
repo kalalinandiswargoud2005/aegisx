@@ -45,32 +45,32 @@ public class ThreatService {
 
     @Transactional
     public void clearAllThreats() {
-        log.info("[THREAT-SERVICE] Purging all incidents, recovery steps, incident reports, and commands queue...");
+        log.info("[THREAT-SERVICE] Purging all incidents, recovery steps, incident reports, and commands queue via fast batch...");
         try {
             try {
-                recoveryStepRepository.deleteAll();
+                recoveryStepRepository.deleteAllInBatch();
             } catch (Exception e) {
-                log.warn("Could not delete recovery steps: {}", e.getMessage());
+                log.warn("Could not delete recovery steps in batch: {}", e.getMessage());
             }
             try {
-                incidentReportRepository.deleteAll();
+                incidentReportRepository.deleteAllInBatch();
             } catch (Exception e) {
-                log.warn("Could not delete incident reports: {}", e.getMessage());
+                log.warn("Could not delete incident reports in batch: {}", e.getMessage());
             }
             try {
-                deviceCommandRepository.deleteAll();
+                deviceCommandRepository.deleteAllInBatch();
             } catch (Exception e) {
-                log.warn("Could not delete device commands: {}", e.getMessage());
+                log.warn("Could not delete device commands in batch: {}", e.getMessage());
             }
             try {
-                incidentRepository.deleteAll();
+                incidentRepository.deleteAllInBatch();
             } catch (Exception e) {
-                log.warn("Could not delete incidents: {}", e.getMessage());
+                log.warn("Could not delete incidents in batch: {}", e.getMessage());
             }
             
             // Broadcast clear notification
-            webSocketPublisher.broadcastTelemetry(Map.of("event", "ALL_THREATS_CLEARED", "timestamp", LocalDateTime.now().toString()));
-            log.info("[THREAT-SERVICE] All threat records purged successfully.");
+            webSocketPublisher.broadcastClearThreats();
+            log.info("[THREAT-SERVICE] All threat records purged in batch successfully.");
         } catch (Exception e) {
             log.error("[THREAT-SERVICE] Error clearing threats: {}", e.getMessage(), e);
         }

@@ -33,6 +33,13 @@ public class WebSocketPublisher {
         messagingTemplate.convertAndSend("/topic/commands", commandEvent);
     }
 
+    public void broadcastClearThreats() {
+        messagingTemplate.convertAndSend("/topic/timeline", Map.of(
+            "event", "ALL_THREATS_CLEARED"
+        ));
+        messagingTemplate.convertAndSend("/topic/threats", java.util.List.of());
+    }
+
     public void broadcastDeviceStatus(Object device) {
         messagingTemplate.convertAndSend("/topic/devices", device);
     }

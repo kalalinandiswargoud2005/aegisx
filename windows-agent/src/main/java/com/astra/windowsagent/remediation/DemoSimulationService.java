@@ -121,6 +121,71 @@ public class DemoSimulationService {
         }
     }
 
+    public String executeSimulatedDarksidePayload(String incidentId) {
+        String safeIncidentId = sanitizeIncidentId(incidentId);
+        log.info("[DEMO-SIMULATION] Triggering DarkSide Rogue Payload simulation for incident: {}", safeIncidentId);
+
+        try {
+            Path incidentDir = Paths.get(DEMO_BASE_DIR, safeIncidentId, "attack");
+            Files.createDirectories(incidentDir);
+            Files.writeString(incidentDir.resolve("darkside_stager.bin"), "SIMULATED_DARKSIDE_RANSOMWARE_PAYLOAD_HASH_99214");
+
+            // Write registry persistence
+            String keyPath = "HKCU\\Software\\ASTRA\\Demo\\" + safeIncidentId;
+            CommandRunner.runCmd("reg add \"" + keyPath + "\" /v DarkSidePersistence /t REG_SZ /d \"C:\\Astra\\Demo\\" + safeIncidentId + "\\darkside_stager.bin\" /f");
+
+            // Spawn a visual rogue console window with red background
+            String batContent = "@echo off\r\ntitle [CRITICAL_MALICIOUS_PROCESS_ASTRA]\r\ncolor 4F\r\ncls\r\n"
+                    + "echo =====================================================================\r\n"
+                    + "echo  [!] CRITICAL THREAT SIMULATION: DARKSIDE INJECTION ACTIVE\r\n"
+                    + "echo  [!] INCIDENT ID: " + safeIncidentId + "\r\n"
+                    + "echo  [!] HOST PROCESS: rogue_darkside_stager.exe [PID: SIMULATED]\r\n"
+                    + "echo  [*] INJECTING PERSISTENCE HOOKS INTO HKCU\\Software\\ASTRA\\Demo...\r\n"
+                    + "echo  [*] ATTEMPTING LATERAL PRIVILEGE ESCALATION...\r\n"
+                    + "echo =====================================================================\r\n"
+                    + "echo  NOTICE: THIS IS A SAFE EDR THREAT SIMULATION.\r\n"
+                    + "echo  DO NOT CLOSE MANUALLY - EXECUTE REMEDIATION STEP FROM DASHBOARD!\r\n"
+                    + "echo =====================================================================\r\n"
+                    + ":loop\r\necho [*] Threat vector active - beaconing memory state... (Press Ctrl+C to stop or Remediate)\r\ntimeout /t 3 >nul\r\ngoto loop\r\n";
+
+            Path batFile = incidentDir.resolve("darkside_runner.bat");
+            Files.writeString(batFile, batContent);
+
+            CommandRunner.runPowerShell("Start-Process cmd.exe -ArgumentList '/c', '\"" + batFile.toAbsolutePath() + "\"'");
+
+            // Trigger visual UI overlays
+            overlay.showThreatAlert("DarkSide Rogue Window & Injection (" + safeIncidentId + ")", safeIncidentId, "CRITICAL");
+
+            return "VERIFIED_SUCCESS: DarkSide rogue window spawned and persistence sandbox active";
+        } catch (Exception e) {
+            log.error("[DEMO-SIMULATION] DarkSide simulation error", e);
+            return "FAILED: " + e.getMessage();
+        }
+    }
+
+    public String executeSimulatedStealthRat(String incidentId) {
+        String safeIncidentId = sanitizeIncidentId(incidentId);
+        log.info("[DEMO-SIMULATION] Triggering Stealth RAT Backdoor simulation for incident: {}", safeIncidentId);
+        try {
+            // Bind strictly to loopback 127.0.0.1:44444
+            String ps = "$ip = [System.Net.IPAddress]::Parse('127.0.0.1'); $listener = New-Object System.Net.Sockets.TcpListener($ip, 44444); $listener.Start(); Write-Host '[ASTRA_SAFE_DEMO_LISTENER] RAT Backdoor Active'; while($true) { Start-Sleep -Seconds 1 }";
+            CommandRunner.runPowerShell("Start-Process powershell -WindowStyle Hidden -ArgumentList '-NoProfile', '-Command', \"" + ps + "\"");
+
+            // Add registry artifact
+            String keyPath = "HKCU\\Software\\ASTRA\\Demo\\" + safeIncidentId;
+            CommandRunner.runCmd("reg add \"" + keyPath + "\" /v StealthRatPort /t REG_DWORD /d 44444 /f");
+
+            // Trigger Matrix HUD
+            overlay.showThreatAlert("Stealth RAT Backdoor Socket Opened (TCP 44444)", safeIncidentId, "CRITICAL");
+            overlay.showMatrixOverlay();
+
+            return "VERIFIED_SUCCESS: Stealth RAT listener active on 127.0.0.1:44444";
+        } catch (Exception e) {
+            log.error("[DEMO-SIMULATION] Stealth RAT simulation error", e);
+            return "FAILED: " + e.getMessage();
+        }
+    }
+
     private String sanitizeIncidentId(String incidentId) {
         if (incidentId != null && !incidentId.isBlank()) {
             return incidentId.replaceAll("[^a-zA-Z0-9_-]", "");

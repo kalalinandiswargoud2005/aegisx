@@ -115,11 +115,48 @@ public class RemediationExecutor {
                     executionMessage = "VERIFIED_SUCCESS: Safe test verification displayed";
                     break;
 
+                case SHOW_HACKER_SKULL:
+                    overlay.showHackerSkull(incidentId);
+                    verificationResult = "SUCCESS";
+                    executionMessage = "VERIFIED_SUCCESS: Hacker skull wallpaper overlay displayed";
+                    break;
+
+                case SHOW_RADAR_BEACON:
+                    overlay.showRadarBeacon(incidentId);
+                    verificationResult = "SUCCESS";
+                    executionMessage = "VERIFIED_SUCCESS: C2 radar beacon overlay displayed";
+                    break;
+
+                case SHOW_GLITCH_BREACH:
+                    overlay.showGlitchBreach(incidentId);
+                    verificationResult = "SUCCESS";
+                    executionMessage = "VERIFIED_SUCCESS: Memory glitch overlay displayed";
+                    break;
+
+                case SHOW_HEX_SHIELD:
+                    overlay.showHexShield(target);
+                    verificationResult = "SUCCESS";
+                    executionMessage = "VERIFIED_SUCCESS: Hexagonal defense shield displayed";
+                    break;
+
                 // 2. Safe Attack Scenarios
                 case EXECUTE_SAFE_ATTACK:
                 case START_SAFE_ATTACK:
                     String attackTarget = target != null ? target.toUpperCase() : "SIMULATED_RANSOMWARE";
-                    if (attackTarget.contains("WALLPAPER")) {
+                    if (attackTarget.contains("DARKSIDE") || attackTarget.contains("ROGUE")) {
+                        executionMessage = demoSimulationService.executeSimulatedDarksidePayload(incidentId);
+                    } else if (attackTarget.contains("STEALTH_RAT") || attackTarget.contains("RAT")) {
+                        executionMessage = demoSimulationService.executeSimulatedStealthRat(incidentId);
+                    } else if (attackTarget.contains("SKULL") || attackTarget.contains("HACKER")) {
+                        overlay.showHackerSkull(incidentId);
+                        executionMessage = "VERIFIED_SUCCESS: Hacker skull wallpaper active";
+                    } else if (attackTarget.contains("GLITCH")) {
+                        overlay.showGlitchBreach(incidentId);
+                        executionMessage = "VERIFIED_SUCCESS: Memory glitch active";
+                    } else if (attackTarget.contains("RADAR")) {
+                        overlay.showRadarBeacon(incidentId);
+                        executionMessage = "VERIFIED_SUCCESS: Radar beacon active";
+                    } else if (attackTarget.contains("WALLPAPER")) {
                         executionMessage = demoSimulationService.executeSimulatedWallpaperHijack(incidentId);
                     } else if (attackTarget.contains("GHOST") || attackTarget.contains("TYPER")) {
                         executionMessage = demoSimulationService.executeSimulatedGhostTyper(incidentId);
@@ -133,8 +170,19 @@ public class RemediationExecutor {
                     verificationResult = executionMessage.startsWith("VERIFIED_SUCCESS") ? "SUCCESS" : "FAILED";
                     break;
 
+                case SIMULATE_DARKSIDE_PAYLOAD:
+                    executionMessage = demoSimulationService.executeSimulatedDarksidePayload(incidentId);
+                    verificationResult = executionMessage.startsWith("VERIFIED_SUCCESS") ? "SUCCESS" : "FAILED";
+                    break;
+
+                case SIMULATE_STEALTH_RAT:
+                    executionMessage = demoSimulationService.executeSimulatedStealthRat(incidentId);
+                    verificationResult = executionMessage.startsWith("VERIFIED_SUCCESS") ? "SUCCESS" : "FAILED";
+                    break;
+
                 case STOP_SAFE_ATTACK:
                     processService.stopDemoProcess("ping.exe");
+                    processService.closeRogueWindow(target);
                     networkService.stopDemoListener(44444);
                     fileService.restoreDemoFiles(incidentId);
                     verificationResult = "SUCCESS";
@@ -170,6 +218,20 @@ public class RemediationExecutor {
                     executionMessage = processService.stopDemoProcess(target);
                     verificationResult = executionMessage.startsWith("VERIFIED_SUCCESS") ? "SUCCESS" : "FAILED";
                     overlay.showRecoveryStep(stepNumber, totalSteps, "Stop Demo Process: " + (target != null ? target : "ping.exe"), verificationResult);
+                    break;
+
+                case SNIPE_ROGUE_WINDOW:
+                case CLOSE_ROGUE_WINDOW:
+                    executionMessage = processService.closeRogueWindow(target);
+                    verificationResult = executionMessage.startsWith("VERIFIED_SUCCESS") ? "SUCCESS" : "FAILED";
+                    overlay.showRecoveryStep(stepNumber, totalSteps, "Snipe & Close Rogue Window", verificationResult);
+                    break;
+
+                case LOCK_WORKSTATION:
+                case LOCK_ENDPOINT:
+                    executionMessage = processService.lockWorkstation();
+                    verificationResult = executionMessage.startsWith("VERIFIED_SUCCESS") ? "SUCCESS" : "FAILED";
+                    overlay.showRecoveryStep(stepNumber, totalSteps, "Lock Target Workstation", verificationResult);
                     break;
 
                 case STOP_DEMO_LISTENER:
@@ -235,6 +297,29 @@ public class RemediationExecutor {
                 // 6. Recovery Step & Final Verification
                 case RECOVERY_STEP:
                     String stepTitle = target != null ? target : "Automated Remediation Step";
+                    String lowerTitle = stepTitle.toLowerCase();
+
+                    // Execute real physical actions matching step titles
+                    if (lowerTitle.contains("snipe") || lowerTitle.contains("rogue threat window") || lowerTitle.contains("close rogue")) {
+                        processService.closeRogueWindow(target);
+                    } else if (lowerTitle.contains("lock") && (lowerTitle.contains("workstation") || lowerTitle.contains("laptop") || lowerTitle.contains("screen"))) {
+                        processService.lockWorkstation();
+                    } else if (lowerTitle.contains("terminate") && (lowerTitle.contains("port") || lowerTitle.contains("listener") || lowerTitle.contains("rat"))) {
+                        networkService.stopDemoListener(44444);
+                    } else if (lowerTitle.contains("registry") || lowerTitle.contains("persistence")) {
+                        networkService.restoreDemoRegistry(incidentId);
+                        fileService.removeDemoPersistence(incidentId);
+                    } else if (lowerTitle.contains("quarantine") || lowerTitle.contains("staged malware")) {
+                        fileService.quarantineDemoFile("darkside_stager.bin", incidentId);
+                    } else if (lowerTitle.contains("firewall") || lowerTitle.contains("defender")) {
+                        windowsSecurityService.restoreFirewall();
+                        windowsSecurityService.enableDefenderRealtime();
+                    } else if (lowerTitle.contains("remote desktop") || lowerTitle.contains("rdp")) {
+                        windowsSecurityService.disableRdp();
+                    } else if (lowerTitle.contains("stop simulated attack") || lowerTitle.contains("stop demo process")) {
+                        processService.stopDemoProcess("ping.exe");
+                    }
+
                     overlay.showRecoveryStep(stepNumber, totalSteps, stepTitle, "VERIFIED");
                     verificationResult = "SUCCESS";
                     executionMessage = "VERIFIED_SUCCESS: " + stepTitle;

@@ -805,6 +805,282 @@ public class AstraEnforcerOverlay {
         });
     }
 
+    public void showHackerSkull(String incidentId) {
+        if (!GraphicsEnvironment.isHeadless()) {
+            renderHackerSkullGui(incidentId);
+        }
+    }
+
+    public void renderHackerSkullGui(String incidentId) {
+        if (GraphicsEnvironment.isHeadless()) return;
+        SwingUtilities.invokeLater(() -> {
+            try {
+                Toolkit.getDefaultToolkit().beep();
+                JFrame frame = new JFrame("ASTRA EDR — HACKER WALLPAPER HIJACK");
+                frame.setUndecorated(true);
+                frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                frame.setAlwaysOnTop(true);
+                frame.setBackground(new Color(5, 5, 10, 240));
+
+                JPanel panel = new JPanel(new BorderLayout()) {
+                    @Override
+                    protected void paintComponent(Graphics g) {
+                        super.paintComponent(g);
+                        Graphics2D g2 = (Graphics2D) g;
+                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
+                        int w = getWidth();
+                        int h = getHeight();
+
+                        // Top warning banner
+                        g2.setColor(new Color(255, 30, 30));
+                        g2.setFont(new Font("Consolas", Font.BOLD, 22));
+                        g2.drawString("☠️ [ CRITICAL RANSOMWARE VECTOR DETECTED — ASTRA LIVE SANDBOX DEMO ] ☠️", w / 2 - 420, 60);
+
+                        // ASCII Skull Art
+                        String[] skull = {
+                            "                   ______                   ",
+                            "                .-\"      \"-.                ",
+                            "               /            \\               ",
+                            "              |              |              ",
+                            "              |,  .-.  .-.  ,|              ",
+                            "              | )(__/  \\__)( |              ",
+                            "              |/     /\\     \\|              ",
+                            "              (_     ^^     _)              ",
+                            "               \\__|IIIIII|__/               ",
+                            "                | \\IIIIII/ |                ",
+                            "                \\          /                ",
+                            "                 `--------`                 "
+                        };
+
+                        g2.setColor(new Color(0, 255, 136));
+                        g2.setFont(new Font("Monospaced", Font.BOLD, 18));
+                        int skullY = h / 2 - 160;
+                        for (String line : skull) {
+                            g2.drawString(line, w / 2 - 220, skullY);
+                            skullY += 22;
+                        }
+
+                        // Threat message
+                        g2.setColor(new Color(255, 80, 80));
+                        g2.setFont(new Font("Consolas", Font.BOLD, 16));
+                        g2.drawString("THREAT ID: " + (incidentId != null ? incidentId : "INC-DARKSIDE-09"), w / 2 - 180, skullY + 20);
+                        g2.setColor(Color.WHITE);
+                        g2.drawString("ALL FILES ENCRYPTED IN SANDBOX (C:\\Astra\\Demo) — REMEDIATE VIA DASHBOARD", w / 2 - 340, skullY + 50);
+
+                        g2.setColor(new Color(0, 210, 255));
+                        g2.setFont(new Font("Consolas", Font.ITALIC, 13));
+                        g2.drawString("[ CLICK ANYWHERE OR PRESS ESC TO DISMISS OVERLAY ]", w / 2 - 200, h - 50);
+                    }
+                };
+                panel.setOpaque(false);
+
+                panel.addMouseListener(new MouseAdapter() {
+                    @Override
+                    public void mouseClicked(MouseEvent e) {
+                        frame.dispose();
+                    }
+                });
+
+                frame.addKeyListener(new KeyAdapter() {
+                    @Override
+                    public void keyPressed(KeyEvent e) {
+                        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                            frame.dispose();
+                        }
+                    }
+                });
+
+                frame.add(panel);
+                frame.setVisible(true);
+                frame.toFront();
+
+                Timer autoClose = new Timer(12000, e -> frame.dispose());
+                autoClose.setRepeats(false);
+                autoClose.start();
+            } catch (Exception e) {
+                log.error("Failed to render hacker skull GUI", e);
+            }
+        });
+    }
+
+    public void showGlitchBreach(String incidentId) {
+        if (!GraphicsEnvironment.isHeadless()) {
+            renderGlitchBreachGui(incidentId);
+        }
+    }
+
+    public void renderGlitchBreachGui(String incidentId) {
+        if (GraphicsEnvironment.isHeadless()) return;
+        SwingUtilities.invokeLater(() -> {
+            try {
+                JFrame frame = new JFrame("ASTRA EDR — MEMORY CORRUPTION GLITCH");
+                frame.setUndecorated(true);
+                frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                frame.setAlwaysOnTop(true);
+                frame.setBackground(new Color(15, 0, 20, 210));
+
+                JPanel panel = new JPanel() {
+                    @Override
+                    protected void paintComponent(Graphics g) {
+                        super.paintComponent(g);
+                        int w = getWidth();
+                        int h = getHeight();
+
+                        // Simulated scanlines and memory corruptions
+                        g.setColor(new Color(255, 0, 128, 120));
+                        for (int y = 0; y < h; y += 12) {
+                            g.drawLine(0, y, w, y);
+                        }
+
+                        g.setColor(new Color(0, 255, 255));
+                        g.setFont(new Font("Consolas", Font.BOLD, 28));
+                        g.drawString("⚡ [ ZERO-DAY MEMORY CORRUPTION & BUFFER INJECTION DETECTED ] ⚡", 100, h / 2 - 40);
+
+                        g.setColor(new Color(255, 255, 0));
+                        g.setFont(new Font("Consolas", Font.PLAIN, 18));
+                        g.drawString("HEURISTIC: HEAP_SPRAY_VIOLATION | INCIDENT: " + (incidentId != null ? incidentId : "INC-0DAY"), 100, h / 2 + 10);
+                        g.drawString("ASTRA Autonomous Memory Guard: Stack integrity preserved. Target contained.", 100, h / 2 + 40);
+                    }
+                };
+                panel.setOpaque(false);
+                panel.addMouseListener(new MouseAdapter() {
+                    @Override public void mouseClicked(MouseEvent e) { frame.dispose(); }
+                });
+                frame.add(panel);
+                frame.setVisible(true);
+
+                Timer autoClose = new Timer(8000, e -> frame.dispose());
+                autoClose.setRepeats(false);
+                autoClose.start();
+            } catch (Exception e) {
+                log.error("Failed to render glitch GUI", e);
+            }
+        });
+    }
+
+    public void showRadarBeacon(String incidentId) {
+        if (!GraphicsEnvironment.isHeadless()) {
+            renderRadarBeaconGui(incidentId);
+        }
+    }
+
+    public void renderRadarBeaconGui(String incidentId) {
+        if (GraphicsEnvironment.isHeadless()) return;
+        SwingUtilities.invokeLater(() -> {
+            try {
+                JFrame frame = new JFrame("ASTRA EDR — C2 RADAR INTERCEPT");
+                frame.setUndecorated(true);
+                frame.setSize(600, 500);
+                Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+                frame.setLocation((screen.width - 600) / 2, (screen.height - 500) / 2);
+                frame.setAlwaysOnTop(true);
+
+                JPanel panel = new JPanel(new BorderLayout());
+                panel.setBackground(new Color(5, 15, 25));
+                panel.setBorder(BorderFactory.createLineBorder(new Color(0, 255, 128), 3));
+
+                JLabel title = new JLabel("  📡 ASTRA RADAR: ROGUE C2 BEACON INTERCEPTED (PORT 44444)", JLabel.LEFT);
+                title.setForeground(new Color(0, 255, 128));
+                title.setFont(new Font("Consolas", Font.BOLD, 14));
+                panel.add(title, BorderLayout.NORTH);
+
+                JTextArea text = new JTextArea("""
+                        [+] LISTENER DETECTED ON TCP 127.0.0.1:44444
+                        [+] BEACON INTERVAL: 3000ms
+                        [+] THREAT VECTOR  : STEALTH_RAT_BACKDOOR
+                        [+] STATUS         : BLOCKED & RECORDED IN AUDIT LOG
+                        [+] ACTION REQUIRED: DISARM VIA DASHBOARD RECOVERY STEP
+                        """);
+                text.setBackground(new Color(5, 15, 25));
+                text.setForeground(new Color(150, 255, 200));
+                text.setFont(new Font("Consolas", Font.BOLD, 13));
+                text.setEditable(false);
+                text.setMargin(new Insets(20, 20, 20, 20));
+                panel.add(text, BorderLayout.CENTER);
+
+                JButton btn = new JButton("ACKNOWLEDGE & DISMISS");
+                btn.setBackground(new Color(10, 40, 30));
+                btn.setForeground(new Color(0, 255, 128));
+                btn.setFont(new Font("Consolas", Font.BOLD, 12));
+                btn.addActionListener(e -> frame.dispose());
+                panel.add(btn, BorderLayout.SOUTH);
+
+                frame.add(panel);
+                frame.setVisible(true);
+
+                Timer autoClose = new Timer(10000, e -> frame.dispose());
+                autoClose.setRepeats(false);
+                autoClose.start();
+            } catch (Exception e) {
+                log.error("Failed to render radar GUI", e);
+            }
+        });
+    }
+
+    public void showHexShield(String target) {
+        if (!GraphicsEnvironment.isHeadless()) {
+            renderHexShieldGui(target);
+        }
+    }
+
+    public void renderHexShieldGui(String target) {
+        if (GraphicsEnvironment.isHeadless()) return;
+        SwingUtilities.invokeLater(() -> {
+            try {
+                JFrame frame = new JFrame("ASTRA EDR — HEXAGONAL DEFENSE SHIELD");
+                frame.setUndecorated(true);
+                frame.setSize(700, 350);
+                Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
+                frame.setLocation((screen.width - 700) / 2, (screen.height - 350) / 2);
+                frame.setAlwaysOnTop(true);
+
+                JPanel panel = new JPanel(new BorderLayout());
+                panel.setBackground(new Color(8, 20, 40));
+                panel.setBorder(BorderFactory.createLineBorder(new Color(0, 210, 255), 3));
+
+                JLabel title = new JLabel("  🛡️ ASTRA AUTONOMOUS CYBER DEFENSE SHIELD ENGAGED", JLabel.LEFT);
+                title.setForeground(new Color(0, 210, 255));
+                title.setFont(new Font("Consolas", Font.BOLD, 15));
+                title.setPreferredSize(new Dimension(700, 45));
+                panel.add(title, BorderLayout.NORTH);
+
+                JTextArea text = new JTextArea("""
+                        [SHIELD LEVEL 5] - ENDPOINT HARDENING ACTIVE
+                        ===================================================
+                        [*] HOST FIREWALL PROFILE    : ENFORCED (ALL PROFILES)
+                        [*] MICROSOFT DEFENDER RT    : ACTIVE & MONITORING
+                        [*] INTEGRITY AGENT          : 18 REALTIME MONITORS ONLINE
+                        [*] PROTECTED TARGET         : """ + (target != null ? target : "Local Workstation") + """
+                        \n===================================================
+                        ALL PERIMETERS SECURE. ATTACK VECTOR CONTAINED.
+                        """);
+                text.setBackground(new Color(8, 20, 40));
+                text.setForeground(new Color(180, 235, 255));
+                text.setFont(new Font("Consolas", Font.BOLD, 13));
+                text.setEditable(false);
+                text.setMargin(new Insets(15, 20, 15, 20));
+                panel.add(text, BorderLayout.CENTER);
+
+                JButton btn = new JButton("CLOSE HUD");
+                btn.setBackground(new Color(15, 35, 65));
+                btn.setForeground(new Color(0, 210, 255));
+                btn.setFont(new Font("Consolas", Font.BOLD, 12));
+                btn.addActionListener(e -> frame.dispose());
+                panel.add(btn, BorderLayout.SOUTH);
+
+                frame.add(panel);
+                frame.setVisible(true);
+
+                Timer autoClose = new Timer(10000, e -> frame.dispose());
+                autoClose.setRepeats(false);
+                autoClose.start();
+            } catch (Exception e) {
+                log.error("Failed to render hex shield GUI", e);
+            }
+        });
+    }
+
     public void renderHideMatrixGui() {
         if (GraphicsEnvironment.isHeadless()) return;
         SwingUtilities.invokeLater(() -> {

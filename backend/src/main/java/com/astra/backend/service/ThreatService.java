@@ -2,6 +2,7 @@ package com.astra.backend.service;
 
 import com.astra.backend.entity.Incident;
 import com.astra.backend.repository.DeviceCommandRepository;
+import com.astra.backend.repository.IncidentReportRepository;
 import com.astra.backend.repository.IncidentRepository;
 import com.astra.backend.repository.RecoveryStepRepository;
 import com.astra.backend.websocket.WebSocketPublisher;
@@ -23,6 +24,7 @@ public class ThreatService {
     private final IncidentRepository incidentRepository;
     private final RecoveryStepRepository recoveryStepRepository;
     private final DeviceCommandRepository deviceCommandRepository;
+    private final IncidentReportRepository incidentReportRepository;
     private final WebSocketPublisher webSocketPublisher;
 
     public List<Incident> getActiveThreats() {
@@ -43,11 +45,28 @@ public class ThreatService {
 
     @Transactional
     public void clearAllThreats() {
-        log.info("[THREAT-SERVICE] Purging all incidents, recovery steps, and commands queue...");
+        log.info("[THREAT-SERVICE] Purging all incidents, recovery steps, incident reports, and commands queue...");
         try {
-            recoveryStepRepository.deleteAll();
-            deviceCommandRepository.deleteAll();
-            incidentRepository.deleteAll();
+            try {
+                recoveryStepRepository.deleteAll();
+            } catch (Exception e) {
+                log.warn("Could not delete recovery steps: {}", e.getMessage());
+            }
+            try {
+                incidentReportRepository.deleteAll();
+            } catch (Exception e) {
+                log.warn("Could not delete incident reports: {}", e.getMessage());
+            }
+            try {
+                deviceCommandRepository.deleteAll();
+            } catch (Exception e) {
+                log.warn("Could not delete device commands: {}", e.getMessage());
+            }
+            try {
+                incidentRepository.deleteAll();
+            } catch (Exception e) {
+                log.warn("Could not delete incidents: {}", e.getMessage());
+            }
             
             // Broadcast clear notification
             webSocketPublisher.broadcastTelemetry(Map.of("event", "ALL_THREATS_CLEARED", "timestamp", LocalDateTime.now().toString()));

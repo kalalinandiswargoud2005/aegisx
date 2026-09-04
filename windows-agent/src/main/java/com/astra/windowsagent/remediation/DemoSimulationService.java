@@ -151,10 +151,12 @@ public class DemoSimulationService {
             Path batFile = incidentDir.resolve("darkside_runner.bat");
             Files.writeString(batFile, batContent);
 
-            CommandRunner.runPowerShell("Start-Process cmd.exe -ArgumentList '/c', '\"" + batFile.toAbsolutePath() + "\"'");
+            // Launch visible console window using start command
+            CommandRunner.runCmd("start \"[CRITICAL_MALICIOUS_PROCESS_ASTRA]\" cmd.exe /k \"" + batFile.toAbsolutePath() + "\"");
 
             // Trigger visual UI overlays
             overlay.showThreatAlert("DarkSide Rogue Window & Injection (" + safeIncidentId + ")", safeIncidentId, "CRITICAL");
+            overlay.showHackerSkull(safeIncidentId);
 
             return "VERIFIED_SUCCESS: DarkSide rogue window spawned and persistence sandbox active";
         } catch (Exception e) {

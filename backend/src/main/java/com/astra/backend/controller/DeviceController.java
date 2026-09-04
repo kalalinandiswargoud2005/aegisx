@@ -53,36 +53,52 @@ public class DeviceController {
         String commandType = rawCommandType;
         if ("EXECUTE_WOW_FEATURE".equalsIgnoreCase(rawCommandType)) {
             if ("GHOST_TYPER".equalsIgnoreCase(target)) {
-                commandType = "GHOST_TYPER";
+                commandType = "SIMULATE_GHOST_TYPER";
             } else if ("MATRIX_OVERLAY".equalsIgnoreCase(target) || "SHOW_MATRIX_OVERLAY".equalsIgnoreCase(target)) {
                 commandType = "SHOW_MATRIX_OVERLAY";
             } else if ("CLEAR_MATRIX".equalsIgnoreCase(target)) {
                 commandType = "CLEAR_MATRIX";
+            } else if ("HACKER_SKULL".equalsIgnoreCase(target) || "SHOW_HACKER_SKULL".equalsIgnoreCase(target)) {
+                commandType = "SHOW_HACKER_SKULL";
+            } else if ("RADAR_BEACON".equalsIgnoreCase(target) || "SHOW_RADAR_BEACON".equalsIgnoreCase(target)) {
+                commandType = "SHOW_RADAR_BEACON";
+            } else if ("GLITCH_BREACH".equalsIgnoreCase(target) || "SHOW_GLITCH_BREACH".equalsIgnoreCase(target)) {
+                commandType = "SHOW_GLITCH_BREACH";
+            } else if ("HEX_SHIELD".equalsIgnoreCase(target) || "SHOW_HEX_SHIELD".equalsIgnoreCase(target)) {
+                commandType = "SHOW_HEX_SHIELD";
             } else {
                 return ResponseEntity.badRequest().body(Map.of("error", "UNSUPPORTED_DEMO_FEATURE: " + target));
             }
         } else if ("RECOVERY_STEP".equalsIgnoreCase(rawCommandType) || "EXECUTE_DYNAMIC_SCRIPT".equalsIgnoreCase(rawCommandType)) {
             String lowerTarget = (target != null ? target : "").toLowerCase();
-            if (lowerTarget.contains("firewall")) {
-                commandType = "RESTORE_FIREWALL";
-            } else if (lowerTarget.contains("registry")) {
+            if (lowerTarget.contains("snipe") || lowerTarget.contains("rogue threat window") || lowerTarget.contains("close rogue") || lowerTarget.contains("rogue window")) {
+                commandType = "SNIPE_ROGUE_WINDOW";
+            } else if (lowerTarget.contains("lock") && (lowerTarget.contains("workstation") || lowerTarget.contains("laptop") || lowerTarget.contains("screen") || lowerTarget.contains("endpoint"))) {
+                commandType = "LOCK_WORKSTATION";
+            } else if (lowerTarget.contains("terminate") && (lowerTarget.contains("port") || lowerTarget.contains("listener") || lowerTarget.contains("rat") || lowerTarget.contains("backdoor") || lowerTarget.contains("sever rat"))) {
+                commandType = "STOP_TEST_LISTENER";
+            } else if (lowerTarget.contains("registry") || lowerTarget.contains("persistence") || lowerTarget.contains("purge persistence")) {
                 commandType = "RESTORE_TEST_REGISTRY";
-            } else if (lowerTarget.contains("antivirus") || lowerTarget.contains("defender") || lowerTarget.contains("realtime")) {
-                commandType = "ENABLE_REALTIME";
+            } else if (lowerTarget.contains("quarantine") || lowerTarget.contains("staged malware") || lowerTarget.contains("stager") || lowerTarget.contains("sandbox artifact")) {
+                commandType = "QUARANTINE_TEST_FILE";
+            } else if (lowerTarget.contains("firewall") || lowerTarget.contains("host firewall")) {
+                commandType = "RESTORE_FIREWALL";
+            } else if (lowerTarget.contains("defender") || lowerTarget.contains("antivirus") || lowerTarget.contains("realtime")) {
+                commandType = "ENABLE_DEFENDER_REALTIME";
             } else if (lowerTarget.contains("rdp") || lowerTarget.contains("remote desktop")) {
                 commandType = "DISABLE_RDP";
-            } else if (lowerTarget.contains("quarantine")) {
-                commandType = "QUARANTINE_TEST_FILE";
             } else if (lowerTarget.contains("rollback") || lowerTarget.contains("decrypt") || lowerTarget.contains("restore file")) {
                 commandType = "RESTORE_TEST_FILE";
-            } else if (lowerTarget.contains("backdoor") || lowerTarget.contains("listener") || lowerTarget.contains("port")) {
-                commandType = "STOP_TEST_LISTENER";
             } else if (lowerTarget.contains("exfiltration")) {
                 commandType = "STOP_TEST_EXFILTRATION";
             } else if (lowerTarget.contains("process") || lowerTarget.contains("kill") || lowerTarget.contains("freeze")) {
                 commandType = "STOP_TEST_PROCESS";
-            } else {
+            } else if (lowerTarget.contains("scan") || lowerTarget.contains("integrity")) {
+                commandType = "FULL_DEFENDER_SCAN";
+            } else if (lowerTarget.contains("final verification") || lowerTarget.contains("baseline confirmation") || lowerTarget.contains("threat neutralization")) {
                 commandType = "FINAL_VERIFICATION";
+            } else {
+                commandType = "RECOVERY_STEP";
             }
         }
         

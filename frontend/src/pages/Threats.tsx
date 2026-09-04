@@ -1,18 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { ShieldAlert, Search, Filter, AlertTriangle } from 'lucide-react';
+import { ShieldAlert, Search, Filter, AlertTriangle, Trash2 } from 'lucide-react';
 import { Card, Input, Button, Badge, Table, TableHeader, TableRow, TableHead, TableBody, TableCell, PageContainer, PageSection, PageHeader } from '@/components/ui';
 import { useWebSocket } from '@/providers/WebSocketProvider';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
 import { motion, AnimatePresence } from 'framer-motion';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 import { useScopedDevice } from '@/contexts/ScopedDeviceContext';
 
 export function Threats() {
   const [searchTerm, setSearchTerm] = useState('');
   const { subscribe } = useWebSocket();
+  const queryClient = useQueryClient();
   const { scopedDeviceId } = useScopedDevice();
   const [threats, setThreats] = useState<any[]>([]);
+  const [isClearing, setIsClearing] = useState(false);
 
   const { data: initialThreats, isLoading, isError } = useQuery({
     queryKey: ['threats'],
@@ -40,6 +43,22 @@ export function Threats() {
     return () => unsubscribe();
   }, [subscribe]);
 
+  const handleClearAllThreats = async () => {
+    setIsClearing(true);
+    try {
+      await api.post('/threats/clear-all');
+      setThreats([]);
+      queryClient.invalidateQueries({ queryKey: ['threats'] });
+      queryClient.invalidateQueries({ queryKey: ['threats-history'] });
+      toast.success('All incident logs & queue successfully cleared!');
+    } catch (err) {
+      console.error('Failed to clear incident logs', err);
+      toast.error('Failed to clear incident logs');
+    } finally {
+      setIsClearing(false);
+    }
+  };
+
   const filteredThreats = threats.filter(t => {
     const matchesSearch = t.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           t.type.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -53,7 +72,19 @@ export function Threats() {
       <PageHeader 
         title="Incident Logs" 
         description="Analyze and manage live security incidents across the agency network."
-      />
+      >
+        <div className="flex items-center gap-3">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleClearAllThreats}
+            disabled={isClearing || threats.length === 0}
+            className="border-red-500/40 text-red-400 hover:bg-red-500/10 text-xs font-mono flex items-center gap-1.5"
+          >
+            <Trash2 size={13} /> {isClearing ? 'Clearing Logs...' : 'Clear All Incident Logs'}
+          </Button>
+        </div>
+      </PageHeader>
 
       <PageSection>
         <Card>
@@ -67,6 +98,16 @@ export function Threats() {
               />
             </div>
             <div className="flex items-center gap-2">
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={handleClearAllThreats}
+                disabled={isClearing || threats.length === 0}
+                className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+              >
+                <Trash2 size={14} className="mr-1.5" />
+                Clear Logs
+              </Button>
               <Button variant="outline" size="sm">
                 <Filter size={16} className="mr-2" />
                 Filters

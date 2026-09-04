@@ -85,9 +85,17 @@ export function Recovery() {
     }
   }, [fetchedThreats]);
 
-  // ── WebSocket: new incident arrives ───────────────────────────────────────
+  // ── WebSocket: new incident or clear event arrives ───────────────────────
   useEffect(() => {
     const unsubscribe = subscribe('timeline', (payload: any) => {
+      if (payload.event === 'ALL_THREATS_CLEARED' || payload.event === 'THREATS_CLEARED') {
+        setQueue([]);
+        setActiveIncident(null);
+        setSteps([]);
+        setCurrentStep(2);
+        queryClient.invalidateQueries({ queryKey: ['threats'] });
+        return;
+      }
       if (payload.event !== 'NEW_INCIDENT') return;
       const newIncident = payload.incident;
 
@@ -112,7 +120,7 @@ export function Recovery() {
       });
     });
     return () => unsubscribe();
-  }, [subscribe]);
+  }, [subscribe, queryClient, scopedDeviceId]);
 
   // ── Fetch recovery steps whenever active incident changes ─────────────────
   const fetchSteps = useCallback(async (incidentId: string) => {

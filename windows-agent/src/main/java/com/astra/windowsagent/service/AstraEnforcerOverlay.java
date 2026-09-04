@@ -820,7 +820,8 @@ public class AstraEnforcerOverlay {
                 frame.setUndecorated(true);
                 frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
                 frame.setAlwaysOnTop(true);
-                frame.setBackground(new Color(5, 5, 10, 240));
+                frame.setAutoRequestFocus(true);
+                frame.setFocusableWindowState(true);
 
                 JPanel panel = new JPanel(new BorderLayout()) {
                     @Override
@@ -832,48 +833,76 @@ public class AstraEnforcerOverlay {
                         int w = getWidth();
                         int h = getHeight();
 
-                        // Top warning banner
+                        // Solid dark background
+                        g2.setColor(new Color(5, 5, 12));
+                        g2.fillRect(0, 0, w, h);
+
+                        // Red hazard scanlines
+                        g2.setColor(new Color(255, 0, 0, 40));
+                        for (int y = 0; y < h; y += 8) {
+                            g2.drawLine(0, y, w, y);
+                        }
+
+                        // Outer glowing red border
                         g2.setColor(new Color(255, 30, 30));
-                        g2.setFont(new Font("Consolas", Font.BOLD, 22));
-                        g2.drawString("☠️ [ CRITICAL RANSOMWARE VECTOR DETECTED — ASTRA LIVE SANDBOX DEMO ] ☠️", w / 2 - 420, 60);
+                        g2.setStroke(new BasicStroke(8));
+                        g2.drawRect(10, 10, w - 20, h - 20);
+
+                        // Top warning banner
+                        g2.setColor(new Color(255, 40, 40));
+                        g2.setFont(new Font("Consolas", Font.BOLD, 26));
+                        String topBanner = "☠️  [ CRITICAL RANSOMWARE VECTOR DETECTED — ASTRA LIVE SANDBOX DEMO ]  ☠️";
+                        FontMetrics fm = g2.getFontMetrics();
+                        g2.drawString(topBanner, (w - fm.stringWidth(topBanner)) / 2, 70);
 
                         // ASCII Skull Art
                         String[] skull = {
-                            "                   ______                   ",
-                            "                .-\"      \"-.                ",
-                            "               /            \\               ",
-                            "              |              |              ",
-                            "              |,  .-.  .-.  ,|              ",
-                            "              | )(__/  \\__)( |              ",
-                            "              |/     /\\     \\|              ",
-                            "              (_     ^^     _)              ",
-                            "               \\__|IIIIII|__/               ",
-                            "                | \\IIIIII/ |                ",
-                            "                \\          /                ",
-                            "                 `--------`                 "
+                            "                 .ed\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"be.",
+                            "               -\"           .            \"-",
+                            "             .\"             !              \".",
+                            "            /               !                \\",
+                            "           /           /\\   !   /\\            \\",
+                            "          |           /  \\  !  /  \\            |",
+                            "          |          | () | ! | () |           |",
+                            "          |           \\__/     \\__/            |",
+                            "          |              <----->               |",
+                            "           \\            |IIIIIII|             /",
+                            "            \\           |IIIIIII|            /",
+                            "             `.         \\_______/          .'",
+                            "               \"-                         -\"",
+                            "                 `\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"`"
                         };
 
                         g2.setColor(new Color(0, 255, 136));
-                        g2.setFont(new Font("Monospaced", Font.BOLD, 18));
-                        int skullY = h / 2 - 160;
+                        g2.setFont(new Font("Monospaced", Font.BOLD, 20));
+                        int skullY = h / 2 - 190;
                         for (String line : skull) {
-                            g2.drawString(line, w / 2 - 220, skullY);
-                            skullY += 22;
+                            int lineW = g2.getFontMetrics().stringWidth(line);
+                            g2.drawString(line, (w - lineW) / 2, skullY);
+                            skullY += 24;
                         }
 
                         // Threat message
-                        g2.setColor(new Color(255, 80, 80));
-                        g2.setFont(new Font("Consolas", Font.BOLD, 16));
-                        g2.drawString("THREAT ID: " + (incidentId != null ? incidentId : "INC-DARKSIDE-09"), w / 2 - 180, skullY + 20);
-                        g2.setColor(Color.WHITE);
-                        g2.drawString("ALL FILES ENCRYPTED IN SANDBOX (C:\\Astra\\Demo) — REMEDIATE VIA DASHBOARD", w / 2 - 340, skullY + 50);
+                        g2.setColor(new Color(255, 70, 70));
+                        g2.setFont(new Font("Consolas", Font.BOLD, 20));
+                        String threatIdStr = "THREAT ID: " + (incidentId != null ? incidentId : "INC-DARKSIDE-09") + " [LIVE BREACH]";
+                        int tIdW = g2.getFontMetrics().stringWidth(threatIdStr);
+                        g2.drawString(threatIdStr, (w - tIdW) / 2, skullY + 30);
 
-                        g2.setColor(new Color(0, 210, 255));
-                        g2.setFont(new Font("Consolas", Font.ITALIC, 13));
-                        g2.drawString("[ CLICK ANYWHERE OR PRESS ESC TO DISMISS OVERLAY ]", w / 2 - 200, h - 50);
+                        g2.setColor(Color.WHITE);
+                        g2.setFont(new Font("Consolas", Font.BOLD, 17));
+                        String alertMsg = "SANDBOX ARTIFACTS ENCRYPTED (C:\\Astra\\Demo) — REMEDIATE VIA ASTRA RECOVERY PLAYBOOK";
+                        int alertW = g2.getFontMetrics().stringWidth(alertMsg);
+                        g2.drawString(alertMsg, (w - alertW) / 2, skullY + 65);
+
+                        g2.setColor(new Color(0, 220, 255));
+                        g2.setFont(new Font("Consolas", Font.ITALIC, 14));
+                        String dismissMsg = "[ PRESS ESC OR CLICK ANYWHERE TO DISMISS OVERLAY ]";
+                        int disW = g2.getFontMetrics().stringWidth(dismissMsg);
+                        g2.drawString(dismissMsg, (w - disW) / 2, h - 50);
                     }
                 };
-                panel.setOpaque(false);
+                panel.setOpaque(true);
 
                 panel.addMouseListener(new MouseAdapter() {
                     @Override
@@ -894,8 +923,9 @@ public class AstraEnforcerOverlay {
                 frame.add(panel);
                 frame.setVisible(true);
                 frame.toFront();
+                frame.requestFocus();
 
-                Timer autoClose = new Timer(12000, e -> frame.dispose());
+                Timer autoClose = new Timer(15000, e -> frame.dispose());
                 autoClose.setRepeats(false);
                 autoClose.start();
             } catch (Exception e) {
@@ -914,43 +944,70 @@ public class AstraEnforcerOverlay {
         if (GraphicsEnvironment.isHeadless()) return;
         SwingUtilities.invokeLater(() -> {
             try {
+                Toolkit.getDefaultToolkit().beep();
                 JFrame frame = new JFrame("ASTRA EDR — MEMORY CORRUPTION GLITCH");
                 frame.setUndecorated(true);
                 frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
                 frame.setAlwaysOnTop(true);
-                frame.setBackground(new Color(15, 0, 20, 210));
+                frame.setAutoRequestFocus(true);
+                frame.setFocusableWindowState(true);
 
                 JPanel panel = new JPanel() {
                     @Override
                     protected void paintComponent(Graphics g) {
                         super.paintComponent(g);
+                        Graphics2D g2 = (Graphics2D) g;
+                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+
                         int w = getWidth();
                         int h = getHeight();
 
+                        // Solid dark background
+                        g2.setColor(new Color(15, 5, 25));
+                        g2.fillRect(0, 0, w, h);
+
                         // Simulated scanlines and memory corruptions
-                        g.setColor(new Color(255, 0, 128, 120));
-                        for (int y = 0; y < h; y += 12) {
-                            g.drawLine(0, y, w, y);
+                        g2.setColor(new Color(255, 0, 128, 120));
+                        for (int y = 0; y < h; y += 10) {
+                            g2.drawLine(0, y, w, y);
                         }
 
-                        g.setColor(new Color(0, 255, 255));
-                        g.setFont(new Font("Consolas", Font.BOLD, 28));
-                        g.drawString("⚡ [ ZERO-DAY MEMORY CORRUPTION & BUFFER INJECTION DETECTED ] ⚡", 100, h / 2 - 40);
+                        g2.setColor(new Color(0, 255, 255));
+                        g2.setFont(new Font("Consolas", Font.BOLD, 28));
+                        String title = "⚡ [ ZERO-DAY MEMORY CORRUPTION & BUFFER INJECTION DETECTED ] ⚡";
+                        FontMetrics fm = g2.getFontMetrics();
+                        g2.drawString(title, (w - fm.stringWidth(title)) / 2, h / 2 - 40);
 
-                        g.setColor(new Color(255, 255, 0));
-                        g.setFont(new Font("Consolas", Font.PLAIN, 18));
-                        g.drawString("HEURISTIC: HEAP_SPRAY_VIOLATION | INCIDENT: " + (incidentId != null ? incidentId : "INC-0DAY"), 100, h / 2 + 10);
-                        g.drawString("ASTRA Autonomous Memory Guard: Stack integrity preserved. Target contained.", 100, h / 2 + 40);
+                        g2.setColor(new Color(255, 255, 0));
+                        g2.setFont(new Font("Consolas", Font.PLAIN, 18));
+                        String sub1 = "HEURISTIC: HEAP_SPRAY_VIOLATION | INCIDENT: " + (incidentId != null ? incidentId : "INC-0DAY");
+                        g2.drawString(sub1, (w - g2.getFontMetrics().stringWidth(sub1)) / 2, h / 2 + 10);
+
+                        g2.setColor(new Color(100, 255, 100));
+                        String sub2 = "ASTRA Autonomous Memory Guard: Stack integrity preserved. Target contained.";
+                        g2.drawString(sub2, (w - g2.getFontMetrics().stringWidth(sub2)) / 2, h / 2 + 40);
+
+                        g2.setColor(new Color(0, 220, 255));
+                        g2.setFont(new Font("Consolas", Font.ITALIC, 14));
+                        String dis = "[ PRESS ESC OR CLICK ANYWHERE TO DISMISS ]";
+                        g2.drawString(dis, (w - g2.getFontMetrics().stringWidth(dis)) / 2, h - 50);
                     }
                 };
-                panel.setOpaque(false);
+                panel.setOpaque(true);
                 panel.addMouseListener(new MouseAdapter() {
                     @Override public void mouseClicked(MouseEvent e) { frame.dispose(); }
                 });
+                frame.addKeyListener(new KeyAdapter() {
+                    @Override public void keyPressed(KeyEvent e) {
+                        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) frame.dispose();
+                    }
+                });
                 frame.add(panel);
                 frame.setVisible(true);
+                frame.toFront();
+                frame.requestFocus();
 
-                Timer autoClose = new Timer(8000, e -> frame.dispose());
+                Timer autoClose = new Timer(10000, e -> frame.dispose());
                 autoClose.setRepeats(false);
                 autoClose.start();
             } catch (Exception e) {

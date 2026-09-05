@@ -1,15 +1,18 @@
-import React from 'react';
-import { Search, Bell, Moon, Sun, Globe, Bot } from 'lucide-react';
+import React, { useState } from 'react';
+import { Search, Bell, Moon, Sun, Globe, Bot, Smartphone } from 'lucide-react';
 import { Input, Avatar, Tooltip } from '@/components/ui';
 import { useTheme } from '@/providers/theme-provider';
 import { useAssistant } from '@/providers/AssistantProvider';
 import { motion } from 'framer-motion';
+import { MobileRemoteModal } from '@/components/MobileRemoteModal';
 
 export function Header() {
   const { theme, setTheme } = useTheme();
   const { toggleAssistant, isAssistantOpen } = useAssistant();
+  const [isMobileRemoteOpen, setIsMobileRemoteOpen] = useState(false);
 
   return (
+    <>
     <header className="sticky top-0 z-30 flex h-16 w-full items-center justify-between glass-panel border-b border-x-0 border-t-0 px-6 backdrop-blur-xl">
       <div className="flex items-center gap-4 w-1/3">
         <motion.div 
@@ -27,6 +30,19 @@ export function Header() {
       </div>
 
       <div className="flex items-center gap-4">
+        {/* Mobile Remote QR Trigger Button */}
+        <Tooltip content="Scan QR to control & trigger attacks from your phone">
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => setIsMobileRemoteOpen(true)}
+            className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono font-bold bg-cyan-500/20 text-cyan-300 border border-cyan-400/40 hover:bg-cyan-500/30 transition-all shadow-[0_0_15px_rgba(6,182,212,0.3)]"
+          >
+            <Smartphone size={14} className="text-cyan-400 animate-pulse" />
+            <span>MOBILE REMOTE</span>
+          </motion.button>
+        </Tooltip>
+
         {/* Manual World Threat Map Button */}
         <Tooltip content="Launch World Threat Map War Room">
           <motion.button 
@@ -99,5 +115,11 @@ export function Header() {
         </Tooltip>
       </div>
     </header>
+
+    <MobileRemoteModal 
+      isOpen={isMobileRemoteOpen} 
+      onClose={() => setIsMobileRemoteOpen(false)} 
+    />
+    </>
   );
 }

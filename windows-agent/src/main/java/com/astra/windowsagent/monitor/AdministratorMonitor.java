@@ -26,7 +26,7 @@ public class AdministratorMonitor {
         log.info("Initialized known administrators: {}", knownAdmins);
     }
 
-    @Scheduled(fixedRateString = "${agent.monitor.rate:10000}")
+    @Scheduled(fixedRateString = "${agent.monitors.admin-rate:${agent.monitors.rate:1500}}")
     public void check() {
         try {
             Set<String> currentAdmins = getAdminGroupMembers();

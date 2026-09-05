@@ -26,7 +26,7 @@ public class USBMonitor {
         log.info("Initialized known USB storage devices: {}", knownUsbDevices);
     }
 
-    @Scheduled(fixedRateString = "${agent.monitor.rate:10000}")
+    @Scheduled(fixedRateString = "${agent.monitors.usb-rate:${agent.monitors.rate:1000}}")
     public void check() {
         try {
             Set<String> currentDevices = getCurrentUsbDevices();

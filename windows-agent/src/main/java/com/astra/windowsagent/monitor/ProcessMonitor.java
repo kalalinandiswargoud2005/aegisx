@@ -25,7 +25,7 @@ public class ProcessMonitor {
     );
     private final Set<String> activeAlertedProcesses = new HashSet<>();
 
-    @Scheduled(fixedRateString = "${agent.monitor.rate:10000}")
+    @Scheduled(fixedRateString = "${agent.monitors.process-rate:${agent.monitors.rate:1000}}")
     public void check() {
         try {
             String output = CommandRunner.runPowerShell("Get-Process | Select-Object -ExpandProperty Name");

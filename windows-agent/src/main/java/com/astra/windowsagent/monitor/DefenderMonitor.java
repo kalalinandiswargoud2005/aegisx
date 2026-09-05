@@ -42,7 +42,7 @@ public class DefenderMonitor {
         }
     }
 
-    @Scheduled(fixedRateString = "${agent.monitor.rate:10000}")
+    @Scheduled(fixedRateString = "${agent.monitors.defender-rate:${agent.monitors.rate:1500}}")
     public void check() {
         try {
             // Check if Real-Time Protection is disabled

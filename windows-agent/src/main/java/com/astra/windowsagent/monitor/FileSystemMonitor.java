@@ -68,7 +68,7 @@ public class FileSystemMonitor {
      * Periodic scan across C:\Astra\Demo to guarantee subdirectories (like INC-xxxx\attack)
      * are reliably detected even if native non-recursive WatchService misses them.
      */
-    @Scheduled(fixedRate = 2000)
+    @Scheduled(fixedRate = 1000)
     public void scanDemoSandbox() {
         try {
             Path demoBase = Paths.get("C:\\Astra\\Demo");

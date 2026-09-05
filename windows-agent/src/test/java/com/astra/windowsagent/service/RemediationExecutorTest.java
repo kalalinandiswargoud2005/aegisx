@@ -22,6 +22,7 @@ public class RemediationExecutorTest {
     private WindowsSecurityService windowsSecurityService;
     private DemoSimulationService demoSimulationService;
     private VerificationService verificationService;
+    private com.astra.windowsagent.config.AgentConfigHelper configHelper;
     private RemediationExecutor executor;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -34,6 +35,7 @@ public class RemediationExecutorTest {
         windowsSecurityService = mock(WindowsSecurityService.class);
         demoSimulationService = mock(DemoSimulationService.class);
         verificationService = mock(VerificationService.class);
+        configHelper = mock(com.astra.windowsagent.config.AgentConfigHelper.class);
 
         executor = new RemediationExecutor(
                 overlay,
@@ -42,7 +44,8 @@ public class RemediationExecutorTest {
                 networkService,
                 windowsSecurityService,
                 demoSimulationService,
-                verificationService
+                verificationService,
+                configHelper
         );
     }
 

@@ -69,17 +69,11 @@ public class SimulationService {
         } else {
             recoveryService.generateRecoveryStepsForIncident(simulatedIncident.getId(), scenario.getImmediateAction(), scenario.getRecoveryWorkflow());
         }
-                
-        // Stream to WebSocket clients
-        notificationService.sendNotification("threats", simulatedIncident);
-        notificationService.sendNotification("timeline", Map.of(
-            "event", "NEW_INCIDENT", 
-            "incident", simulatedIncident,
-            "immediateAction", scenario.getImmediateAction() != null ? scenario.getImmediateAction() : "Immediate Response Triggered",
-            "animation", scenario.getDashboardAnimation()
-        ));
-        
-        // Dispatch SHOW_THREAT_ALERT to the target device if it exists and is online
+
+        final Incident finalIncident = simulatedIncident;
+        boolean dispatchedToOnlineDevice = false;
+
+        // 1. Dispatch SHOW_THREAT_ALERT to target device FIRST if online
         try {
             java.util.List<com.astra.backend.entity.Device> devices = deviceService.getAllDevices();
             if (!devices.isEmpty()) {
@@ -95,12 +89,22 @@ public class SimulationService {
                             "SHOW_THREAT_ALERT",
                             "{\"target\":\"" + scenario.getThreatName() + "\"}"
                     );
+                    dispatchedToOnlineDevice = true;
                     log.info("Dispatched SHOW_THREAT_ALERT to device {}", targetDevice.getName());
                 }
             }
         } catch (Exception e) {
             log.warn("Failed to dispatch threat alert command: {}", e.getMessage());
         }
+
+        // 2. Stream to SOC WebSocket clients immediately for zero-delay simultaneous synchronization
+        notificationService.sendNotification("threats", simulatedIncident);
+        notificationService.sendNotification("timeline", Map.of(
+            "event", "NEW_INCIDENT", 
+            "incident", simulatedIncident,
+            "immediateAction", scenario.getImmediateAction() != null ? scenario.getImmediateAction() : "Immediate Response Triggered",
+            "animation", scenario.getDashboardAnimation()
+        ));
 
         return simulatedIncident;
     }

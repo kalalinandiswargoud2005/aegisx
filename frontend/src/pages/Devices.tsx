@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Laptop, Server, Smartphone, CheckCircle, XCircle, Settings2, Trash2, AlertTriangle, Eye, Usb } from 'lucide-react';
+import { Laptop, Server, Smartphone, CheckCircle, XCircle, Settings2, Trash2, AlertTriangle, Eye, Usb, Zap, RotateCw, Download, RefreshCw } from 'lucide-react';
 import { Card, Table, TableHeader, TableRow, TableHead, TableBody, TableCell, Badge, Button, PageContainer, PageHeader, PageSection } from '@/components/ui';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import api from '@/lib/api';
@@ -21,8 +21,10 @@ export function Devices() {
   const [isManageMode, setIsManageMode] = useState(false);
   const [deviceToDelete, setDeviceToDelete] = useState<any | null>(null);
   const [isUsbModalOpen, setIsUsbModalOpen] = useState(false);
+  const [isUpdatingAll, setIsUpdatingAll] = useState(false);
+  const [actionInProgress, setActionInProgress] = useState<Record<string, string>>({});
 
-  const { data: devices = [], isLoading, isError } = useQuery({
+  const { data: devices = [], isLoading, isError, refetch } = useQuery({
     queryKey: ['devices'],
     queryFn: async () => {
       const res = await api.get('/devices');
@@ -54,13 +56,99 @@ export function Devices() {
     }
   };
 
+  const handleUpdateAllAgents = async () => {
+    setIsUpdatingAll(true);
+    try {
+      const onlineDevices = devices.filter((d: any) => String(d.status).toUpperCase() === 'ONLINE');
+      if (onlineDevices.length === 0) {
+        toast.info('No Online Devices Found', {
+          description: 'Start or connect an agent on your target laptop first.'
+        });
+        return;
+      }
+      for (const dev of onlineDevices) {
+        await api.post(`/devices/${dev.id}/command`, {
+          commandType: 'UPDATE_AGENT',
+          target: 'LATEST_BINARY'
+        }).catch(() => {});
+      }
+      toast.success('⚡ OTA Update Broadcasted', {
+        description: `Update commands dispatched to ${onlineDevices.length} active endpoint(s).`
+      });
+    } catch (err: any) {
+      toast.error('Update broadcast failed', {
+        description: err.response?.data?.error || 'Unable to contact backend.'
+      });
+    } finally {
+      setTimeout(() => setIsUpdatingAll(false), 2000);
+    }
+  };
+
+  const handleSingleDeviceAction = async (e: React.MouseEvent, deviceId: string, action: 'update' | 'restart') => {
+    e.stopPropagation();
+    setActionInProgress(prev => ({ ...prev, [deviceId]: action }));
+    try {
+      const commandType = action === 'update' ? 'UPDATE_AGENT' : 'RESTART_AGENT';
+      await api.post(`/devices/${deviceId}/command`, {
+        commandType,
+        target: action === 'update' ? 'LATEST_BINARY' : 'RESTART_SERVICE'
+      });
+      if (action === 'update') {
+        toast.success('⚡ Agent OTA Update Dispatched', {
+          description: 'Target laptop will download the latest features & restart.'
+        });
+      } else {
+        toast.success('🔄 Agent Restart Dispatched', {
+          description: 'Target laptop agent service is restarting.'
+        });
+      }
+    } catch (err: any) {
+      toast.error(`Action failed`, {
+        description: err.response?.data?.error || 'Target offline or unreachable.'
+      });
+    } finally {
+      setTimeout(() => {
+        setActionInProgress(prev => {
+          const next = { ...prev };
+          delete next[deviceId];
+          return next;
+        });
+      }, 2500);
+    }
+  };
+
+  const handleDownloadJar = () => {
+    const backendBase = api.defaults.baseURL || 'http://localhost:8080/api/v1';
+    window.open(`${backendBase}/agent/binary/download`, '_blank');
+    toast.info('⬇️ Downloading Agent Binary (windows-agent.jar)');
+  };
+
   return (
     <PageContainer>
       <PageHeader 
         title="Active Nodes"
-        description="Monitor uplink nodes and agent telemetry across the secured perimeter."
+        description="Monitor uplink nodes, update agent features OTA, and dispatch commands across the perimeter."
       >
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <Button 
+            variant="outline" 
+            onClick={handleDownloadJar}
+            className="flex items-center gap-2 font-mono text-xs uppercase hover:border-primary/60"
+          >
+            <Download size={14} className="text-primary" />
+            Download JAR
+          </Button>
+
+          <Button 
+            variant="outline" 
+            onClick={handleUpdateAllAgents}
+            disabled={isUpdatingAll}
+            className="flex items-center gap-2 font-mono text-xs uppercase border-primary/50 text-primary hover:bg-primary/10 shadow-[0_0_15px_rgba(0,240,255,0.2)]"
+          >
+            <Zap size={14} className={isUpdatingAll ? "animate-spin text-amber-400" : "text-primary"} />
+            {isUpdatingAll ? 'Broadcasting...' : 'Update All Agents (OTA)'}
+          </Button>
+
           <Button 
             variant={isManageMode ? "danger" : "outline"} 
             onClick={() => setIsManageMode(!isManageMode)}
@@ -112,7 +200,7 @@ export function Devices() {
                 <TableHead className="font-mono uppercase tracking-widest">Agent</TableHead>
                 <TableHead className="font-mono uppercase tracking-widest">Status</TableHead>
                 <TableHead className="font-mono uppercase tracking-widest text-center">Health</TableHead>
-                <TableHead className="text-right font-mono uppercase tracking-widest">Actions</TableHead>
+                <TableHead className="text-right font-mono uppercase tracking-widest">Remote Operations</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -143,80 +231,115 @@ export function Devices() {
                     </TableCell>
                   </motion.tr>
                 ) : (
-                  devices.map((device: any) => (
-                    <motion.tr 
-                      key={device.id}
-                      initial={{ opacity: 0, y: -20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.9 }}
-                      transition={{ duration: 0.3 }}
-                      onClick={() => !isManageMode && navigate(`/devices/${device.name || device.id}`)}
-                      className={`border-b border-border-color transition-colors hover:bg-white/5 ${!isManageMode ? 'cursor-pointer' : ''}`}
-                    >
-                      <TableCell>
-                        <div className="flex items-center gap-3">
-                          <div className="flex h-10 w-10 items-center justify-center rounded-none cyber-cut bg-surface border border-border-color group-hover:border-primary/50 transition-colors">
-                            {getDeviceIcon(device.type)}
+                  devices.map((device: any) => {
+                    const isDeviceOnline = String(device.status).toUpperCase() === 'ONLINE';
+                    const currentAction = actionInProgress[device.id];
+
+                    return (
+                      <motion.tr 
+                        key={device.id}
+                        initial={{ opacity: 0, y: -20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.9 }}
+                        transition={{ duration: 0.3 }}
+                        onClick={() => !isManageMode && navigate(`/devices/${device.name || device.id}`)}
+                        className={`border-b border-border-color transition-colors hover:bg-white/5 ${!isManageMode ? 'cursor-pointer' : ''}`}
+                      >
+                        <TableCell>
+                          <div className="flex items-center gap-3">
+                            <div className="flex h-10 w-10 items-center justify-center rounded-none cyber-cut bg-surface border border-border-color group-hover:border-primary/50 transition-colors">
+                              {getDeviceIcon(device.type)}
+                            </div>
+                            <div className="flex flex-col">
+                              <span className="font-rajdhani font-bold text-white tracking-wide flex items-center gap-2">
+                                {device.name}
+                                <Eye size={12} className="text-primary/70 hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                              </span>
+                              <span className="text-xs text-white/50 font-mono">{device.type}</span>
+                            </div>
                           </div>
-                          <div className="flex flex-col">
-                            <span className="font-rajdhani font-bold text-white tracking-wide flex items-center gap-2">
-                              {device.name}
-                              <Eye size={12} className="text-primary/70 hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
-                            </span>
-                            <span className="text-xs text-white/50 font-mono">{device.type}</span>
-                          </div>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-white/70 font-mono text-sm">{device.os || 'Unknown'}</TableCell>
-                      <TableCell className="text-white/70 font-mono text-sm">{device.ipAddress || device.ip}</TableCell>
-                      <TableCell className="text-white/70 font-mono text-sm">{device.agentVersion || 'v1.0.0'}</TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-1.5 text-sm font-mono font-bold">
-                          {device.status === 'Online' ? (
-                            <CheckCircle size={14} className="text-success" />
-                          ) : (
-                            <XCircle size={14} className="text-white/30" />
-                          )}
-                          <span className={device.status === 'Online' ? 'text-success' : 'text-white/50'}>
-                            {device.status}
+                        </TableCell>
+                        <TableCell className="text-white/70 font-mono text-sm">{device.os || 'Unknown'}</TableCell>
+                        <TableCell className="text-white/70 font-mono text-sm">{device.ipAddress || device.ip}</TableCell>
+                        <TableCell className="text-white/70 font-mono text-sm">
+                          <span className="px-2 py-0.5 bg-primary/10 border border-primary/30 text-primary text-xs rounded-none">
+                            {device.agentVersion || 'v1.0.0'}
                           </span>
-                        </div>
-                      </TableCell>
-                      <TableCell className="text-center">
-                        <Badge variant={
-                          device.health === 'Healthy' ? 'success' :
-                          device.health === 'Warning' ? 'warning' : 'danger'
-                        }>
-                          {device.health}
-                        </Badge>
-                      </TableCell>
-                      <TableCell className="text-right">
-                        {isManageMode ? (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              setDeviceToDelete(device);
-                            }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1 bg-danger/20 hover:bg-danger/40 text-danger border border-danger/50 text-xs font-mono font-bold transition-all shadow-[0_0_10px_rgba(255,42,109,0.3)] cursor-pointer"
-                          >
-                            <Trash2 size={13} />
-                            <span>Remove</span>
-                          </button>
-                        ) : (
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              navigate(`/devices/${device.name || device.id}`);
-                            }}
-                            className="inline-flex items-center gap-1.5 px-3 py-1 bg-primary/10 hover:bg-primary/20 text-primary border border-primary/40 text-xs font-mono font-bold transition-all cursor-pointer"
-                          >
-                            <Eye size={13} />
-                            <span>Watch Deck</span>
-                          </button>
-                        )}
-                      </TableCell>
-                    </motion.tr>
-                  ))
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-1.5 text-sm font-mono font-bold">
+                            {isDeviceOnline ? (
+                              <CheckCircle size={14} className="text-success" />
+                            ) : (
+                              <XCircle size={14} className="text-white/30" />
+                            )}
+                            <span className={isDeviceOnline ? 'text-success' : 'text-white/50'}>
+                              {device.status}
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge variant={
+                            device.health === 'Healthy' ? 'success' :
+                            device.health === 'Warning' ? 'warning' : 'danger'
+                          }>
+                            {device.health}
+                          </Badge>
+                        </TableCell>
+                        <TableCell className="text-right">
+                          {isManageMode ? (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setDeviceToDelete(device);
+                              }}
+                              className="inline-flex items-center gap-1.5 px-3 py-1 bg-danger/20 hover:bg-danger/40 text-danger border border-danger/50 text-xs font-mono font-bold transition-all shadow-[0_0_10px_rgba(255,42,109,0.3)] cursor-pointer"
+                            >
+                              <Trash2 size={13} />
+                              <span>Remove</span>
+                            </button>
+                          ) : (
+                            <div className="flex items-center justify-end gap-2">
+                              {isDeviceOnline && (
+                                <>
+                                  <button
+                                    title="Download and deploy latest agent code OTA"
+                                    onClick={(e) => handleSingleDeviceAction(e, device.id, 'update')}
+                                    disabled={!!currentAction}
+                                    className="inline-flex items-center gap-1 px-2.5 py-1 bg-primary/15 hover:bg-primary/30 text-primary border border-primary/40 text-xs font-mono font-bold transition-all cursor-pointer shadow-[0_0_8px_rgba(0,240,255,0.2)] disabled:opacity-50"
+                                  >
+                                    <Zap size={12} className={currentAction === 'update' ? 'animate-spin text-amber-400' : ''} />
+                                    <span>{currentAction === 'update' ? 'Updating...' : 'Update'}</span>
+                                  </button>
+
+                                  <button
+                                    title="Remotely restart agent process on target"
+                                    onClick={(e) => handleSingleDeviceAction(e, device.id, 'restart')}
+                                    disabled={!!currentAction}
+                                    className="inline-flex items-center gap-1 px-2 py-1 bg-white/5 hover:bg-white/10 text-white/80 border border-white/20 text-xs font-mono font-bold transition-all cursor-pointer disabled:opacity-50"
+                                  >
+                                    <RotateCw size={12} className={currentAction === 'restart' ? 'animate-spin text-primary' : ''} />
+                                    <span>{currentAction === 'restart' ? 'Restarting...' : 'Restart'}</span>
+                                  </button>
+                                </>
+                              )}
+
+                              <button
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  navigate(`/devices/${device.name || device.id}`);
+                                }}
+                                className="inline-flex items-center gap-1.5 px-3 py-1 bg-surface hover:bg-primary/20 text-primary border border-primary/40 text-xs font-mono font-bold transition-all cursor-pointer"
+                              >
+                                <Eye size={13} />
+                                <span>Deck</span>
+                              </button>
+                            </div>
+                          )}
+                        </TableCell>
+                      </motion.tr>
+                    );
+                  })
                 )}
               </AnimatePresence>
             </TableBody>

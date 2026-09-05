@@ -100,6 +100,10 @@ public class DeviceController {
             } else {
                 commandType = "RECOVERY_STEP";
             }
+        } else if ("RESTART_AGENT".equalsIgnoreCase(rawCommandType) || "RESTART".equalsIgnoreCase(rawCommandType)) {
+            commandType = "RESTART_AGENT";
+        } else if ("UPDATE_AGENT".equalsIgnoreCase(rawCommandType) || "UPDATE".equalsIgnoreCase(rawCommandType) || "OTA_UPDATE".equalsIgnoreCase(rawCommandType)) {
+            commandType = "UPDATE_AGENT";
         }
         
         UUID incidentId = null;
@@ -127,5 +131,42 @@ public class DeviceController {
 
         commandDispatchService.queueCommand(id, incidentId, commandType, params);
         return ResponseEntity.ok(Map.of("status", "queued", "command", commandType, "deviceId", id.toString()));
+    }
+
+    @PostMapping("/{id}/restart")
+    public ResponseEntity<Map<String, String>> restartAgent(@PathVariable UUID id) {
+        Device device = deviceService.getDeviceById(id);
+        if (device == null || !"ONLINE".equalsIgnoreCase(device.getStatus())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "TARGET OFFLINE OR NOT FOUND"));
+        }
+        commandDispatchService.queueCommand(id, null, "RESTART_AGENT", "{}");
+        return ResponseEntity.ok(Map.of("status", "Restart Command Queued", "deviceId", id.toString()));
+    }
+
+    @PostMapping("/{id}/update")
+    public ResponseEntity<Map<String, String>> updateAgent(@PathVariable UUID id) {
+        Device device = deviceService.getDeviceById(id);
+        if (device == null || !"ONLINE".equalsIgnoreCase(device.getStatus())) {
+            return ResponseEntity.badRequest().body(Map.of("error", "TARGET OFFLINE OR NOT FOUND"));
+        }
+        commandDispatchService.queueCommand(id, null, "UPDATE_AGENT", "{}");
+        return ResponseEntity.ok(Map.of("status", "OTA Update Command Queued", "deviceId", id.toString()));
+    }
+
+    @PostMapping("/broadcast-update")
+    public ResponseEntity<Map<String, Object>> broadcastUpdateAllAgents() {
+        List<Device> onlineDevices = deviceService.getAllDevices().stream()
+                .filter(d -> "ONLINE".equalsIgnoreCase(d.getStatus()))
+                .toList();
+        
+        for (Device device : onlineDevices) {
+            commandDispatchService.queueCommand(device.getId(), null, "UPDATE_AGENT", "{}");
+        }
+
+        return ResponseEntity.ok(Map.of(
+                "status", "Broadcast Queued",
+                "targetedCount", onlineDevices.size(),
+                "message", "OTA Update command queued for " + onlineDevices.size() + " online endpoint(s)."
+        ));
     }
 }

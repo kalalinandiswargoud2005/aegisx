@@ -24,6 +24,7 @@ public class RemediationExecutor {
     private final WindowsSecurityService windowsSecurityService;
     private final DemoSimulationService demoSimulationService;
     private final VerificationService verificationService;
+    private final com.astra.windowsagent.config.AgentConfigHelper configHelper;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     // Idempotency cache: commandId -> Result JSON (prevents duplicate execution)
@@ -340,6 +341,20 @@ public class RemediationExecutor {
                     executionMessage = "VERIFIED_SUCCESS: Endpoint secured";
                     break;
 
+                case RESTART_AGENT:
+                    overlay.showCornerToast("🔄 ASTRA EDR AGENT", "Remote restart command acknowledged. Restarting agent...", 4000, new java.awt.Color(0, 240, 255));
+                    triggerAgentRestart();
+                    verificationResult = "SUCCESS";
+                    executionMessage = "VERIFIED_SUCCESS: Agent restart initialized";
+                    break;
+
+                case UPDATE_AGENT:
+                    overlay.showCornerToast("⚡ ASTRA EDR OTA UPDATE", "Downloading latest agent feature update from SOC...", 4000, new java.awt.Color(0, 255, 136));
+                    triggerAgentUpdate(configHelper != null ? configHelper.getBackendUrls() : java.util.List.of());
+                    verificationResult = "SUCCESS";
+                    executionMessage = "VERIFIED_SUCCESS: Agent OTA update package downloading";
+                    break;
+
                 default:
                     executionMessage = "FAILED: Unhandled action " + action;
                     verificationResult = "FAILED";
@@ -358,6 +373,54 @@ public class RemediationExecutor {
         executedCommandsCache.put(commandId, resultJson);
 
         return resultJson;
+    }
+
+    private void triggerAgentRestart() {
+        java.util.concurrent.Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+            try {
+                String cmd = "powershell -NoProfile -WindowStyle Hidden -Command \"Start-Sleep -Milliseconds 800; Start-Process 'java.exe' -ArgumentList '-Djava.awt.headless=false -jar windows-agent.jar' -WindowStyle Normal\"";
+                Runtime.getRuntime().exec(cmd);
+                System.exit(0);
+            } catch (Exception e) {
+                log.error("[AGENT-RESTART] Failed to trigger restart: {}", e.getMessage());
+            }
+        }, 800, java.util.concurrent.TimeUnit.MILLISECONDS);
+    }
+
+    private void triggerAgentUpdate(java.util.List<String> backendUrls) {
+        java.util.concurrent.Executors.newSingleThreadScheduledExecutor().schedule(() -> {
+            try {
+                boolean downloaded = false;
+                for (String backendUrl : backendUrls) {
+                    try {
+                        String downloadUrl = backendUrl + "/api/v1/agent/binary/download";
+                        java.io.File targetFile = new java.io.File("windows-agent.jar.new");
+                        try (java.io.InputStream in = new java.net.URL(downloadUrl).openStream();
+                             java.io.FileOutputStream out = new java.io.FileOutputStream(targetFile)) {
+                            org.springframework.util.FileCopyUtils.copy(in, out);
+                        }
+                        if (targetFile.exists() && targetFile.length() > 10000) {
+                            downloaded = true;
+                            log.info("[OTA-UPDATE] Successfully downloaded {} bytes from {}", targetFile.length(), downloadUrl);
+                            break;
+                        }
+                    } catch (Exception ex) {
+                        log.warn("[OTA-UPDATE] Download attempt failed from {}: {}", backendUrl, ex.getMessage());
+                    }
+                }
+
+                if (downloaded) {
+                    overlay.showCornerToast("🔄 ASTRA EDR RELOADING", "Installing update and restarting agent with new capabilities...", 4000, new java.awt.Color(0, 255, 136));
+                    String cmd = "powershell -NoProfile -WindowStyle Hidden -Command \"Start-Sleep -Seconds 1; Move-Item -Force -Path 'windows-agent.jar.new' -Destination 'windows-agent.jar'; Start-Process 'java.exe' -ArgumentList '-Djava.awt.headless=false -jar windows-agent.jar' -WindowStyle Normal\"";
+                    Runtime.getRuntime().exec(cmd);
+                    System.exit(0);
+                } else {
+                    log.error("[OTA-UPDATE] Failed to download updated JAR from any backend endpoint.");
+                }
+            } catch (Exception e) {
+                log.error("[OTA-UPDATE] Failed to execute update sequence: {}", e.getMessage());
+            }
+        }, 800, java.util.concurrent.TimeUnit.MILLISECONDS);
     }
 
     private String buildResultJson(String commandId, String incidentId, String deviceId, String commandType,

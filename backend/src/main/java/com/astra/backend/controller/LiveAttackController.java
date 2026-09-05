@@ -191,7 +191,7 @@ public class LiveAttackController {
         incident = incidentRepository.saveAndFlush(incident);
         recoveryService.generateRecoveryStepsForIncident(incident.getId(), immediateAction, recoveryWorkflow);
 
-        // 2. Dispatch attack execution to agent
+        // 1. Dispatch attack execution to agent immediately
         commandDispatchService.queueCommand(
                 targetDevice.getId(),
                 incident.getId(),
@@ -199,6 +199,7 @@ public class LiveAttackController {
                 "{\"target\":\"" + attackType + "\"}"
         );
         
+        // 2. Broadcast immediately to SOC WebSocket clients for simultaneous real-time execution
         notificationService.sendNotification("threats", incident);
         notificationService.sendNotification("timeline", Map.of(
             "event", "NEW_INCIDENT", 

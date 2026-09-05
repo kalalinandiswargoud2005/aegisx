@@ -167,17 +167,11 @@ export function Recovery() {
   const executeImmediateAction = useCallback(async () => {
     if (!activeIncident || isResolving) return;
     
-    // Instant concurrent update on SOC
-    setImmediateActionExecuted(true);
-    setCountdown(10);
-    AudioAlertService.unlockAudioContext();
-    AudioAlertService.playNotificationSound();
-    toast.warning(`⚡ Immediate Action Executed: ${immediateActionStep?.title?.replace('[Immediate Action] ', '') || 'Containment Active'}`);
+    const targetDevice = devices.find((d: any) => String(d.status).toUpperCase() === 'ONLINE');
+    const actionTitle = immediateActionStep?.title?.replace('[Immediate Action] ', '') || 'Isolate Endpoint & Freeze Malicious Process';
 
-    // Instant dispatch to target device
-    const targetDevice = devices.find((d: any) => d.status === 'ONLINE') || devices[0];
+    // 1. Dispatch to target device if online
     if (targetDevice) {
-      const actionTitle = immediateActionStep?.title?.replace('[Immediate Action] ', '') || 'Isolate Endpoint & Freeze Malicious Process';
       api.post(`/devices/${targetDevice.id}/command`, {
         commandType: 'ISOLATE_DEVICE',
         target: actionTitle,
@@ -187,10 +181,15 @@ export function Recovery() {
           threat: activeIncident.name,
           status: 'EXECUTED'
         })
-      }).catch((err) => {
-        console.warn('Immediate action dispatch notice:', err);
-      });
+      }).catch(() => {});
     }
+
+    // 2. Update SOC Dashboard state immediately
+    setImmediateActionExecuted(true);
+    setCountdown(10);
+    AudioAlertService.unlockAudioContext();
+    AudioAlertService.playNotificationSound();
+    toast.warning(`⚡ Immediate Action Executed: ${actionTitle}`);
   }, [activeIncident, immediateActionStep, devices, isResolving]);
 
   // ── Dispatch Playbook Step to Target Device ───────────────────────────────
@@ -202,21 +201,9 @@ export function Recovery() {
 
     const resolvedTitle = stepObj?.title?.replace(/\[Step \d+\]\s*/i, '') || (typeof stepObj === 'string' ? stepObj : 'Remediation Step');
     const script = stepObj?.script;
+    const targetDevice = devices.find((d: any) => String(d.status).toUpperCase() === 'ONLINE');
 
-    // 1. Instant concurrent update on SOC (no lag)
-    AudioAlertService.unlockAudioContext();
-    AudioAlertService.playNotificationSound();
-
-    if (stepNum >= steps.length) {
-      setCurrentStep(stepNum + 1);
-      setTimeout(() => handleResolve(), 1500);
-    } else {
-      setCurrentStep(prev => prev + 1);
-      setCountdown(10);
-    }
-
-    // 2. Instant dispatch to target device concurrently (<5ms WebSocket delivery)
-    const targetDevice = devices.find((d: any) => d.status === 'ONLINE') || devices[0];
+    // 1. Dispatch to target device if online
     if (targetDevice) {
       api.post(`/devices/${targetDevice.id}/command`, {
         commandType: (script && script.length > 0) ? 'EXECUTE_DYNAMIC_SCRIPT' : 'RECOVERY_STEP',
@@ -227,9 +214,19 @@ export function Recovery() {
           title: resolvedTitle
         }),
         incidentId: activeIncident.id
-      }).catch((err) => {
-        console.warn('Step command dispatch notice:', err);
-      });
+      }).catch(() => {});
+    }
+
+    // 2. Update SOC Dashboard state immediately
+    AudioAlertService.unlockAudioContext();
+    AudioAlertService.playNotificationSound();
+
+    if (stepNum >= steps.length) {
+      setCurrentStep(stepNum + 1);
+      setTimeout(() => handleResolve(), 1500);
+    } else {
+      setCurrentStep(prev => prev + 1);
+      setCountdown(10);
     }
   }, [activeIncident, steps, wizardSteps.length, devices, isResolving]);
 
@@ -277,8 +274,8 @@ export function Recovery() {
     if (!activeIncident) return;
     setIsResolving(true);
     try {
-      // Send final resolution victory HUD to target device
-      const targetDevice = devices.find((d: any) => d.status === 'ONLINE') || devices[0];
+      // Send final resolution victory HUD to target device if online
+      const targetDevice = devices.find((d: any) => String(d.status).toUpperCase() === 'ONLINE');
       if (targetDevice) {
         api.post(`/devices/${targetDevice.id}/command`, {
           commandType: 'FINAL_RESOLUTION',

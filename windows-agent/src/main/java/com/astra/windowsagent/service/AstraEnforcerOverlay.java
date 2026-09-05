@@ -163,108 +163,151 @@ public class AstraEnforcerOverlay {
     }
 
     public void renderThreatAlertGui(String threatName, String incidentId, String severity) {
+        showCornerToast(
+                "🚨 ASTRA EDR • THREAT DETECTED",
+                threatName != null ? threatName : "Malicious Activity Detected",
+                "Severity: " + (severity != null ? severity : "CRITICAL") + " • Containment Active",
+                "Incident: " + (incidentId != null ? incidentId : "INC-ALERT"),
+                new Color(255, 65, 65),
+                new Color(22, 10, 15),
+                8000,
+                null,
+                null
+        );
+    }
+
+    /**
+     * Renders a sleek, modern, non-intrusive bottom-right corner chat/toast notification on the target laptop screen.
+     */
+    public void showCornerToast(String badgeText, String titleText, int autoCloseMs, Color accentColor) {
+        showCornerToast(badgeText, titleText, "ASTRA Autonomous Security Agent", "Telemetry & Endpoint Engine", accentColor, new Color(10, 15, 25), autoCloseMs, null, null);
+    }
+
+    public void showCornerToast(
+            String badgeText,
+            String titleText,
+            String subText,
+            String extraDetails,
+            Color accentColor,
+            Color bgColor,
+            int autoCloseMs,
+            Integer progressValue,
+            Integer progressMax
+    ) {
         if (GraphicsEnvironment.isHeadless()) return;
         SwingUtilities.invokeLater(() -> {
             try {
                 Toolkit.getDefaultToolkit().beep();
-                JFrame frame = new JFrame("ASTRA EDR — THREAT DETECTED");
+
+                GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment()
+                        .getDefaultScreenDevice().getDefaultConfiguration();
+                Rectangle screenBounds = gc.getBounds();
+                Insets insets = Toolkit.getDefaultToolkit().getScreenInsets(gc);
+
+                int cardWidth = 420;
+                int cardHeight = (progressValue != null) ? 170 : 145;
+
+                int x = screenBounds.x + screenBounds.width - insets.right - cardWidth - 20;
+                int y = screenBounds.y + screenBounds.height - insets.bottom - cardHeight - 20;
+
+                JFrame frame = new JFrame();
                 frame.setUndecorated(true);
-                frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                frame.setSize(cardWidth, cardHeight);
+                frame.setLocation(x, y);
                 frame.setAlwaysOnTop(true);
-                frame.setAutoRequestFocus(true);
-                frame.setFocusableWindowState(true);
-                frame.setBackground(new Color(25, 0, 0, 180));
+                frame.setFocusableWindowState(false); // Non-intrusive: never steals keyboard focus
 
-                JPanel backdrop = new JPanel(new GridBagLayout()) {
-                    @Override
-                    protected void paintComponent(Graphics g) {
-                        super.paintComponent(g);
-                        g.setColor(new Color(255, 30, 30, 220));
-                        g.setFont(new Font("Consolas", Font.BOLD, 18));
-                        g.drawString("🚨 [ ASTRA EDR AUTONOMOUS THREAT DETECTED — CLICK ANYWHERE OR PRESS ESC TO DISMISS ]", 50, 50);
-                    }
-                };
-                backdrop.setOpaque(false);
+                JPanel mainPanel = new JPanel(new BorderLayout());
+                mainPanel.setBackground(bgColor);
+                mainPanel.setBorder(BorderFactory.createCompoundBorder(
+                        BorderFactory.createLineBorder(accentColor, 2),
+                        BorderFactory.createEmptyBorder(8, 12, 8, 12)
+                ));
 
-                // Centered Alert Card
-                JPanel card = new JPanel(new BorderLayout());
-                card.setPreferredSize(new Dimension(760, 320));
-                card.setBackground(new Color(45, 8, 8));
-                card.setBorder(BorderFactory.createLineBorder(new Color(255, 40, 40), 4));
+                // 1. Top Header Bar
+                JPanel topBar = new JPanel(new BorderLayout(8, 0));
+                topBar.setOpaque(false);
 
-                JPanel topBar = new JPanel(new BorderLayout());
-                topBar.setBackground(new Color(75, 12, 12));
-                topBar.setPreferredSize(new Dimension(760, 50));
+                JLabel titleLabel = new JLabel(badgeText);
+                titleLabel.setFont(new Font("Consolas", Font.BOLD, 13));
+                titleLabel.setForeground(accentColor);
+                topBar.add(titleLabel, BorderLayout.WEST);
 
-                JLabel header = new JLabel("  ⚠️ ASTRA EDR — THREAT DETECTED", JLabel.LEFT);
-                header.setFont(new Font("Consolas", Font.BOLD, 16));
-                header.setForeground(Color.RED);
-                topBar.add(header, BorderLayout.WEST);
+                JPanel topRightPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 4, 0));
+                topRightPanel.setOpaque(false);
 
-                JButton closeBtn = new JButton("DISMISS [X]");
+                JButton closeBtn = new JButton("✕");
                 closeBtn.setFont(new Font("Consolas", Font.BOLD, 12));
-                closeBtn.setBackground(new Color(110, 20, 20));
-                closeBtn.setForeground(Color.WHITE);
+                closeBtn.setForeground(new Color(180, 180, 180));
+                closeBtn.setBackground(new Color(0, 0, 0, 0));
+                closeBtn.setBorder(BorderFactory.createEmptyBorder(0, 4, 0, 4));
+                closeBtn.setContentAreaFilled(false);
                 closeBtn.setFocusPainted(false);
-                closeBtn.setBorder(BorderFactory.createEmptyBorder(6, 14, 6, 14));
+                closeBtn.setCursor(new Cursor(Cursor.HAND_CURSOR));
                 closeBtn.addActionListener(e -> frame.dispose());
-                topBar.add(closeBtn, BorderLayout.EAST);
-                card.add(topBar, BorderLayout.NORTH);
+                topRightPanel.add(closeBtn);
 
-                JTextArea msgArea = new JTextArea();
-                msgArea.setBackground(new Color(35, 5, 5));
-                msgArea.setForeground(new Color(255, 170, 170));
-                msgArea.setFont(new Font("Consolas", Font.BOLD, 14));
-                msgArea.setEditable(false);
-                msgArea.setMargin(new Insets(20, 25, 20, 25));
-                msgArea.setText(String.format("""
-                        =======================================================
-                                      ASTRA EDR — INCIDENT ALERT
-                        =======================================================
-                        THREAT NAME        : %s
-                        SEVERITY           : %s
-                        INCIDENT ID        : %s
-                        AFFECTED HOST      : %s
-                        CONTAINMENT ACTION : Automated Isolation & Sandboxed Quarantine Active
-                        CURRENT STATUS     : Real-time defense pipeline engaged
-                        =======================================================
-                        """,
-                        threatName != null ? threatName : "Malicious Activity Pattern",
-                        severity != null ? severity : "CRITICAL",
-                        incidentId != null ? incidentId : "INC-GENERIC",
-                        System.getenv("COMPUTERNAME") != null ? System.getenv("COMPUTERNAME") : "Target-Endpoint"));
-                card.add(msgArea, BorderLayout.CENTER);
+                topBar.add(topRightPanel, BorderLayout.EAST);
+                mainPanel.add(topBar, BorderLayout.NORTH);
 
-                backdrop.add(card);
+                // 2. Center Content Area
+                JPanel centerPanel = new JPanel(new GridLayout(progressValue != null ? 3 : 2, 1, 0, 4));
+                centerPanel.setOpaque(false);
+                centerPanel.setBorder(BorderFactory.createEmptyBorder(6, 0, 4, 0));
 
-                backdrop.addMouseListener(new MouseAdapter() {
+                JLabel nameLabel = new JLabel(titleText);
+                nameLabel.setFont(new Font("Consolas", Font.BOLD, 14));
+                nameLabel.setForeground(Color.WHITE);
+                centerPanel.add(nameLabel);
+
+                JLabel detailLabel = new JLabel(subText);
+                detailLabel.setFont(new Font("Consolas", Font.PLAIN, 12));
+                detailLabel.setForeground(new Color(200, 210, 225));
+                centerPanel.add(detailLabel);
+
+                if (progressValue != null && progressMax != null) {
+                    JProgressBar pBar = new JProgressBar(0, progressMax);
+                    pBar.setValue(progressValue);
+                    pBar.setStringPainted(true);
+                    pBar.setString("Progress: Step " + progressValue + " of " + progressMax);
+                    pBar.setFont(new Font("Consolas", Font.BOLD, 11));
+                    pBar.setForeground(accentColor);
+                    pBar.setBackground(new Color(25, 30, 40));
+                    pBar.setBorder(BorderFactory.createLineBorder(new Color(60, 70, 90), 1));
+                    centerPanel.add(pBar);
+                }
+
+                mainPanel.add(centerPanel, BorderLayout.CENTER);
+
+                // 3. Footer info
+                JPanel footerPanel = new JPanel(new BorderLayout());
+                footerPanel.setOpaque(false);
+
+                String hostName = System.getenv("COMPUTERNAME") != null ? System.getenv("COMPUTERNAME") : "Endpoint";
+                JLabel footerLabel = new JLabel("ASTRA EDR • Host: " + hostName + " • " + (extraDetails != null ? extraDetails : "Live Protection"));
+                footerLabel.setFont(new Font("Consolas", Font.ITALIC, 10));
+                footerLabel.setForeground(new Color(130, 145, 165));
+                footerPanel.add(footerLabel, BorderLayout.WEST);
+
+                mainPanel.add(footerPanel, BorderLayout.SOUTH);
+
+                // Dismiss on click anywhere
+                mainPanel.addMouseListener(new MouseAdapter() {
                     @Override
                     public void mouseClicked(MouseEvent e) {
                         frame.dispose();
                     }
                 });
 
-                frame.addKeyListener(new KeyAdapter() {
-                    @Override
-                    public void keyPressed(KeyEvent e) {
-                        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                            frame.dispose();
-                        }
-                    }
-                });
-
-                frame.add(backdrop);
+                frame.add(mainPanel);
                 frame.setVisible(true);
-                frame.toFront();
-                frame.requestFocus();
 
-                // Auto-close after 15 seconds
-                Timer autoClose = new Timer(15000, e -> frame.dispose());
+                Timer autoClose = new Timer(autoCloseMs > 0 ? autoCloseMs : 7000, e -> frame.dispose());
                 autoClose.setRepeats(false);
                 autoClose.start();
 
             } catch (Exception e) {
-                log.error("Failed to render threat alert GUI", e);
+                log.error("Failed to render corner toast notification GUI", e);
             }
         });
     }
@@ -488,328 +531,61 @@ public class AstraEnforcerOverlay {
     }
 
     public void renderRecoveryStepGui(int stepNum, int totalSteps, String title, String status) {
-        if (GraphicsEnvironment.isHeadless()) return;
-        SwingUtilities.invokeLater(() -> {
-            try {
-                Toolkit.getDefaultToolkit().beep();
-                JFrame frame = new JFrame("ASTRA RECOVERY STEP");
-                frame.setUndecorated(true);
-                frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
-                frame.setAlwaysOnTop(true);
-                frame.setAutoRequestFocus(true);
-                frame.setFocusableWindowState(true);
-                frame.setBackground(new Color(5, 20, 15, 180));
-
-                JPanel backdrop = new JPanel(new GridBagLayout()) {
-                    @Override
-                    protected void paintComponent(Graphics g) {
-                        super.paintComponent(g);
-                        g.setColor(new Color(0, 255, 150, 220));
-                        g.setFont(new Font("Consolas", Font.BOLD, 18));
-                        g.drawString(String.format("🔄 [ ASTRA RECOVERY PLAYBOOK — STEP %d/%d — CLICK ANYWHERE OR PRESS ESC TO DISMISS ]",
-                                stepNum, totalSteps > 0 ? totalSteps : 5), 50, 50);
-                    }
-                };
-                backdrop.setOpaque(false);
-
-                JPanel card = new JPanel(new BorderLayout());
-                card.setPreferredSize(new Dimension(760, 300));
-                card.setBackground(new Color(10, 25, 20));
-                card.setBorder(BorderFactory.createLineBorder(new Color(0, 255, 150), 4));
-
-                JPanel topBar = new JPanel(new BorderLayout());
-                topBar.setBackground(new Color(15, 40, 30));
-                topBar.setPreferredSize(new Dimension(760, 50));
-
-                JLabel header = new JLabel(String.format("  🔄 ASTRA RECOVERY PLAYBOOK — STEP %d/%d", stepNum,
-                        totalSteps > 0 ? totalSteps : 5), JLabel.LEFT);
-                header.setFont(new Font("Consolas", Font.BOLD, 16));
-                header.setForeground(new Color(0, 255, 150));
-                topBar.add(header, BorderLayout.WEST);
-
-                JButton closeBtn = new JButton("DISMISS [X]");
-                closeBtn.setFont(new Font("Consolas", Font.BOLD, 12));
-                closeBtn.setBackground(new Color(20, 60, 40));
-                closeBtn.setForeground(Color.WHITE);
-                closeBtn.setFocusPainted(false);
-                closeBtn.setBorder(BorderFactory.createEmptyBorder(6, 14, 6, 14));
-                closeBtn.addActionListener(e -> frame.dispose());
-                topBar.add(closeBtn, BorderLayout.EAST);
-                card.add(topBar, BorderLayout.NORTH);
-
-                JTextArea textArea = new JTextArea();
-                textArea.setBackground(new Color(10, 25, 20));
-                textArea.setForeground(new Color(140, 255, 190));
-                textArea.setFont(new Font("Consolas", Font.BOLD, 14));
-                textArea.setEditable(false);
-                textArea.setMargin(new Insets(20, 25, 20, 25));
-
-                String content = String.format("""
-                        =======================================================
-                                      ASTRA EDR — RECOVERY PLAYBOOK
-                        =======================================================
-                        [PLAYBOOK STEP]    : Step %d of %d
-                        [ACTION]           : %s
-                        [STATUS]           : SUCCESS
-                        [VERIFICATION]     : SUCCESS (100%% VERIFIED ON TARGET ENDPOINT)
-                        [RECOVERY GATING]  : Autonomous remediation confirmed & validated
-                        =======================================================
-                        """, stepNum, totalSteps > 0 ? totalSteps : 5,
-                        title != null ? title : "Executing remediation");
-
-                textArea.setText(content);
-                card.add(new JScrollPane(textArea), BorderLayout.CENTER);
-
-                int maxSteps = totalSteps > 0 ? totalSteps : 5;
-                JProgressBar progressBar = new JProgressBar(0, maxSteps);
-                progressBar.setValue(stepNum);
-                progressBar.setStringPainted(true);
-                progressBar.setString(String.format("Playbook Progress: Step %d of %d Complete — SUCCESS", stepNum, maxSteps));
-                progressBar.setForeground(new Color(0, 255, 150));
-                progressBar.setBackground(new Color(15, 35, 25));
-                progressBar.setFont(new Font("Consolas", Font.BOLD, 12));
-                progressBar.setPreferredSize(new Dimension(760, 28));
-                card.add(progressBar, BorderLayout.SOUTH);
-
-                backdrop.add(card);
-
-                backdrop.addMouseListener(new MouseAdapter() {
-                    @Override
-                    public void mouseClicked(MouseEvent e) {
-                        frame.dispose();
-                    }
-                });
-
-                frame.addKeyListener(new KeyAdapter() {
-                    @Override
-                    public void keyPressed(KeyEvent e) {
-                        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                            frame.dispose();
-                        }
-                    }
-                });
-
-                frame.add(backdrop);
-                frame.setVisible(true);
-                frame.toFront();
-                frame.requestFocus();
-
-                Timer autoClose = new Timer(15000, e -> frame.dispose());
-                autoClose.setRepeats(false);
-                autoClose.start();
-            } catch (Exception e) {
-                log.error("Failed to render recovery step GUI", e);
-            }
-        });
+        int maxSteps = totalSteps > 0 ? totalSteps : 5;
+        showCornerToast(
+                String.format("🔄 ASTRA RECOVERY • STEP %d/%d", stepNum, maxSteps),
+                title != null ? title : "Remediation Playbook Step",
+                "Status: SUCCESS • Verified On Endpoint",
+                "Playbook Progress",
+                new Color(0, 230, 140),
+                new Color(10, 25, 20),
+                8000,
+                stepNum,
+                maxSteps
+        );
     }
 
     public void renderContainmentGui(String threatName, String action, String status) {
-        if (GraphicsEnvironment.isHeadless()) return;
-        SwingUtilities.invokeLater(() -> {
-            try {
-                Toolkit.getDefaultToolkit().beep();
-                JFrame frame = new JFrame("ASTRA IMMEDIATE CONTAINMENT");
-                frame.setUndecorated(true);
-                frame.setAlwaysOnTop(true);
-                frame.setSize(640, 240);
-
-                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-                int x = (screenSize.width - 640) / 2;
-                int y = (screenSize.height - 240) / 2;
-                frame.setLocation(x, y);
-
-                JPanel panel = new JPanel(new BorderLayout());
-                panel.setBackground(new Color(15, 20, 30));
-                panel.setBorder(BorderFactory.createLineBorder(new Color(255, 140, 0), 2));
-
-                JLabel header = new JLabel("  ⚡ ASTRA EDR — AUTONOMOUS CONTAINMENT ACTIVE", JLabel.LEFT);
-                header.setFont(new Font("Consolas", Font.BOLD, 15));
-                header.setForeground(new Color(255, 140, 0));
-                header.setPreferredSize(new Dimension(640, 40));
-                header.setOpaque(true);
-                header.setBackground(new Color(25, 30, 40));
-                panel.add(header, BorderLayout.NORTH);
-
-                JTextArea textArea = new JTextArea();
-                textArea.setBackground(new Color(15, 20, 30));
-                textArea.setForeground(new Color(255, 180, 50));
-                textArea.setFont(new Font("Consolas", Font.BOLD, 13));
-                textArea.setEditable(false);
-                textArea.setMargin(new Insets(15, 15, 15, 15));
-
-                String content = String.format("""
-                        =======================================================
-                                      ASTRA EDR — IMMEDIATE CONTAINMENT
-                        =======================================================
-                        [THREAT IDENTIFIED] : %s
-                        [CONTAINMENT ACTION]: %s
-                        [STATUS]            : SUCCESS
-                        [VERIFICATION]      : SUCCESS (Real-time endpoint containment active)
-                        =======================================================
-                        """, threatName != null ? threatName : "Active Threat",
-                        action != null ? action : "Isolating Host & Freezing Process");
-
-                textArea.setText(content);
-                panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
-                frame.add(panel);
-                frame.setVisible(true);
-                frame.toFront();
-
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(5000);
-                    } catch (InterruptedException ignored) {}
-                    SwingUtilities.invokeLater(frame::dispose);
-                }).start();
-            } catch (Exception e) {
-                log.error("Failed to render containment GUI", e);
-            }
-        });
+        showCornerToast(
+                "⚡ ASTRA EDR • IMMEDIATE CONTAINMENT",
+                threatName != null ? threatName : "Active Threat Vector",
+                "Action: " + (action != null ? action : "Isolating Host & Freezing Process"),
+                "Autonomous Containment Active",
+                new Color(255, 165, 0),
+                new Color(25, 18, 10),
+                7000,
+                null,
+                null
+        );
     }
 
     public void renderFinalResolutionGui(String threatName, String message) {
-        if (GraphicsEnvironment.isHeadless()) return;
-        SwingUtilities.invokeLater(() -> {
-            try {
-                renderHideMatrixGui();
-
-                Toolkit.getDefaultToolkit().beep();
-                JFrame frame = new JFrame("ASTRA THREAT RESOLVED");
-                frame.setUndecorated(true);
-                frame.setAlwaysOnTop(true);
-                frame.setSize(680, 280);
-
-                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-                int x = (screenSize.width - 680) / 2;
-                int y = (screenSize.height - 280) / 2;
-                frame.setLocation(x, y);
-
-                JPanel panel = new JPanel(new BorderLayout());
-                panel.setBackground(new Color(10, 30, 45));
-                panel.setBorder(BorderFactory.createLineBorder(new Color(0, 220, 255), 3));
-
-                JPanel topBar = new JPanel(new BorderLayout());
-                topBar.setBackground(new Color(15, 40, 60));
-                topBar.setPreferredSize(new Dimension(680, 42));
-
-                JLabel header = new JLabel("  ✅ ASTRA EDR — THREAT CONTAINED & ENDPOINT SECURED", JLabel.LEFT);
-                header.setFont(new Font("Consolas", Font.BOLD, 15));
-                header.setForeground(new Color(0, 220, 255));
-                topBar.add(header, BorderLayout.WEST);
-
-                JButton closeBtn = new JButton("DISMISS [X]");
-                closeBtn.setFont(new Font("Consolas", Font.BOLD, 11));
-                closeBtn.setBackground(new Color(20, 55, 80));
-                closeBtn.setForeground(Color.WHITE);
-                closeBtn.setFocusPainted(false);
-                closeBtn.setBorder(BorderFactory.createEmptyBorder(4, 10, 4, 10));
-                closeBtn.addActionListener(e -> frame.dispose());
-                topBar.add(closeBtn, BorderLayout.EAST);
-                panel.add(topBar, BorderLayout.NORTH);
-
-                JTextArea textArea = new JTextArea();
-                textArea.setBackground(new Color(10, 30, 45));
-                textArea.setForeground(new Color(100, 240, 255));
-                textArea.setFont(new Font("Consolas", Font.BOLD, 13));
-                textArea.setEditable(false);
-                textArea.setMargin(new Insets(15, 15, 15, 15));
-
-                String content = String.format("""
-                        =======================================================
-                                     REMEDIATION CYCLE COMPLETE
-                        =======================================================
-                        ✓ Incident Target : %s
-                        ✓ Security Status : Endpoint Verified Clean
-                        ✓ Actions Taken   : %s
-                        ✓ Baseline State  : All Threats Neutralized
-                        =======================================================
-                        """, threatName != null ? threatName : "Target Endpoint",
-                        message != null ? message : "All remediation playbooks executed.");
-
-                textArea.setText(content);
-                panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
-                frame.add(panel);
-                frame.setVisible(true);
-                frame.toFront();
-
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(10000);
-                    } catch (InterruptedException ignored) {}
-                    SwingUtilities.invokeLater(frame::dispose);
-                }).start();
-
-            } catch (Exception e) {
-                log.error("Failed to render final resolution GUI", e);
-            }
-        });
+        renderHideMatrixGui();
+        showCornerToast(
+                "✅ ASTRA EDR • THREAT RESOLVED",
+                threatName != null ? threatName : "Target Endpoint",
+                "Status: Clean Baseline Confirmed • Secured",
+                "All Playbooks Complete",
+                new Color(0, 220, 255),
+                new Color(10, 22, 35),
+                9000,
+                null,
+                null
+        );
     }
 
     public void renderSafeTestEnforcementGui(String threatName, String details) {
-        if (GraphicsEnvironment.isHeadless()) return;
-        SwingUtilities.invokeLater(() -> {
-            try {
-                JFrame frame = new JFrame("ASTRA EDR - SAFE TEST ENFORCEMENT");
-                frame.setUndecorated(true);
-                frame.setAlwaysOnTop(true);
-                frame.setSize(650, 320);
-
-                Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-                int x = (screenSize.width - 650) / 2;
-                int y = (screenSize.height - 320) / 2;
-                frame.setLocation(x, y);
-
-                JPanel panel = new JPanel(new BorderLayout());
-                panel.setBackground(new Color(10, 20, 35));
-                panel.setBorder(BorderFactory.createLineBorder(new Color(0, 210, 255), 3));
-
-                JLabel header = new JLabel("  🛡️ ASTRA EDR - SAFE TEST ENFORCEMENT VERIFICATION", JLabel.LEFT);
-                header.setFont(new Font("Consolas", Font.BOLD, 15));
-                header.setForeground(new Color(0, 210, 255));
-                header.setPreferredSize(new Dimension(650, 45));
-                header.setOpaque(true);
-                header.setBackground(new Color(15, 30, 50));
-                panel.add(header, BorderLayout.NORTH);
-
-                JTextArea textArea = new JTextArea();
-                textArea.setBackground(new Color(10, 20, 35));
-                textArea.setForeground(new Color(100, 240, 255));
-                textArea.setFont(new Font("Consolas", Font.BOLD, 13));
-                textArea.setEditable(false);
-                textArea.setMargin(new Insets(15, 15, 15, 15));
-
-                String content = """
-                        ================================================
-                                     ASTRA EDR SAFE TEST
-                        ================================================
-                        Threat : %s
-                        Details: %s
-                        Host   : %s
-                        Time   : %s
-                        ================================================
-                        ASTRA EDR ENFORCEMENT PIPELINE VERIFIED
-                        """.formatted(
-                        threatName != null ? threatName : "Safe Verification Event",
-                        details != null ? details : "Command executed successfully",
-                        System.getenv("COMPUTERNAME") != null ? System.getenv("COMPUTERNAME") : "Endpoint-Host",
-                        java.time.LocalDateTime.now().toString());
-
-                textArea.setText(content);
-                panel.add(new JScrollPane(textArea), BorderLayout.CENTER);
-                frame.add(panel);
-                frame.setVisible(true);
-
-                new Thread(() -> {
-                    try {
-                        Thread.sleep(6000);
-                    } catch (InterruptedException ignored) {}
-                    SwingUtilities.invokeLater(frame::dispose);
-                }).start();
-
-            } catch (Exception e) {
-                log.error("Failed to render safe test GUI", e);
-            }
-        });
+        showCornerToast(
+                "🛡️ ASTRA EDR • SAFE TEST EVENT",
+                threatName != null ? threatName : "Safe Verification Event",
+                "Details: " + (details != null ? details : "Command executed successfully"),
+                "Enforcement Pipeline Verified",
+                new Color(0, 210, 255),
+                new Color(12, 20, 32),
+                6000,
+                null,
+                null
+        );
     }
 
     public void showHackerSkull(String incidentId) {
@@ -1094,20 +870,26 @@ public class AstraEnforcerOverlay {
             try {
                 JFrame frame = new JFrame("ASTRA EDR — HEXAGONAL DEFENSE SHIELD");
                 frame.setUndecorated(true);
-                frame.setSize(700, 350);
-                Dimension screen = Toolkit.getDefaultToolkit().getScreenSize();
-                frame.setLocation((screen.width - 700) / 2, (screen.height - 350) / 2);
+                frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
                 frame.setAlwaysOnTop(true);
+                frame.setAutoRequestFocus(true);
+                frame.setFocusableWindowState(true);
 
-                JPanel panel = new JPanel(new BorderLayout());
-                panel.setBackground(new Color(8, 20, 40));
-                panel.setBorder(BorderFactory.createLineBorder(new Color(0, 210, 255), 3));
+                JPanel panel = new JPanel(new GridBagLayout());
+                panel.setBackground(new Color(8, 20, 40, 230));
+
+                JPanel card = new JPanel(new BorderLayout());
+                card.setPreferredSize(new Dimension(780, 380));
+                card.setBackground(new Color(12, 28, 55));
+                card.setBorder(BorderFactory.createLineBorder(new Color(0, 210, 255), 3));
 
                 JLabel title = new JLabel("  🛡️ ASTRA AUTONOMOUS CYBER DEFENSE SHIELD ENGAGED", JLabel.LEFT);
                 title.setForeground(new Color(0, 210, 255));
-                title.setFont(new Font("Consolas", Font.BOLD, 15));
-                title.setPreferredSize(new Dimension(700, 45));
-                panel.add(title, BorderLayout.NORTH);
+                title.setFont(new Font("Consolas", Font.BOLD, 16));
+                title.setPreferredSize(new Dimension(780, 48));
+                title.setOpaque(true);
+                title.setBackground(new Color(18, 42, 80));
+                card.add(title, BorderLayout.NORTH);
 
                 JTextArea text = new JTextArea("""
                         [SHIELD LEVEL 5] - ENDPOINT HARDENING ACTIVE
@@ -1119,24 +901,35 @@ public class AstraEnforcerOverlay {
                         \n===================================================
                         ALL PERIMETERS SECURE. ATTACK VECTOR CONTAINED.
                         """);
-                text.setBackground(new Color(8, 20, 40));
+                text.setBackground(new Color(12, 28, 55));
                 text.setForeground(new Color(180, 235, 255));
-                text.setFont(new Font("Consolas", Font.BOLD, 13));
+                text.setFont(new Font("Consolas", Font.BOLD, 14));
                 text.setEditable(false);
-                text.setMargin(new Insets(15, 20, 15, 20));
-                panel.add(text, BorderLayout.CENTER);
+                text.setMargin(new Insets(20, 25, 20, 25));
+                card.add(text, BorderLayout.CENTER);
 
-                JButton btn = new JButton("CLOSE HUD");
-                btn.setBackground(new Color(15, 35, 65));
+                JButton btn = new JButton("CLOSE HUD [ESC]");
+                btn.setBackground(new Color(18, 42, 80));
                 btn.setForeground(new Color(0, 210, 255));
-                btn.setFont(new Font("Consolas", Font.BOLD, 12));
+                btn.setFont(new Font("Consolas", Font.BOLD, 13));
+                btn.setPreferredSize(new Dimension(780, 40));
                 btn.addActionListener(e -> frame.dispose());
-                panel.add(btn, BorderLayout.SOUTH);
+                card.add(btn, BorderLayout.SOUTH);
+
+                panel.add(card);
+                panel.addMouseListener(new MouseAdapter() {
+                    @Override public void mouseClicked(MouseEvent e) { frame.dispose(); }
+                });
+                frame.addKeyListener(new KeyAdapter() {
+                    @Override public void keyPressed(KeyEvent e) {
+                        if (e.getKeyCode() == KeyEvent.VK_ESCAPE) frame.dispose();
+                    }
+                });
 
                 frame.add(panel);
                 frame.setVisible(true);
 
-                Timer autoClose = new Timer(10000, e -> frame.dispose());
+                Timer autoClose = new Timer(15000, e -> frame.dispose());
                 autoClose.setRepeats(false);
                 autoClose.start();
             } catch (Exception e) {

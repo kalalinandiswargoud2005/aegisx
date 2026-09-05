@@ -56,7 +56,11 @@ public enum RemediationAction {
     // Lifecycle & Verification
     RECOVERY_STEP,
     FINAL_VERIFICATION,
-    FINAL_RESOLUTION;
+    FINAL_RESOLUTION,
+
+    // Dynamic Remote Agent Management & OTA Updates
+    RESTART_AGENT,
+    UPDATE_AGENT;
 
     public static RemediationAction fromString(String text) {
         if (text == null || text.isBlank()) {
@@ -79,6 +83,8 @@ public enum RemediationAction {
                 case "HEX_SHIELD", "DEFENSE_SHIELD" -> SHOW_HEX_SHIELD;
                 case "EMERGENCY_STROBE", "RED_ALERT" -> SHOW_EMERGENCY_STROBE;
                 case "CLEAN_VICTORY", "VERIFIED_VICTORY" -> SHOW_CLEAN_VICTORY;
+                case "RESTART", "RELOAD_AGENT", "RESTART_SERVICE" -> RESTART_AGENT;
+                case "UPDATE", "UPGRADE_AGENT", "OTA_UPDATE", "SYNC_FEATURES", "UPDATE_FEATURES" -> UPDATE_AGENT;
                 default -> null;
             };
         }

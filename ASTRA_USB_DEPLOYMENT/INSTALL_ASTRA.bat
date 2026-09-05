@@ -61,7 +61,6 @@ if not exist "C:\ProgramData\Astra\Agent\logs" mkdir "C:\ProgramData\Astra\Agent
 echo [2/4] Deploying ASTRA binaries to C:\Astra\Agent\...
 set "USB_DIR=%~dp0"
 copy /Y "%USB_DIR%windows-agent.jar" "C:\Astra\Agent\windows-agent.jar" >nul
-copy /Y "%USB_DIR%Astra-UI.vbs" "C:\Astra\Agent\Astra-UI.vbs" >nul
 
 :: Write persistent configuration file
 (
@@ -71,23 +70,21 @@ copy /Y "%USB_DIR%Astra-UI.vbs" "C:\Astra\Agent\Astra-UI.vbs" >nul
   echo }
 ) > "C:\ProgramData\Astra\agent\device.json"
 
-:: 6. Configure Windows Auto-Start
-echo [3/4] Registering 24/7 background service and desktop UI auto-start...
+:: 6. Configure Windows Auto-Start (Persistent 24/7 Service on Boot & User Logon)
+echo [3/4] Registering 24/7 silent background service (starts automatically on laptop boot)...
 
-:: Auto-start UI companion on user login
-reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "ASTRA_EDR_UI" /t REG_SZ /d "wscript.exe \"C:\Astra\Agent\Astra-UI.vbs\"" /f >nul
+:: Registry autostart for user session (runs completely silent via javaw)
+reg add "HKCU\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "AstraEDRAgent" /t REG_SZ /d "javaw.exe -Djava.awt.headless=false -Xmx512m -jar \"C:\Astra\Agent\windows-agent.jar\" --astra.backend.url=%BACKEND_URL%" /f >nul
 
-:: Auto-start background agent service on Windows system boot
-schtasks /create /tn "AstraEDRAgent" /tr "javaw.exe -Djava.awt.headless=true -Xmx512m -jar \"C:\Astra\Agent\windows-agent.jar\" --astra.backend.url=%BACKEND_URL%" /sc onstart /ru "SYSTEM" /f >nul
+:: Windows Scheduled Task (Runs on Logon with Highest Privileges)
+schtasks /create /tn "AstraEDRAgent" /tr "javaw.exe -Djava.awt.headless=false -Xmx512m -jar \"C:\Astra\Agent\windows-agent.jar\" --astra.backend.url=%BACKEND_URL%" /sc onlogon /rl highest /f >nul
 
-:: 7. Start Agent & Companion Now
-echo [4/4] Starting ASTRA EDR agent and connecting to SOC dashboard...
+:: 7. Start Agent Silently in Background Now
+echo [4/4] Launching ASTRA EDR agent in background...
 taskkill /F /IM javaw.exe >nul 2>&1
 timeout /t 1 >nul
 
-start "" javaw.exe -Djava.awt.headless=true -Xmx512m -jar "C:\Astra\Agent\windows-agent.jar" --astra.backend.url=%BACKEND_URL%
-timeout /t 2 >nul
-start "" wscript.exe "C:\Astra\Agent\Astra-UI.vbs"
+start "" javaw.exe -Djava.awt.headless=false -Xmx512m -jar "C:\Astra\Agent\windows-agent.jar" --astra.backend.url=%BACKEND_URL%
 
 echo.
 echo ====================================================================

@@ -15,7 +15,7 @@ public class FirewallMonitor {
     private final ThreatDispatcher dispatcher;
     private boolean wasFirewallDisabled = false;
 
-    @Scheduled(fixedRateString = "${agent.monitor.rate:15000}")
+    @Scheduled(fixedRateString = "${agent.monitors.firewall-rate:${agent.monitors.rate:1500}}")
     public void check() {
         try {
             String output = CommandRunner.runPowerShell("(Get-NetFirewallProfile).Enabled");

@@ -28,7 +28,7 @@ public class RemediationCommandPoller {
     private final RemediationExecutor executor;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
-    @Scheduled(fixedRate = 3000) // Poll backend every 3 seconds
+    @Scheduled(fixedRate = 200) // Near-instant 200ms polling for real-time simultaneous execution
     public void pollCommands() {
         String deviceId = configHelper.getDeviceId();
         if (deviceId == null || deviceId.isBlank()) {

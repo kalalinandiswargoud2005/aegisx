@@ -47,18 +47,30 @@ export function DeviceDetail() {
       setTerminalLogs((prev) => [...prev, `[ALERT] New Incident Detected on ${safeDeviceName}: ${incident.name || 'Unknown Threat'}`]);
     });
     
-    // Subscribe to terminal output from the agent
-    const unsubTerminal = subscribe(`device/${id}/terminal`, (data: any) => {
+    // Subscribe to terminal output from the agent via device UUID
+    const targetTopicId = device?.id || id;
+    const unsubTerminal = subscribe(`device/${targetTopicId}/terminal`, (data: any) => {
       if (data.result) {
-        setTerminalLogs((prev) => [...prev, data.result]);
+        setTerminalLogs((prev) => {
+          // Keep max 200 lines
+          const next = [...prev, data.result];
+          return next.slice(-200);
+        });
       }
     });
+
+    const unsubNamed = (id !== device?.id) ? subscribe(`device/${id}/terminal`, (data: any) => {
+      if (data.result) {
+        setTerminalLogs((prev) => [...prev.slice(-199), data.result]);
+      }
+    }) : () => {};
 
     return () => {
       unsubThreats();
       unsubTerminal();
+      unsubNamed();
     };
-  }, [subscribe, safeDeviceName, id]);
+  }, [subscribe, safeDeviceName, id, device?.id]);
 
   const handleKillProcess = async (pid: number, procName: string) => {
     try {
@@ -174,6 +186,41 @@ export function DeviceDetail() {
     );
   }
 
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [isRestarting, setIsRestarting] = useState(false);
+
+  const handleUpdateAgent = async () => {
+    if (!device) return;
+    setIsUpdating(true);
+    try {
+      await api.post(`/devices/${device.id}/command`, { commandType: 'UPDATE_AGENT', target: 'LATEST_BINARY' });
+      toast.success('⚡ Agent OTA Update Dispatched', {
+        description: `Instructed ${safeDeviceName} to download new features & restart.`
+      });
+      setTerminalLogs(prev => [...prev, `[OTA-UPDATE] Dispatched UPDATE_AGENT command to ${safeDeviceName}...`]);
+    } catch (err: any) {
+      toast.error('Update failed', { description: err.response?.data?.error || 'Endpoint unreachable' });
+    } finally {
+      setTimeout(() => setIsUpdating(false), 2500);
+    }
+  };
+
+  const handleRestartAgent = async () => {
+    if (!device) return;
+    setIsRestarting(true);
+    try {
+      await api.post(`/devices/${device.id}/command`, { commandType: 'RESTART_AGENT', target: 'RESTART_SERVICE' });
+      toast.success('🔄 Agent Restart Dispatched', {
+        description: `Agent process on ${safeDeviceName} is restarting.`
+      });
+      setTerminalLogs(prev => [...prev, `[LIFECYCLE] Dispatched RESTART_AGENT command to ${safeDeviceName}...`]);
+    } catch (err: any) {
+      toast.error('Restart failed', { description: err.response?.data?.error || 'Endpoint unreachable' });
+    } finally {
+      setTimeout(() => setIsRestarting(false), 2500);
+    }
+  };
+
   return (
     <PageContainer>
       {/* Top Header Bar */}
@@ -189,6 +236,28 @@ export function DeviceDetail() {
             className="flex items-center gap-2 font-mono text-xs"
           >
             <ArrowLeft size={14} /> Back to Devices
+          </Button>
+
+          <Button 
+            variant="outline"
+            size="sm"
+            onClick={handleUpdateAgent}
+            disabled={isUpdating}
+            className="flex items-center gap-2 font-mono text-xs border-primary/50 text-primary hover:bg-primary/10 shadow-[0_0_12px_rgba(0,240,255,0.2)]"
+          >
+            <Zap size={14} className={isUpdating ? "animate-spin text-amber-400" : "text-primary"} />
+            {isUpdating ? 'Updating Agent...' : 'Update Agent (OTA)'}
+          </Button>
+
+          <Button 
+            variant="outline"
+            size="sm"
+            onClick={handleRestartAgent}
+            disabled={isRestarting}
+            className="flex items-center gap-2 font-mono text-xs border-white/20 text-white/80 hover:bg-white/10"
+          >
+            <RefreshCw size={14} className={isRestarting ? "animate-spin text-primary" : ""} />
+            {isRestarting ? 'Restarting...' : 'Restart Agent'}
           </Button>
 
           <Button 

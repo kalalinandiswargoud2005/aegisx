@@ -14,7 +14,7 @@ public class EventLogMonitor {
 
     private final ThreatDispatcher dispatcher;
 
-    @Scheduled(fixedRateString = "${agent.monitor.rate:15000}")
+    @Scheduled(fixedRateString = "${agent.monitors.eventlog-rate:${agent.monitors.rate:2000}}")
     public void check() {
         try {
             // Check for Event ID 4625 (Failed Logon)

@@ -23,7 +23,7 @@ public class RDPMonitor {
         log.info("Initialized baseline RDP enabled state: {}", wasRdpEnabled);
     }
 
-    @Scheduled(fixedRateString = "${agent.monitor.rate:15000}")
+    @Scheduled(fixedRateString = "${agent.monitors.rdp-rate:${agent.monitors.rate:1500}}")
     public void check() {
         try {
             boolean isRdpEnabled = isRdpCurrentlyEnabled();

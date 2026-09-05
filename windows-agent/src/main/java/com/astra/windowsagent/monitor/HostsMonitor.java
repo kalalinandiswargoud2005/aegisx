@@ -30,7 +30,7 @@ public class HostsMonitor {
         log.info("Initialized hosts file baseline hash: {}", lastHostsHash);
     }
 
-    @Scheduled(fixedRateString = "${agent.monitor.rate:15000}")
+    @Scheduled(fixedRateString = "${agent.monitors.hosts-rate:${agent.monitors.rate:1500}}")
     public void check() {
         try {
             String currentHash = computeHostsHash();

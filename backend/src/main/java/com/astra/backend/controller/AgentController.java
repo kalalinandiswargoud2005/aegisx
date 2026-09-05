@@ -211,6 +211,7 @@ public class AgentController {
                 telemetryMap.put("timestamp", LocalDateTime.now().toString());
 
                 webSocketPublisher.broadcastTelemetry(telemetryMap);
+                webSocketPublisher.broadcastCommandResult(deviceId, String.format("[HEARTBEAT] %s | CPU: %.1f%% | RAM: %.1f%% | Status: ONLINE | Agent v%s", hostname, cpu != null ? cpu : 0.0, ram != null ? ram : 0.0, agentVersion));
             }
             return ResponseEntity.ok(Map.of("status", "alive"));
         } catch (Exception e) {
@@ -346,5 +347,31 @@ public class AgentController {
         });
         
         return ResponseEntity.ok(Map.of("status", "updated"));
+    }
+
+    /**
+     * Download the latest windows-agent.jar for OTA remote upgrades and deployment.
+     */
+    @GetMapping("/binary/download")
+    public ResponseEntity<org.springframework.core.io.Resource> downloadLatestAgentBinary() {
+        java.io.File[] potentialPaths = new java.io.File[] {
+            new java.io.File("ASTRA_USB_DEPLOYMENT/windows-agent.jar"),
+            new java.io.File("../ASTRA_USB_DEPLOYMENT/windows-agent.jar"),
+            new java.io.File("windows-agent/target/windows-agent-1.0.0.jar"),
+            new java.io.File("../windows-agent/target/windows-agent-1.0.0.jar")
+        };
+
+        for (java.io.File file : potentialPaths) {
+            if (file.exists() && file.length() > 0) {
+                org.springframework.core.io.FileSystemResource resource = new org.springframework.core.io.FileSystemResource(file);
+                return ResponseEntity.ok()
+                        .contentType(org.springframework.http.MediaType.APPLICATION_OCTET_STREAM)
+                        .header(org.springframework.http.HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"windows-agent.jar\"")
+                        .contentLength(file.length())
+                        .body(resource);
+            }
+        }
+
+        return ResponseEntity.notFound().build();
     }
 }

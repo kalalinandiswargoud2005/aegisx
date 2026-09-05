@@ -4,6 +4,10 @@ server:
 spring:
   application:
     name: windows-agent
+  task:
+    scheduling:
+      pool:
+        size: 16
 
 logging:
   file:
@@ -28,8 +32,16 @@ agent:
   sandbox-path: C:/Astra/Demo
   monitors:
     auto-dispatch: true
-    rate: 10000
-    dedup-window-ms: 5000
+    rate: 1500
+    process-rate: 1000
+    usb-rate: 1000
+    defender-rate: 1500
+    admin-rate: 1500
+    hosts-rate: 1500
+    firewall-rate: 1500
+    rdp-rate: 1500
+    eventlog-rate: 2000
+    dedup-window-ms: 3000
   ui:
     enabled: true
     ipc-port: 8082

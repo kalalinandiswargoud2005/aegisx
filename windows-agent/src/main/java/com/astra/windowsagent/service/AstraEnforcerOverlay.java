@@ -301,6 +301,7 @@ public class AstraEnforcerOverlay {
 
                 frame.add(mainPanel);
                 frame.setVisible(true);
+                frame.toFront();
 
                 Timer autoClose = new Timer(autoCloseMs > 0 ? autoCloseMs : 7000, e -> frame.dispose());
                 autoClose.setRepeats(false);
@@ -327,32 +328,50 @@ public class AstraEnforcerOverlay {
                 matrixFrame.setAlwaysOnTop(true);
                 matrixFrame.setAutoRequestFocus(true);
                 matrixFrame.setFocusableWindowState(true);
-                matrixFrame.setBackground(new Color(0, 0, 0, 170));
+                try {
+                    matrixFrame.setBackground(new Color(5, 10, 18, 230));
+                } catch (Exception ignored) {
+                    matrixFrame.setBackground(new Color(5, 10, 18));
+                }
 
                 JPanel panel = new JPanel() {
                     @Override
                     protected void paintComponent(Graphics g) {
                         super.paintComponent(g);
+                        Graphics2D g2 = (Graphics2D) g;
+                        g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
                         int w = getWidth();
                         int h = getHeight();
 
-                        // Dismiss banner
-                        g.setColor(new Color(0, 255, 128, 240));
-                        g.setFont(new Font("Consolas", Font.BOLD, 18));
-                        g.drawString("⚡ [ ASTRA EDR THREAT SIMULATION & CONTAINMENT HUD — CLICK ANYWHERE OR PRESS ESC TO DISMISS ]", 50, 50);
+                        // Solid dark background
+                        g2.setColor(new Color(5, 10, 18, 230));
+                        g2.fillRect(0, 0, w, h);
+
+                        // Top warning HUD banner
+                        g2.setColor(new Color(0, 255, 128));
+                        g2.setFont(new Font("Consolas", Font.BOLD, 22));
+                        String title = "⚡ [ ASTRA EDR • MATRIX CYBER SECURITY HUD — LIVE STREAM ] ⚡";
+                        FontMetrics fm = g2.getFontMetrics();
+                        g2.drawString(title, (w - fm.stringWidth(title)) / 2, 60);
 
                         // Matrix rain simulation
-                        g.setColor(new Color(0, 255, 70));
-                        g.setFont(new Font("Monospaced", Font.BOLD, 20));
-                        for (int i = 0; i < 260; i++) {
-                            int x = (int) (Math.random() * w);
-                            int y = (int) (Math.random() * h);
+                        g2.setFont(new Font("Monospaced", Font.BOLD, 18));
+                        for (int i = 0; i < 280; i++) {
+                            int rx = (int) (Math.random() * w);
+                            int ry = (int) (Math.random() * h);
                             char c = (char) (Math.random() * 94 + 33);
-                            g.drawString(String.valueOf(c), x, y);
+                            g2.setColor(new Color(0, 255, 70, (int)(Math.random() * 180 + 75)));
+                            g2.drawString(String.valueOf(c), rx, ry);
                         }
+
+                        // Bottom dismissal instructions
+                        g2.setColor(new Color(0, 220, 255));
+                        g2.setFont(new Font("Consolas", Font.ITALIC, 14));
+                        String dismissMsg = "[ PRESS ESC OR CLICK ANYWHERE TO DISMISS OVERLAY ]";
+                        g2.drawString(dismissMsg, (w - g2.getFontMetrics().stringWidth(dismissMsg)) / 2, h - 40);
                     }
                 };
-                panel.setOpaque(false);
+                panel.setOpaque(true);
 
                 panel.addMouseListener(new MouseAdapter() {
                     @Override

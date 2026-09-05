@@ -89,6 +89,7 @@ public class RemediationExecutor {
                     break;
 
                 case SHOW_MATRIX_OVERLAY:
+                    overlay.showThreatAlert("Matrix Security HUD Stream", incidentId, "INFO");
                     overlay.showMatrixOverlay();
                     verificationResult = "SUCCESS";
                     executionMessage = "VERIFIED_SUCCESS: Matrix security HUD displayed";
@@ -101,11 +102,13 @@ public class RemediationExecutor {
                     break;
 
                 case SIMULATE_WALLPAPER_HIJACK:
+                    overlay.showThreatAlert("Simulated Wallpaper Hijack Attempt", incidentId, "HIGH");
                     executionMessage = demoSimulationService.executeSimulatedWallpaperHijack(incidentId);
                     verificationResult = executionMessage.startsWith("VERIFIED_SUCCESS") ? "SUCCESS" : "FAILED";
                     break;
 
                 case SIMULATE_GHOST_TYPER:
+                    overlay.showThreatAlert("Ghost-Typer Keystroke Injection Attack", incidentId, "HIGH");
                     executionMessage = demoSimulationService.executeSimulatedGhostTyper(incidentId);
                     verificationResult = executionMessage.startsWith("VERIFIED_SUCCESS") ? "SUCCESS" : "FAILED";
                     break;
@@ -117,24 +120,28 @@ public class RemediationExecutor {
                     break;
 
                 case SHOW_HACKER_SKULL:
+                    overlay.showThreatAlert("Hacker Skull Ransomware Hijack", incidentId, "CRITICAL");
                     overlay.showHackerSkull(incidentId);
                     verificationResult = "SUCCESS";
                     executionMessage = "VERIFIED_SUCCESS: Hacker skull wallpaper overlay displayed";
                     break;
 
                 case SHOW_RADAR_BEACON:
+                    overlay.showThreatAlert("C2 Beacon Intercept & Radar Telemetry", incidentId, "HIGH");
                     overlay.showRadarBeacon(incidentId);
                     verificationResult = "SUCCESS";
                     executionMessage = "VERIFIED_SUCCESS: C2 radar beacon overlay displayed";
                     break;
 
                 case SHOW_GLITCH_BREACH:
+                    overlay.showThreatAlert("Zero-Day Memory Corruption Breach", incidentId, "CRITICAL");
                     overlay.showGlitchBreach(incidentId);
                     verificationResult = "SUCCESS";
                     executionMessage = "VERIFIED_SUCCESS: Memory glitch overlay displayed";
                     break;
 
                 case SHOW_HEX_SHIELD:
+                    overlay.showThreatAlert("Hexagonal Cyber Shield Engaged", incidentId, "LOW");
                     overlay.showHexShield(target);
                     verificationResult = "SUCCESS";
                     executionMessage = "VERIFIED_SUCCESS: Hexagonal defense shield displayed";
@@ -145,27 +152,54 @@ public class RemediationExecutor {
                 case START_SAFE_ATTACK:
                     String attackTarget = target != null ? target.toUpperCase() : "SIMULATED_RANSOMWARE";
                     if (attackTarget.contains("DARKSIDE") || attackTarget.contains("ROGUE")) {
+                        overlay.showThreatAlert("DarkSide Rogue Window & Injection", incidentId, "CRITICAL");
                         executionMessage = demoSimulationService.executeSimulatedDarksidePayload(incidentId);
                     } else if (attackTarget.contains("STEALTH_RAT") || attackTarget.contains("RAT")) {
+                        overlay.showThreatAlert("Stealth RAT Backdoor Socket (TCP 44444)", incidentId, "CRITICAL");
                         executionMessage = demoSimulationService.executeSimulatedStealthRat(incidentId);
                     } else if (attackTarget.contains("SKULL") || attackTarget.contains("HACKER")) {
+                        overlay.showThreatAlert("Hacker Skull Ransomware Hijack Overlay", incidentId, "CRITICAL");
                         overlay.showHackerSkull(incidentId);
                         executionMessage = "VERIFIED_SUCCESS: Hacker skull wallpaper active";
-                    } else if (attackTarget.contains("GLITCH")) {
+                    } else if (attackTarget.contains("GLITCH") || attackTarget.contains("MEMORY")) {
+                        overlay.showThreatAlert("Zero-Day Memory Corruption & Buffer Overflow", incidentId, "CRITICAL");
                         overlay.showGlitchBreach(incidentId);
                         executionMessage = "VERIFIED_SUCCESS: Memory glitch active";
-                    } else if (attackTarget.contains("RADAR")) {
+                    } else if (attackTarget.contains("RADAR") || attackTarget.contains("BEACON")) {
+                        overlay.showThreatAlert("C2 Beacon Intercept & Radar Telemetry", incidentId, "HIGH");
                         overlay.showRadarBeacon(incidentId);
                         executionMessage = "VERIFIED_SUCCESS: Radar beacon active";
+                    } else if (attackTarget.contains("MATRIX")) {
+                        overlay.showThreatAlert("Matrix Cyber Security HUD Active", incidentId, "MEDIUM");
+                        overlay.showMatrixOverlay();
+                        executionMessage = "VERIFIED_SUCCESS: Matrix security HUD active";
+                    } else if (attackTarget.contains("HEX") || attackTarget.contains("SHIELD") || attackTarget.contains("DEFENSE")) {
+                        overlay.showThreatAlert("Hexagonal Cyber Shield Active", incidentId, "LOW");
+                        overlay.showHexShield(target);
+                        executionMessage = "VERIFIED_SUCCESS: Hex defense shield active";
                     } else if (attackTarget.contains("WALLPAPER")) {
+                        overlay.showThreatAlert("Simulated Desktop Wallpaper Hijack", incidentId, "HIGH");
                         executionMessage = demoSimulationService.executeSimulatedWallpaperHijack(incidentId);
-                    } else if (attackTarget.contains("GHOST") || attackTarget.contains("TYPER")) {
+                    } else if (attackTarget.contains("GHOST") || attackTarget.contains("TYPER") || attackTarget.contains("KEYSTROKE")) {
+                        overlay.showThreatAlert("Ghost-Typer Keystroke Injection Attack", incidentId, "HIGH");
                         executionMessage = demoSimulationService.executeSimulatedGhostTyper(incidentId);
                     } else if (attackTarget.contains("BACKDOOR") || attackTarget.contains("PORT")) {
+                        overlay.showThreatAlert("Simulated Backdoor Port Opened (TCP 44444)", incidentId, "CRITICAL");
                         executionMessage = demoSimulationService.executeSimulatedBackdoor(incidentId);
                     } else if (attackTarget.contains("REGISTRY")) {
+                        overlay.showThreatAlert("Simulated Registry Hijack Active", incidentId, "HIGH");
                         executionMessage = demoSimulationService.executeSimulatedRegistryHijack(incidentId);
+                    } else if (attackTarget.contains("LATERAL")) {
+                        overlay.showThreatAlert("Lateral Movement Privilege Escalation", incidentId, "CRITICAL");
+                        executionMessage = demoSimulationService.executeSimulatedRegistryHijack(incidentId);
+                    } else if (attackTarget.contains("EXFILTRATION")) {
+                        overlay.showThreatAlert("Massive Outbound Data Exfiltration Detected", incidentId, "CRITICAL");
+                        executionMessage = demoSimulationService.executeSimulatedRansomware(incidentId);
+                    } else if (attackTarget.contains("TEST")) {
+                        overlay.showSafeTestEnforcement(target != null ? target : "Endpoint Pipeline", "SAFE TEST RESPONSE RECEIVED (SUCCESS)");
+                        executionMessage = "VERIFIED_SUCCESS: Safe test verification displayed";
                     } else {
+                        overlay.showThreatAlert("Simulated Ransomware File Encryption", incidentId, "CRITICAL");
                         executionMessage = demoSimulationService.executeSimulatedRansomware(incidentId);
                     }
                     verificationResult = executionMessage.startsWith("VERIFIED_SUCCESS") ? "SUCCESS" : "FAILED";

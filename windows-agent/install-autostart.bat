@@ -44,12 +44,12 @@ reg add "HKLM\SOFTWARE\Microsoft\Windows\CurrentVersion\Run" /v "ASTRA_EDR_UI" /
 
 :: Create Windows Scheduled Task to run agent on system boot with SYSTEM privileges
 echo [3/3] Registering ASTRA Background Service Task (Auto-start on boot)...
-schtasks /create /tn "AstraEDRAgent" /tr "javaw.exe -Djava.awt.headless=true -Xmx512m -jar \"C:\Astra\Agent\windows-agent.jar\"" /sc onstart /ru "SYSTEM" /f >nul
+schtasks /create /tn "AstraEDRAgent" /tr "javaw.exe -Djava.awt.headless=false -Xmx512m -jar \"C:\Astra\Agent\windows-agent.jar\"" /sc onstart /ru "SYSTEM" /f >nul
 
 :: Start background agent now
 echo.
 echo [STARTING] Starting ASTRA Agent and UI Companion now...
-start "" javaw.exe -Djava.awt.headless=true -Xmx512m -jar "C:\Astra\Agent\windows-agent.jar"
+start "" javaw.exe -Djava.awt.headless=false -Xmx512m -jar "C:\Astra\Agent\windows-agent.jar"
 timeout /t 2 >nul
 start "" wscript.exe "C:\Astra\Agent\Astra-UI.vbs"
 

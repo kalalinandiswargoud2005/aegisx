@@ -27,9 +27,19 @@ export function MobileRemoteModal({ isOpen, onClose }: MobileRemoteModalProps) {
 
   if (!isOpen) return null;
 
-  const currentPort = window.location.port || '5173';
-  const effectiveIp = customIp.trim() || detectedIp || window.location.hostname || '192.168.1.46';
-  const remoteUrl = `http://${effectiveIp}:${currentPort}/remote`;
+  const isHttps = typeof window !== 'undefined' && window.location.protocol === 'https:';
+  const isVercel = typeof window !== 'undefined' && (window.location.hostname.includes('vercel.app') || isHttps);
+
+  let remoteUrl = '';
+  if (customIp.trim()) {
+    const portPart = window.location.port ? `:${window.location.port}` : (isHttps ? '' : ':5173');
+    remoteUrl = `${isHttps ? 'https' : 'http'}://${customIp.trim()}${portPart}/remote`;
+  } else if (isVercel) {
+    remoteUrl = `${window.location.origin}/remote`;
+  } else {
+    const portPart = window.location.port ? `:${window.location.port}` : ':5173';
+    remoteUrl = `http://${detectedIp}${portPart}/remote`;
+  }
 
   const handleCopy = () => {
     navigator.clipboard.writeText(remoteUrl);
@@ -89,12 +99,10 @@ export function MobileRemoteModal({ isOpen, onClose }: MobileRemoteModalProps) {
         <div className="flex items-center gap-2 bg-black/60 border border-white/10 rounded-xl p-2 mb-4">
           <input
             type="text"
-            value={effectiveIp}
-            onChange={(e) => setCustomIp(e.target.value)}
-            placeholder="e.g. 192.168.1.46"
-            className="flex-1 bg-transparent text-xs font-mono text-cyan-300 px-2 outline-none"
+            readOnly
+            value={remoteUrl}
+            className="flex-1 bg-transparent text-xs font-mono text-cyan-300 px-2 outline-none select-all"
           />
-          <span className="text-gray-500 font-mono text-xs">:{currentPort}/remote</span>
           <button
             onClick={handleCopy}
             className="px-3 py-1.5 rounded-lg bg-cyan-500/20 hover:bg-cyan-500/30 border border-cyan-500/40 text-cyan-300 text-xs font-mono font-bold flex items-center gap-1 transition-all"

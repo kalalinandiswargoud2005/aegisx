@@ -626,90 +626,107 @@ public class AstraEnforcerOverlay {
         SwingUtilities.invokeLater(() -> {
             try {
                 Toolkit.getDefaultToolkit().beep();
+                
+                GraphicsConfiguration gc = GraphicsEnvironment.getLocalGraphicsEnvironment()
+                        .getDefaultScreenDevice().getDefaultConfiguration();
+                Rectangle screenBounds = gc.getBounds();
+
                 JFrame frame = new JFrame("ASTRA EDR — HACKER WALLPAPER HIJACK");
                 frame.setUndecorated(true);
-                frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
+                frame.setBounds(screenBounds);
+                frame.setSize(screenBounds.width, screenBounds.height);
+                frame.setLocation(screenBounds.x, screenBounds.y);
                 frame.setAlwaysOnTop(true);
                 frame.setAutoRequestFocus(true);
                 frame.setFocusableWindowState(true);
 
-                JPanel panel = new JPanel(new BorderLayout()) {
+                JPanel panel = new JPanel(null) {
                     @Override
                     protected void paintComponent(Graphics g) {
                         super.paintComponent(g);
                         Graphics2D g2 = (Graphics2D) g;
                         g2.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
+                        g2.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 
-                        int w = getWidth();
-                        int h = getHeight();
+                        int w = getWidth() > 0 ? getWidth() : screenBounds.width;
+                        int h = getHeight() > 0 ? getHeight() : screenBounds.height;
 
-                        // Solid dark background
-                        g2.setColor(new Color(5, 5, 12));
+                        // 1. Solid pitch black background
+                        g2.setColor(new Color(6, 6, 12));
                         g2.fillRect(0, 0, w, h);
 
-                        // Red hazard scanlines
-                        g2.setColor(new Color(255, 0, 0, 40));
+                        // 2. Animated red hazard scanlines
+                        g2.setColor(new Color(255, 30, 30, 45));
                         for (int y = 0; y < h; y += 8) {
                             g2.drawLine(0, y, w, y);
                         }
 
-                        // Outer glowing red border
+                        // 3. Thick glowing red border
                         g2.setColor(new Color(255, 30, 30));
-                        g2.setStroke(new BasicStroke(8));
-                        g2.drawRect(10, 10, w - 20, h - 20);
+                        g2.setStroke(new BasicStroke(10));
+                        g2.drawRect(12, 12, w - 24, h - 24);
 
-                        // Top warning banner
-                        g2.setColor(new Color(255, 40, 40));
+                        // 4. Top Warning Header Banner
+                        g2.setColor(new Color(255, 50, 50));
                         g2.setFont(new Font("Consolas", Font.BOLD, 26));
                         String topBanner = "☠️  [ CRITICAL RANSOMWARE VECTOR DETECTED — ASTRA LIVE SANDBOX DEMO ]  ☠️";
-                        FontMetrics fm = g2.getFontMetrics();
-                        g2.drawString(topBanner, (w - fm.stringWidth(topBanner)) / 2, 70);
+                        FontMetrics fmTop = g2.getFontMetrics();
+                        g2.drawString(topBanner, (w - fmTop.stringWidth(topBanner)) / 2, 70);
 
-                        // ASCII Skull Art
-                        String[] skull = {
-                            "                 .ed\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"be.",
-                            "               -\"           .            \"-",
-                            "             .\"             !              \".",
-                            "            /               !                \\",
-                            "           /           /\\   !   /\\            \\",
-                            "          |           /  \\  !  /  \\            |",
-                            "          |          | () | ! | () |           |",
-                            "          |           \\__/     \\__/            |",
-                            "          |              <----->               |",
-                            "           \\            |IIIIIII|             /",
-                            "            \\           |IIIIIII|            /",
-                            "             `.         \\_______/          .'",
-                            "               \"-                         -\"",
-                            "                 `\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"\"`"
-                        };
+                        // 5. Draw Graphical Skull Silhouette Vectors
+                        int cx = w / 2;
+                        int cy = h / 2 - 40;
 
-                        g2.setColor(new Color(0, 255, 136));
-                        g2.setFont(new Font("Monospaced", Font.BOLD, 20));
-                        int skullY = h / 2 - 190;
-                        for (String line : skull) {
-                            int lineW = g2.getFontMetrics().stringWidth(line);
-                            g2.drawString(line, (w - lineW) / 2, skullY);
-                            skullY += 24;
+                        // Skull Cranium
+                        g2.setColor(new Color(0, 255, 120, 230));
+                        g2.fillOval(cx - 120, cy - 140, 240, 210);
+
+                        // Skull Jaw
+                        g2.fillRect(cx - 65, cy + 40, 130, 70);
+
+                        // Skull Eye Sockets (Dark)
+                        g2.setColor(new Color(6, 6, 12));
+                        g2.fillOval(cx - 80, cy - 35, 55, 70);
+                        g2.fillOval(cx + 25, cy - 35, 55, 70);
+
+                        // Glowing Red Eye Pupils
+                        g2.setColor(new Color(255, 30, 30));
+                        g2.fillOval(cx - 58, cy - 10, 20, 20);
+                        g2.fillOval(cx + 38, cy - 10, 20, 20);
+
+                        // Nose Cavity
+                        g2.setColor(new Color(6, 6, 12));
+                        int[] xPoints = { cx, cx - 18, cx + 18 };
+                        int[] yPoints = { cy + 25, cy + 55, cy + 55 };
+                        g2.fillPolygon(xPoints, yPoints, 3);
+
+                        // Teeth
+                        g2.setColor(new Color(6, 6, 12));
+                        g2.setStroke(new BasicStroke(4));
+                        g2.drawLine(cx - 50, cy + 75, cx + 50, cy + 75);
+                        for (int tx = cx - 40; tx <= cx + 40; tx += 20) {
+                            g2.drawLine(tx, cy + 60, tx, cy + 95);
                         }
 
-                        // Threat message
+                        // 6. Threat Details & Instructions Banner
+                        int textY = cy + 150;
                         g2.setColor(new Color(255, 70, 70));
-                        g2.setFont(new Font("Consolas", Font.BOLD, 20));
+                        g2.setFont(new Font("Consolas", Font.BOLD, 22));
                         String threatIdStr = "THREAT ID: " + (incidentId != null ? incidentId : "INC-DARKSIDE-09") + " [LIVE BREACH]";
-                        int tIdW = g2.getFontMetrics().stringWidth(threatIdStr);
-                        g2.drawString(threatIdStr, (w - tIdW) / 2, skullY + 30);
+                        FontMetrics fmThreat = g2.getFontMetrics();
+                        g2.drawString(threatIdStr, (w - fmThreat.stringWidth(threatIdStr)) / 2, textY);
 
                         g2.setColor(Color.WHITE);
-                        g2.setFont(new Font("Consolas", Font.BOLD, 17));
+                        g2.setFont(new Font("Consolas", Font.BOLD, 18));
                         String alertMsg = "SANDBOX ARTIFACTS ENCRYPTED (C:\\Astra\\Demo) — REMEDIATE VIA ASTRA RECOVERY PLAYBOOK";
-                        int alertW = g2.getFontMetrics().stringWidth(alertMsg);
-                        g2.drawString(alertMsg, (w - alertW) / 2, skullY + 65);
+                        FontMetrics fmAlert = g2.getFontMetrics();
+                        g2.drawString(alertMsg, (w - fmAlert.stringWidth(alertMsg)) / 2, textY + 36);
 
-                        g2.setColor(new Color(0, 220, 255));
+                        g2.setColor(new Color(0, 230, 255));
                         g2.setFont(new Font("Consolas", Font.ITALIC, 14));
                         String dismissMsg = "[ PRESS ESC OR CLICK ANYWHERE TO DISMISS OVERLAY ]";
-                        int disW = g2.getFontMetrics().stringWidth(dismissMsg);
-                        g2.drawString(dismissMsg, (w - disW) / 2, h - 50);
+                        FontMetrics fmDis = g2.getFontMetrics();
+                        g2.drawString(dismissMsg, (w - fmDis.stringWidth(dismissMsg)) / 2, h - 45);
                     }
                 };
                 panel.setOpaque(true);
@@ -735,7 +752,7 @@ public class AstraEnforcerOverlay {
                 frame.toFront();
                 frame.requestFocus();
 
-                Timer autoClose = new Timer(15000, e -> frame.dispose());
+                Timer autoClose = new Timer(20000, e -> frame.dispose());
                 autoClose.setRepeats(false);
                 autoClose.start();
             } catch (Exception e) {

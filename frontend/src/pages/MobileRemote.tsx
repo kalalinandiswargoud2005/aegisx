@@ -152,7 +152,7 @@ export function MobileRemote() {
   };
 
   return (
-    <div className="min-h-screen bg-[#06080e] text-white p-4 pb-12 font-sans max-w-md mx-auto select-none">
+    <div className="min-h-screen bg-[#06080e] text-white px-4 pt-[max(1rem,env(safe-area-inset-top))] pb-[max(2.5rem,env(safe-area-inset-bottom))] font-sans max-w-md mx-auto select-none touch-manipulation">
       {/* Tactical Controller Header */}
       <div className="flex items-center justify-between border-b border-cyan-500/20 pb-3 mb-4">
         <div className="flex items-center gap-2.5">

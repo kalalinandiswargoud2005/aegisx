@@ -120,8 +120,21 @@ public class AstraCompanionClient {
                     overlayRenderer.renderHideMatrixGui();
                     break;
 
+                case SHOW_HACKER_SKULL:
                 case WALLPAPER_HIJACK_SIMULATION:
-                    overlayRenderer.renderWallpaperHijackGui(event.getIncidentId());
+                    overlayRenderer.renderHackerSkullGui(event.getIncidentId());
+                    break;
+
+                case SHOW_GLITCH_BREACH:
+                    overlayRenderer.renderGlitchBreachGui(event.getIncidentId());
+                    break;
+
+                case SHOW_RADAR_BEACON:
+                    overlayRenderer.renderRadarBeaconGui(event.getIncidentId());
+                    break;
+
+                case SHOW_HEX_SHIELD:
+                    overlayRenderer.renderHexShieldGui(event.getTarget());
                     break;
 
                 case GHOST_TYPER_SIMULATION:

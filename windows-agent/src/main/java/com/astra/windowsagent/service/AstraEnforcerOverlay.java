@@ -608,6 +608,14 @@ public class AstraEnforcerOverlay {
     }
 
     public void showHackerSkull(String incidentId) {
+        if (ipcService != null) {
+            ipcService.publishEvent(AstraOverlayEvent.builder()
+                    .type(AstraOverlayEvent.EventType.SHOW_HACKER_SKULL)
+                    .incidentId(incidentId)
+                    .target("Hacker Skull Ransomware Overlay")
+                    .details("Critical Ransomware ASCII Skull Breach")
+                    .build());
+        }
         if (!GraphicsEnvironment.isHeadless()) {
             renderHackerSkullGui(incidentId);
         }
@@ -737,6 +745,14 @@ public class AstraEnforcerOverlay {
     }
 
     public void showGlitchBreach(String incidentId) {
+        if (ipcService != null) {
+            ipcService.publishEvent(AstraOverlayEvent.builder()
+                    .type(AstraOverlayEvent.EventType.SHOW_GLITCH_BREACH)
+                    .incidentId(incidentId)
+                    .target("Zero-Day Memory Glitch Violation")
+                    .details("Heuristic Memory Stack Corruption Contained")
+                    .build());
+        }
         if (!GraphicsEnvironment.isHeadless()) {
             renderGlitchBreachGui(incidentId);
         }
@@ -819,6 +835,14 @@ public class AstraEnforcerOverlay {
     }
 
     public void showRadarBeacon(String incidentId) {
+        if (ipcService != null) {
+            ipcService.publishEvent(AstraOverlayEvent.builder()
+                    .type(AstraOverlayEvent.EventType.SHOW_RADAR_BEACON)
+                    .incidentId(incidentId)
+                    .target("C2 Radar Beacon Intercept")
+                    .details("Rogue TCP 44444 Socket Beaconing")
+                    .build());
+        }
         if (!GraphicsEnvironment.isHeadless()) {
             renderRadarBeaconGui(incidentId);
         }
@@ -878,6 +902,13 @@ public class AstraEnforcerOverlay {
     }
 
     public void showHexShield(String target) {
+        if (ipcService != null) {
+            ipcService.publishEvent(AstraOverlayEvent.builder()
+                    .type(AstraOverlayEvent.EventType.SHOW_HEX_SHIELD)
+                    .target(target != null ? target : "Local Workstation")
+                    .details("Hexagonal Defense Shield Level 5 Hardening")
+                    .build());
+        }
         if (!GraphicsEnvironment.isHeadless()) {
             renderHexShieldGui(target);
         }

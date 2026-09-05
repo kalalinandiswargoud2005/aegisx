@@ -19,26 +19,26 @@ export function MobileRemoteModal({ isOpen, onClose }: MobileRemoteModalProps) {
 
   useEffect(() => {
     if (isOpen) {
-      // Determine best initial IP
+      // If already on a LAN IP address, use it directly
       const currentHost = window.location.hostname;
-      if (currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
+      if (currentHost && currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
         setDetectedIp(currentHost);
+      } else {
+        setDetectedIp('192.168.1.46');
       }
 
-      // Fetch from backend
+      // Try fetching active IPs from backend if available
       api.get('/system/network-info')
         .then(res => {
-          if (res.data) {
-            if (res.data.primaryIp && res.data.primaryIp !== '127.0.0.1') {
-              setDetectedIp(res.data.primaryIp);
-            }
-            if (res.data.allIps && Array.isArray(res.data.allIps)) {
-              setAllIps(res.data.allIps.filter((ip: string) => ip !== '127.0.0.1'));
-            }
+          if (res?.data?.primaryIp && res.data.primaryIp !== '127.0.0.1') {
+            setDetectedIp(res.data.primaryIp);
+          }
+          if (Array.isArray(res?.data?.allIps)) {
+            setAllIps(res.data.allIps.filter((ip: string) => ip !== '127.0.0.1'));
           }
         })
-        .catch(err => {
-          console.warn('Could not fetch dynamic network IP, using fallback', err);
+        .catch(() => {
+          // Gracefully use 192.168.1.46 fallback
         });
     }
   }, [isOpen]);

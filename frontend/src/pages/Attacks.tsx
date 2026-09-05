@@ -10,14 +10,13 @@
  */
 
 import React, { useState, useEffect, useRef } from 'react';
-import { Activity, Play, Zap, ShieldAlert, CheckCircle, Trash2, ShieldCheck, Terminal, AlertTriangle, RefreshCw, Smartphone } from 'lucide-react';
+import { Activity, Play, Zap, ShieldAlert, CheckCircle, Trash2, ShieldCheck, Terminal, AlertTriangle, RefreshCw } from 'lucide-react';
 import { Card, Button, PageContainer, PageHeader, PageSection, Badge } from '@/components/ui';
 import { useQuery } from '@tanstack/react-query';
 import { useWebSocket } from '@/providers/WebSocketProvider';
 import api from '@/lib/api';
 import { toast } from 'sonner';
 import { useScopedDevice } from '@/contexts/ScopedDeviceContext';
-import { MobileRemoteModal } from '@/components/MobileRemoteModal';
 
 // ── Immediate action per threat type ─────────────────────────────────────────
 
@@ -93,7 +92,6 @@ export function Attacks() {
 
   const [selectedDevice, setSelectedDevice] = useState<string>('');
   const [activeTab, setActiveTab] = useState<'LIVE' | 'REMEDIATION' | 'SCRIPTED'>('LIVE');
-  const [isMobileModalOpen, setIsMobileModalOpen] = useState(false);
 
   // ── Live action log ──────────────────────────────────────────────────────
   const [actionLog, setActionLog] = useState<ActionEntry[]>([]);
@@ -258,15 +256,6 @@ export function Attacks() {
           <Button 
             variant="outline" 
             size="sm" 
-            onClick={() => setIsMobileModalOpen(true)} 
-            className="text-xs font-mono border-cyan-500/40 text-cyan-300 hover:bg-cyan-500/10 flex items-center gap-1.5 shadow-[0_0_12px_rgba(6,182,212,0.2)]"
-          >
-            <Smartphone size={14} className="text-cyan-400 animate-pulse" /> Mobile C2 Remote
-          </Button>
-
-          <Button 
-            variant="outline" 
-            size="sm" 
             onClick={() => refetchDevices()} 
             className="text-xs font-mono border-white/20 text-white/70 hover:text-white flex items-center gap-1.5"
           >
@@ -274,11 +263,6 @@ export function Attacks() {
           </Button>
         </div>
       </div>
-
-      <MobileRemoteModal 
-        isOpen={isMobileModalOpen} 
-        onClose={() => setIsMobileModalOpen(false)} 
-      />
 
       {!targetDevice ? (
         <div className="mb-6 p-3 border border-yellow-500/40 bg-yellow-500/10 text-yellow-400 text-xs font-mono flex items-center gap-2">

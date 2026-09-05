@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { QRCodeSVG } from 'qrcode.react';
-import { Smartphone, X, Copy, Check, ExternalLink, Wifi, Sparkles, Edit2 } from 'lucide-react';
+import { Smartphone, X, Copy, Check, ExternalLink, Wifi, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui';
 import { toast } from 'sonner';
-import api from '@/lib/api';
 
 interface MobileRemoteModalProps {
   isOpen: boolean;
@@ -13,33 +12,16 @@ interface MobileRemoteModalProps {
 export function MobileRemoteModal({ isOpen, onClose }: MobileRemoteModalProps) {
   const [copied, setCopied] = useState(false);
   const [detectedIp, setDetectedIp] = useState<string>('192.168.1.46');
-  const [allIps, setAllIps] = useState<string[]>([]);
   const [customIp, setCustomIp] = useState<string>('');
-  const [isEditing, setIsEditing] = useState(false);
 
   useEffect(() => {
     if (isOpen) {
-      // If already on a LAN IP address, use it directly
       const currentHost = window.location.hostname;
       if (currentHost && currentHost !== 'localhost' && currentHost !== '127.0.0.1') {
         setDetectedIp(currentHost);
       } else {
         setDetectedIp('192.168.1.46');
       }
-
-      // Try fetching active IPs from backend if available
-      api.get('/system/network-info')
-        .then(res => {
-          if (res?.data?.primaryIp && res.data.primaryIp !== '127.0.0.1') {
-            setDetectedIp(res.data.primaryIp);
-          }
-          if (Array.isArray(res?.data?.allIps)) {
-            setAllIps(res.data.allIps.filter((ip: string) => ip !== '127.0.0.1'));
-          }
-        })
-        .catch(() => {
-          // Gracefully use 192.168.1.46 fallback
-        });
     }
   }, [isOpen]);
 
@@ -102,28 +84,6 @@ export function MobileRemoteModal({ isOpen, onClose }: MobileRemoteModalProps) {
             Scan to open <span className="text-cyan-400 font-bold">{remoteUrl}</span>
           </p>
         </div>
-
-        {/* IP Selector / Editor */}
-        {allIps.length > 1 && (
-          <div className="mb-3">
-            <span className="text-[10px] font-mono text-gray-400 block mb-1">Select Active Network Interface:</span>
-            <div className="flex flex-wrap gap-1.5">
-              {allIps.map(ip => (
-                <button
-                  key={ip}
-                  onClick={() => { setCustomIp(ip); setDetectedIp(ip); }}
-                  className={`text-[10px] font-mono px-2 py-0.5 rounded border transition-all ${
-                    effectiveIp === ip
-                      ? 'bg-cyan-500/30 text-cyan-200 border-cyan-400 font-bold'
-                      : 'bg-black/40 text-gray-400 border-white/10 hover:border-white/30'
-                  }`}
-                >
-                  {ip}
-                </button>
-              ))}
-            </div>
-          </div>
-        )}
 
         {/* URL Box */}
         <div className="flex items-center gap-2 bg-black/60 border border-white/10 rounded-xl p-2 mb-4">

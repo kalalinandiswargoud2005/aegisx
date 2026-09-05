@@ -97,7 +97,7 @@ export function Recovery() {
 
   // ── WebSocket: new incident or clear event arrives ───────────────────────
   useEffect(() => {
-    const unsubscribe = subscribe('timeline', (payload: any) => {
+    const unsubTimeline = subscribe('timeline', (payload: any) => {
       if (payload.event === 'ALL_THREATS_CLEARED' || payload.event === 'THREATS_CLEARED') {
         setQueue([]);
         setActiveIncident(null);
@@ -130,7 +130,35 @@ export function Recovery() {
         return updated;
       });
     });
-    return () => unsubscribe();
+
+    const unsubThreats = subscribe('threats', (threat: any) => {
+      if (!threat) return;
+      if (threat.status === 'RESOLVED') {
+        setQueue(prev => {
+          const next = prev.filter((t: any) => t.id !== threat.id);
+          if (activeIncidentRef.current?.id === threat.id) {
+            if (next.length > 0) {
+              setActiveIncident(next[0]);
+              setCurrentStep(2);
+              setCountdown(10);
+              setImmediateActionExecuted(false);
+            } else {
+              setActiveIncident(null);
+              setSteps([]);
+            }
+          }
+          return next;
+        });
+        queryClient.invalidateQueries({ queryKey: ['threats'] });
+        queryClient.invalidateQueries({ queryKey: ['threats-history'] });
+        queryClient.invalidateQueries({ queryKey: ['analytics'] });
+      }
+    });
+
+    return () => {
+      unsubTimeline();
+      unsubThreats();
+    };
   }, [subscribe, queryClient, scopedDeviceId]);
 
   // ── Fetch recovery steps whenever active incident changes ─────────────────

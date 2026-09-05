@@ -39,7 +39,8 @@ public class ThreatService {
         incidentRepository.findById(id).ifPresent(incident -> {
             incident.setStatus("RESOLVED");
             incident.setResolvedAt(LocalDateTime.now());
-            incidentRepository.save(incident);
+            Incident saved = incidentRepository.save(incident);
+            webSocketPublisher.broadcastNewThreat(saved);
         });
     }
 

@@ -23,11 +23,11 @@ public class DefenderMonitor {
     @jakarta.annotation.PostConstruct
     public void init() {
         try {
-            String rtpStatus = CommandRunner.runPowerShell("(Get-MpPreference).DisableRealtimeMonitoring");
+            String rtpStatus = CommandRunner.runPowerShell("try { (Get-MpPreference -ErrorAction SilentlyContinue).DisableRealtimeMonitoring } catch { 'False' }");
             if (rtpStatus != null) {
                 wasRtpDisabled = "True".equalsIgnoreCase(rtpStatus.trim());
             }
-            String activeThreats = CommandRunner.runPowerShell("Get-MpThreat | Select-Object -ExpandProperty ThreatName");
+            String activeThreats = CommandRunner.runPowerShell("try { Get-MpThreat -ErrorAction SilentlyContinue | Select-Object -ExpandProperty ThreatName } catch { }");
             if (activeThreats != null && !activeThreats.trim().isEmpty()) {
                 String[] threats = activeThreats.split("\\r?\\n");
                 for (String threat : threats) {
@@ -46,7 +46,7 @@ public class DefenderMonitor {
     public void check() {
         try {
             // Check if Real-Time Protection is disabled
-            String rtpStatus = CommandRunner.runPowerShell("(Get-MpPreference).DisableRealtimeMonitoring");
+            String rtpStatus = CommandRunner.runPowerShell("try { (Get-MpPreference -ErrorAction SilentlyContinue).DisableRealtimeMonitoring } catch { 'False' }");
             if (rtpStatus != null) {
                 boolean isCurrentlyDisabled = "True".equalsIgnoreCase(rtpStatus.trim());
                 if (isCurrentlyDisabled && !wasRtpDisabled) {
@@ -60,7 +60,7 @@ public class DefenderMonitor {
             }
 
             // Check for active threats
-            String activeThreats = CommandRunner.runPowerShell("Get-MpThreat | Select-Object -ExpandProperty ThreatName");
+            String activeThreats = CommandRunner.runPowerShell("try { Get-MpThreat -ErrorAction SilentlyContinue | Select-Object -ExpandProperty ThreatName } catch { }");
             if (activeThreats != null && !activeThreats.trim().isEmpty()) {
                 String[] threats = activeThreats.split("\\r?\\n");
                 for (String threat : threats) {

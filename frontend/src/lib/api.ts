@@ -4,11 +4,26 @@ import { toast } from 'sonner';
 const defaultDevUrl = 'http://localhost:8080/api/v1';
 const defaultProdUrl = 'https://aegisx-backend-2k67.onrender.com/api/v1';
 
-const rawApiUrl = import.meta.env.VITE_API_URL || 
-  (typeof window !== 'undefined' && window.location.hostname !== 'localhost' && window.location.hostname !== '127.0.0.1' 
-    ? defaultProdUrl 
-    : defaultDevUrl);
+const getBaseUrl = (): string => {
+  if (import.meta.env.VITE_API_URL) return import.meta.env.VITE_API_URL;
+  if (typeof window !== 'undefined') {
+    const host = window.location.hostname;
+    // If accessed on localhost or direct local network IP (WiFi / Hotspot / LAN)
+    if (
+      host === 'localhost' ||
+      host === '127.0.0.1' ||
+      /^192\.168\./.test(host) ||
+      /^10\./.test(host) ||
+      /^172\.(1[6-9]|2[0-9]|3[0-1])\./.test(host) ||
+      window.location.protocol === 'http:'
+    ) {
+      return `http://${host}:8080/api/v1`;
+    }
+  }
+  return defaultProdUrl;
+};
 
+const rawApiUrl = getBaseUrl();
 const baseURL = rawApiUrl.includes('/api/v1') 
   ? rawApiUrl 
   : `${rawApiUrl.replace(/\/+$/, '')}/api/v1`;

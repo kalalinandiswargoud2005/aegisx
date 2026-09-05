@@ -15,3 +15,16 @@ target/
 # OS
 .DS_Store
 Thumbs.db
+
+# Documentation Files (Kept locally in editor, ignored in GitHub)
+*.md
+!README.md
+*.docx
+*.pdf
+*.pptx
+*.xlsx
+*.odt
+*.rtf
+docs/
+documentation/
+reports/

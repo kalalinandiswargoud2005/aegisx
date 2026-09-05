@@ -17,17 +17,12 @@ import { Settings } from '@/pages/Settings';
 import { Attacks } from '@/pages/Attacks';
 import { About } from '@/pages/About';
 import { AssistantPage } from '@/features/assistant/AssistantPage';
-import { MobileRemote } from '@/pages/MobileRemote';
 
 export function AppRoutes() {
   return (
     <Routes>
       <Route path="/" element={<Landing />} />
       <Route path="/login" element={<Login />} />
-      
-      {/* Standalone Mobile Cyber Remote Route */}
-      <Route path="/remote" element={<MobileRemote />} />
-      <Route path="/mobile" element={<MobileRemote />} />
       
       <Route element={<AuthGuard />}>
         <Route element={<MainLayout />}>

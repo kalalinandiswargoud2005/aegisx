@@ -29,12 +29,12 @@ export function StatCard({ title, value, icon, trend, className }: StatCardProps
 
       <div className="relative z-10 flex items-start justify-between">
         <div className="space-y-2">
-          <p className="text-sm font-medium text-white/60 tracking-wider uppercase">{title}</p>
+          <p className="text-base font-bold text-white/80 tracking-wider uppercase">{title}</p>
           <motion.h3 
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: "spring", stiffness: 200, damping: 20 }}
-            className="text-3xl font-mono font-bold text-white text-glow tracking-tight"
+            className="text-4xl lg:text-5xl font-mono font-extrabold text-white text-glow tracking-tight"
           >
             {value}
           </motion.h3>
@@ -42,7 +42,7 @@ export function StatCard({ title, value, icon, trend, className }: StatCardProps
         {icon && (
           <motion.div 
             whileHover={{ scale: 1.1, rotate: 5 }}
-            className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 text-primary cyber-cut group-hover:bg-primary/20 group-hover:shadow-[0_0_15px_rgba(5,217,232,0.5)] transition-all"
+            className="flex h-14 w-14 items-center justify-center rounded-lg bg-primary/10 text-primary cyber-cut group-hover:bg-primary/20 group-hover:shadow-[0_0_15px_rgba(5,217,232,0.5)] transition-all [&_svg]:w-7 [&_svg]:h-7"
           >
             {icon}
           </motion.div>
@@ -50,16 +50,16 @@ export function StatCard({ title, value, icon, trend, className }: StatCardProps
       </div>
       
       {trend && (
-        <div className="relative z-10 flex items-center text-sm font-mono mt-2">
+        <div className="relative z-10 flex items-center text-base font-mono mt-2">
           <span
             className={cn(
-              'font-medium px-2 py-0.5 rounded-sm cyber-cut mr-2',
+              'font-bold px-2.5 py-0.5 rounded-sm cyber-cut mr-2',
               trend.isPositive ? 'bg-success/20 text-success' : 'bg-danger/20 text-danger'
             )}
           >
             {trend.isPositive ? '+' : ''}{trend.value}%
           </span>
-          <span className="text-white/50 text-[10px] tracking-widest uppercase">{trend.label}</span>
+          <span className="text-white/60 text-xs font-semibold tracking-widest uppercase">{trend.label}</span>
         </div>
       )}
     </Card>

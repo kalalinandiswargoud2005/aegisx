@@ -384,24 +384,24 @@ export function Recovery() {
                 setResponseMode(next);
                 toast.success(`Switched to ${next} recovery mode`);
               }}
-              className={`px-2.5 py-1 text-xs font-mono rounded font-bold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 text-sm font-mono rounded font-bold transition-all flex items-center gap-2 ${
                 isManual 
                   ? 'bg-amber-500/20 text-amber-300 border border-amber-500/50' 
                   : 'bg-primary/20 text-primary border border-primary/50'
               }`}
             >
-              <span className={`w-2 h-2 rounded-full ${isManual ? 'bg-amber-400' : 'bg-primary animate-pulse'}`} />
+              <span className={`w-2.5 h-2.5 rounded-full ${isManual ? 'bg-amber-400' : 'bg-primary animate-pulse'}`} />
               {isManual ? 'MANUAL (User Guided)' : 'AUTOMATED (Auto Playbook)'}
             </button>
           </div>
 
           {activeIncident && (
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg border border-danger/30 bg-danger/5 cyber-cut">
-              <AlertTriangle className="text-danger" size={15} />
-              <span className="text-xs text-white/80 font-mono">
+            <div className="flex items-center gap-2.5 px-3.5 py-2 rounded-lg border border-danger/30 bg-danger/5 cyber-cut">
+              <AlertTriangle className="text-danger" size={18} />
+              <span className="text-sm text-white/90 font-mono">
                 Resolving: <strong className="text-white">{activeIncident.name}</strong>
               </span>
-              <span className={`px-2 py-0.5 text-[10px] rounded-full font-bold cyber-cut ${SEVERITY_COLORS[activeIncident.severity] || SEVERITY_COLORS.LOW}`}>
+              <span className={`px-2.5 py-0.5 text-xs rounded-full font-bold cyber-cut ${SEVERITY_COLORS[activeIncident.severity] || SEVERITY_COLORS.LOW}`}>
                 {activeIncident.severity}
               </span>
             </div>

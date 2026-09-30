@@ -498,25 +498,25 @@ export function Attacks() {
                 {VISUAL_THREATS_10.map((vt) => (
                   <div 
                     key={vt.id}
-                    className="p-3.5 bg-surface/70 border border-border-color hover:border-primary/50 transition-all flex flex-col justify-between space-y-3"
+                    className="p-4 bg-surface/70 border border-border-color hover:border-primary/50 transition-all flex flex-col justify-between space-y-3"
                   >
                     <div>
                       <div className="flex items-start justify-between gap-2 mb-1">
-                        <div className="flex items-center gap-2">
-                          <span className="text-xl">{vt.icon}</span>
-                          <h4 className="text-sm font-bold text-white font-mono">{vt.title}</h4>
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-2xl">{vt.icon}</span>
+                          <h4 className="text-base font-bold text-white font-mono">{vt.title}</h4>
                         </div>
-                        <span className={`px-1.5 py-0.5 text-[10px] font-mono font-black border rounded-none ${severityClass(vt.severity)}`}>
+                        <span className={`px-2 py-0.5 text-xs font-mono font-black border rounded-none ${severityClass(vt.severity)}`}>
                           {vt.severity}
                         </span>
                       </div>
                       
-                      <p className="text-xs text-white/60 font-mono mt-1 mb-2">
+                      <p className="text-sm text-white/80 font-mono mt-1 mb-2">
                         {vt.description}
                       </p>
 
-                      <div className="p-2 bg-black/40 border border-white/5 text-[11px] text-cyan-300/80 font-mono">
-                        <span className="text-white/40 block text-[9px] uppercase tracking-wider">Visual Laptop Effect:</span>
+                      <div className="p-2.5 bg-black/40 border border-white/10 text-xs text-cyan-300 font-mono">
+                        <span className="text-white/60 block text-[10px] font-bold uppercase tracking-wider">Visual Laptop Effect:</span>
                         {vt.laptopEffect}
                       </div>
                     </div>
@@ -524,7 +524,7 @@ export function Attacks() {
                     <div className="grid grid-cols-2 gap-2 pt-2 border-t border-white/5">
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="md"
                         disabled={!isTargetOnline}
                         onClick={() => {
                           if (vt.attackType === 'LOCK_WORKSTATION') {
@@ -533,19 +533,19 @@ export function Attacks() {
                             triggerLiveAttack(vt.attackType);
                           }
                         }}
-                        className="border-red-500/40 text-red-400 hover:bg-red-500/15 text-xs font-mono flex items-center justify-center gap-1.5"
+                        className="border-red-500/40 text-red-400 hover:bg-red-500/15 text-sm font-mono font-bold flex items-center justify-center gap-2"
                       >
-                        <Zap size={13} /> Trigger Attack
+                        <Zap size={16} /> Trigger Attack
                       </Button>
 
                       <Button
                         variant="outline"
-                        size="sm"
+                        size="md"
                         disabled={!isTargetOnline}
                         onClick={() => sendDirectCommand(vt.recoveryCommand, vt.recoveryTarget)}
-                        className="border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/15 text-xs font-mono flex items-center justify-center gap-1.5"
+                        className="border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/15 text-sm font-mono font-bold flex items-center justify-center gap-2"
                       >
-                        <CheckCircle size={13} /> Visual Recovery
+                        <CheckCircle size={16} /> Visual Recovery
                       </Button>
                     </div>
                   </div>

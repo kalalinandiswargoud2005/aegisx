@@ -57,7 +57,7 @@ const TableHead = React.forwardRef<
   <th
     ref={ref}
     className={cn(
-      'h-12 px-4 text-left align-middle font-medium text-white/70 [&:has([role=checkbox])]:pr-0',
+      'h-14 px-4 text-left align-middle font-bold text-white/90 text-base tracking-wider uppercase [&:has([role=checkbox])]:pr-0',
       className
     )}
     {...props}
@@ -71,7 +71,7 @@ const TableCell = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <td
     ref={ref}
-    className={cn('p-4 align-middle [&:has([role=checkbox])]:pr-0', className)}
+    className={cn('p-4 align-middle text-base text-white/90 font-medium [&:has([role=checkbox])]:pr-0', className)}
     {...props}
   />
 ));

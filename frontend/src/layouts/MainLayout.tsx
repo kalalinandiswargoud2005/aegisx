@@ -9,7 +9,7 @@ import { GlobalAssistantDrawer } from '@/components/GlobalAssistantDrawer';
 
 export function MainLayout() {
   return (
-    <div className="relative flex h-screen w-full p-4 overflow-hidden bg-background text-primary">
+    <div className="relative flex h-screen w-full p-1 sm:p-2 md:p-3 overflow-hidden bg-background text-primary">
       <ImmediateActionOverlay />
 
       {/* Background Layer */}
@@ -31,7 +31,7 @@ export function MainLayout() {
         <div className="flex flex-1 flex-col relative z-20 w-full min-w-0">
           <Header />
           
-          <main className="flex-1 overflow-x-hidden overflow-y-auto scroll-smooth p-6">
+          <main className="flex-1 overflow-x-hidden overflow-y-auto scroll-smooth p-3 sm:p-4 md:p-6">
             <Outlet />
           </main>
           

@@ -137,22 +137,22 @@ export function Dashboard() {
 
       <motion.div variants={itemVariants} className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
         <motion.div whileHover={{ scale: 1.02 }} className="cursor-default">
-          <h1 className="text-3xl font-mono font-bold text-white flex items-center gap-2 uppercase tracking-widest text-glow transition-colors hover:text-primary">
+          <h1 className="text-3xl md:text-4xl font-mono font-extrabold text-white flex items-center gap-2 uppercase tracking-widest text-glow transition-colors hover:text-primary">
             {scopedDeviceId ? 'Device Overview' : 'System Overview'} <span className="animate-pulse text-primary">_</span>
           </h1>
-          <p className="text-white/60 font-mono text-sm tracking-wider uppercase mt-1">Real-time threat monitoring and system health.</p>
+          <p className="text-white/70 font-mono text-base tracking-wider uppercase mt-1">Real-time threat monitoring and system health.</p>
         </motion.div>
         <div className="flex items-center gap-2">
           {isConnected ? (
             <motion.div whileHover={{ scale: 1.05 }}>
-              <Badge variant="success" className="px-3 py-1 text-sm shadow-[0_0_10px_rgba(0,230,118,0.3)] transition-all hover:shadow-[0_0_20px_rgba(0,230,118,0.6)]">
-                <span className="mr-2 h-2 w-2 rounded-none cyber-cut bg-success animate-pulse inline-block" />
+              <Badge variant="success" className="px-3.5 py-1.5 text-sm font-bold shadow-[0_0_10px_rgba(0,230,118,0.3)] transition-all hover:shadow-[0_0_20px_rgba(0,230,118,0.6)]">
+                <span className="mr-2 h-2.5 w-2.5 rounded-none cyber-cut bg-success animate-pulse inline-block" />
                 System Secure (Live)
               </Badge>
             </motion.div>
           ) : (
-            <Badge variant="danger" className="px-3 py-1 text-sm shadow-[0_0_10px_rgba(255,42,109,0.3)]">
-              <span className="mr-2 h-2 w-2 rounded-none cyber-cut bg-danger inline-block" />
+            <Badge variant="danger" className="px-3.5 py-1.5 text-sm font-bold shadow-[0_0_10px_rgba(255,42,109,0.3)]">
+              <span className="mr-2 h-2.5 w-2.5 rounded-none cyber-cut bg-danger inline-block" />
               Disconnected
             </Badge>
           )}
@@ -203,36 +203,36 @@ export function Dashboard() {
         <motion.div whileHover={{ scale: 1.02 }} transition={{ type: "spring", stiffness: 400 }} className="h-full">
           <Card className="flex flex-col relative overflow-hidden group h-full shadow-lg hover:shadow-[0_0_25px_rgba(5,217,232,0.15)] transition-shadow duration-300">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out pointer-events-none" />
-            <h3 className="mb-4 text-lg font-mono font-bold tracking-widest uppercase text-white flex items-center">
+            <h3 className="mb-4 text-xl font-mono font-extrabold tracking-widest uppercase text-white flex items-center">
               <span className="text-primary mr-2 animate-pulse">{'>'}</span> System Health
             </h3>
             <div className="space-y-8 flex-1 relative z-10 mt-2">
               <div className="group/bar">
-                <div className="mb-2 flex items-center justify-between text-sm font-mono uppercase tracking-wider">
-                  <span className="flex items-center gap-2 text-white/70 group-hover/bar:text-white transition-colors"><Cpu size={16} className="text-primary"/> CPU Usage</span>
+                <div className="mb-2 flex items-center justify-between text-base font-mono font-semibold uppercase tracking-wider">
+                  <span className="flex items-center gap-2.5 text-white/80 group-hover/bar:text-white transition-colors"><Cpu size={20} className="text-primary"/> CPU Usage</span>
                   <span className="font-bold text-white text-glow">{liveMetrics?.cpuUsage ?? metrics?.cpuUsage ?? 18}%</span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-none bg-white/10 cyber-cut">
+                <div className="h-3 w-full overflow-hidden rounded-none bg-white/10 cyber-cut">
                   <motion.div initial={{ width: 0 }} animate={{ width: `${liveMetrics?.cpuUsage ?? metrics?.cpuUsage ?? 18}%` }} transition={{ duration: 0.5 }} className="h-full bg-primary shadow-[0_0_10px_rgba(5,217,232,0.8)]" />
                 </div>
               </div>
               
               <div className="group/bar">
-                <div className="mb-2 flex items-center justify-between text-sm font-mono uppercase tracking-wider">
-                  <span className="flex items-center gap-2 text-white/70 group-hover/bar:text-white transition-colors"><Server size={16} className="text-warning"/> Memory (RAM)</span>
+                <div className="mb-2 flex items-center justify-between text-base font-mono font-semibold uppercase tracking-wider">
+                  <span className="flex items-center gap-2.5 text-white/80 group-hover/bar:text-white transition-colors"><Server size={20} className="text-warning"/> Memory (RAM)</span>
                   <span className="font-bold text-white text-glow">{liveMetrics?.ramUsage ?? metrics?.ramUsage ?? 45}%</span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-none bg-white/10 cyber-cut">
+                <div className="h-3 w-full overflow-hidden rounded-none bg-white/10 cyber-cut">
                   <motion.div initial={{ width: 0 }} animate={{ width: `${liveMetrics?.ramUsage ?? metrics?.ramUsage ?? 45}%` }} transition={{ duration: 0.5 }} className="h-full bg-warning shadow-[0_0_10px_rgba(243,230,0,0.8)]" />
                 </div>
               </div>
 
               <div className="group/bar">
-                <div className="mb-2 flex items-center justify-between text-sm font-mono uppercase tracking-wider">
-                  <span className="flex items-center gap-2 text-white/70 group-hover/bar:text-white transition-colors"><HardDrive size={16} className="text-danger"/> Disk Storage</span>
+                <div className="mb-2 flex items-center justify-between text-base font-mono font-semibold uppercase tracking-wider">
+                  <span className="flex items-center gap-2.5 text-white/80 group-hover/bar:text-white transition-colors"><HardDrive size={20} className="text-danger"/> Disk Storage</span>
                   <span className="font-bold text-white text-glow">{metrics?.storage ?? 32}%</span>
                 </div>
-                <div className="h-2 w-full overflow-hidden rounded-none bg-white/10 cyber-cut">
+                <div className="h-3 w-full overflow-hidden rounded-none bg-white/10 cyber-cut">
                   <motion.div initial={{ width: 0 }} animate={{ width: `${metrics?.storage ?? 32}%` }} transition={{ duration: 1, delay: 0.9 }} className="h-full bg-danger shadow-[0_0_10px_rgba(255,42,109,0.8)]" />
                 </div>
               </div>
@@ -244,23 +244,23 @@ export function Dashboard() {
         <motion.div whileHover={{ scale: 1.02 }} transition={{ type: "spring", stiffness: 400 }} className="h-full">
           <Card className="flex flex-col relative overflow-hidden group h-full shadow-lg hover:shadow-[0_0_25px_rgba(5,217,232,0.15)] transition-shadow duration-300">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out pointer-events-none" />
-            <h3 className="mb-4 text-lg font-mono font-bold tracking-widest uppercase text-white flex items-center">
+            <h3 className="mb-4 text-xl font-mono font-extrabold tracking-widest uppercase text-white flex items-center">
               <span className="text-primary mr-2 animate-pulse">{'>'}</span> Active Defense Grid
             </h3>
             <div className="space-y-6 flex-1 relative z-10 mt-2">
               {[
-                { name: 'AI Heuristics Engine', status: isConnected, icon: <Activity size={16} /> },
-                { name: 'Endpoint Firewall', status: isConnected, icon: <ShieldAlert size={16} /> },
-                { name: 'Network Telemetry', status: isConnected, icon: <Network size={16} /> }
+                { name: 'AI Heuristics Engine', status: isConnected, icon: <Activity size={20} /> },
+                { name: 'Endpoint Firewall', status: isConnected, icon: <ShieldAlert size={20} /> },
+                { name: 'Network Telemetry', status: isConnected, icon: <Network size={20} /> }
               ].map((module, idx) => (
-                <div key={idx} className="flex items-center justify-between p-3 bg-white/5 border border-white/10 group-hover:border-primary/20 transition-colors">
+                <div key={idx} className="flex items-center justify-between p-3.5 bg-white/5 border border-white/10 group-hover:border-primary/20 transition-colors">
                   <div className="flex items-center gap-3">
                     <span className={module.status ? "text-primary" : "text-danger"}>{module.icon}</span>
-                    <span className="font-mono text-sm tracking-widest uppercase text-white/80">{module.name}</span>
+                    <span className="font-mono text-base font-semibold tracking-wide uppercase text-white/90">{module.name}</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className={`h-2 w-2 rounded-full ${module.status ? "bg-success animate-pulse" : "bg-danger"}`} />
-                    <span className={`font-mono text-xs font-bold ${module.status ? "text-success text-glow" : "text-danger"}`}>
+                    <span className={`h-2.5 w-2.5 rounded-full ${module.status ? "bg-success animate-pulse" : "bg-danger"}`} />
+                    <span className={`font-mono text-sm font-bold ${module.status ? "text-success text-glow" : "text-danger"}`}>
                       {module.status ? 'ONLINE' : 'OFFLINE'}
                     </span>
                   </div>
@@ -274,7 +274,7 @@ export function Dashboard() {
         <motion.div whileHover={{ scale: 1.02 }} transition={{ type: "spring", stiffness: 400 }} className="h-full">
           <Card className="flex flex-col relative overflow-hidden group h-full shadow-lg hover:shadow-[0_0_25px_rgba(5,217,232,0.15)] transition-shadow duration-300">
             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-primary/5 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-in-out pointer-events-none" />
-            <h3 className="mb-4 text-lg font-mono font-bold tracking-widest uppercase text-white flex items-center">
+            <h3 className="mb-4 text-xl font-mono font-extrabold tracking-widest uppercase text-white flex items-center">
               <span className="text-primary mr-2 animate-pulse">{'>'}</span> Risk Posture
             </h3>
             <div className="space-y-6 flex-1 relative z-10 mt-2">
@@ -284,11 +284,11 @@ export function Dashboard() {
                 { label: 'Medium', color: 'bg-primary text-primary', count: liveThreats.filter(t => t.severity?.toUpperCase() === 'MEDIUM').length }
               ].map((severity, idx) => (
                 <div key={idx} className="group/bar">
-                  <div className="mb-2 flex items-center justify-between text-sm font-mono uppercase tracking-wider">
-                    <span className="text-white/70 group-hover/bar:text-white transition-colors">{severity.label}</span>
-                    <span className={`font-bold ${severity.color.split(' ')[1]}`}>{severity.count}</span>
+                  <div className="mb-2 flex items-center justify-between text-base font-mono font-semibold uppercase tracking-wider">
+                    <span className="text-white/80 group-hover/bar:text-white transition-colors">{severity.label}</span>
+                    <span className={`font-extrabold text-lg ${severity.color.split(' ')[1]}`}>{severity.count}</span>
                   </div>
-                  <div className="h-2 w-full overflow-hidden rounded-none bg-white/10 cyber-cut">
+                  <div className="h-3 w-full overflow-hidden rounded-none bg-white/10 cyber-cut">
                     <motion.div 
                       initial={{ width: 0 }} 
                       animate={{ width: `${Math.min(100, (severity.count / Math.max(1, liveThreats.length)) * 100)}%` }} 
@@ -306,10 +306,10 @@ export function Dashboard() {
       <motion.div variants={itemVariants}>
         <Card className="shadow-lg hover:shadow-[0_0_25px_rgba(5,217,232,0.1)] transition-shadow duration-300">
           <div className="mb-4 flex items-center justify-between">
-            <h3 className="text-lg font-mono font-bold tracking-widest uppercase text-white flex items-center">
+            <h3 className="text-xl font-mono font-extrabold tracking-widest uppercase text-white flex items-center">
               <span className="text-primary mr-2 animate-pulse">{'>'}</span> Recent Alerts
             </h3>
-            <motion.button whileHover={{ scale: 1.05 }} className="text-xs font-mono uppercase tracking-widest text-primary hover:text-white transition-colors">View All</motion.button>
+            <motion.button whileHover={{ scale: 1.05 }} className="text-sm font-bold font-mono uppercase tracking-widest text-primary hover:text-white transition-colors">View All</motion.button>
           </div>
           <Table>
             <TableHeader>
@@ -333,8 +333,8 @@ export function Dashboard() {
                     transition={{ duration: 0.3 }}
                     className="border-b border-border-color cursor-pointer"
                   >
-                    <TableCell className="font-mono font-medium text-white/90">{alert.id}</TableCell>
-                    <TableCell className="font-rajdhani font-bold tracking-wide">{alert.type}</TableCell>
+                    <TableCell className="font-mono font-bold text-white/95">{alert.id}</TableCell>
+                    <TableCell className="font-rajdhani font-bold text-base tracking-wide">{alert.type}</TableCell>
                     <TableCell>
                       <Badge variant={
                         alert.severity === 'Critical' ? 'danger' :
@@ -344,8 +344,8 @@ export function Dashboard() {
                         {alert.severity}
                       </Badge>
                     </TableCell>
-                    <TableCell className="text-white/70 font-mono text-xs">{alert.source}</TableCell>
-                    <TableCell className="text-right text-primary/70 font-mono text-xs">{alert.time}</TableCell>
+                    <TableCell className="text-white/80 font-mono text-sm font-medium">{alert.source}</TableCell>
+                    <TableCell className="text-right text-primary font-mono text-sm font-bold">{alert.time}</TableCell>
                   </motion.tr>
                 ))}
               </AnimatePresence>

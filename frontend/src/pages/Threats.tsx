@@ -77,12 +77,12 @@ export function Threats() {
         <div className="flex items-center gap-3">
           <Button
             variant="outline"
-            size="sm"
+            size="md"
             onClick={handleClearAllThreats}
             disabled={isClearing || threats.length === 0}
-            className="border-red-500/40 text-red-400 hover:bg-red-500/10 text-xs font-mono flex items-center gap-1.5"
+            className="border-red-500/40 text-red-400 hover:bg-red-500/10 text-sm font-mono font-bold flex items-center gap-2"
           >
-            <Trash2 size={13} /> {isClearing ? 'Clearing Logs...' : 'Clear All Incident Logs'}
+            <Trash2 size={16} /> {isClearing ? 'Clearing Logs...' : 'Clear All Incident Logs'}
           </Button>
         </div>
       </PageHeader>
@@ -92,7 +92,7 @@ export function Threats() {
           <div className="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex w-full max-w-sm items-center gap-2">
               <Input 
-                icon={<Search size={16} />}
+                icon={<Search size={20} />}
                 placeholder="Search threats..." 
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -101,31 +101,31 @@ export function Threats() {
             <div className="flex items-center gap-2">
               <Button 
                 variant="outline" 
-                size="sm" 
+                size="md" 
                 onClick={handleClearAllThreats}
                 disabled={isClearing || threats.length === 0}
-                className="border-red-500/30 text-red-400 hover:bg-red-500/10"
+                className="border-red-500/30 text-red-400 hover:bg-red-500/10 text-sm font-bold flex items-center gap-2"
               >
-                <Trash2 size={14} className="mr-1.5" />
+                <Trash2 size={16} />
                 Clear Logs
               </Button>
-              <Button variant="outline" size="sm">
-                <Filter size={16} className="mr-2" />
+              <Button variant="outline" size="md" className="text-sm font-bold flex items-center gap-2">
+                <Filter size={18} />
                 Filters
               </Button>
-              <Button variant="primary" size="sm">Export Report</Button>
+              <Button variant="primary" size="md" className="text-sm font-bold">Export Report</Button>
             </div>
           </div>
 
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="font-mono uppercase tracking-widest">Threat ID</TableHead>
-                <TableHead className="font-mono uppercase tracking-widest">Name / Type</TableHead>
-                <TableHead className="font-mono uppercase tracking-widest">Severity</TableHead>
-                <TableHead className="font-mono uppercase tracking-widest">Status</TableHead>
-                <TableHead className="font-mono uppercase tracking-widest">Target</TableHead>
-                <TableHead className="text-right font-mono uppercase tracking-widest">Timestamp</TableHead>
+                <TableHead className="font-mono uppercase tracking-widest text-base">Threat ID</TableHead>
+                <TableHead className="font-mono uppercase tracking-widest text-base">Name / Type</TableHead>
+                <TableHead className="font-mono uppercase tracking-widest text-base">Severity</TableHead>
+                <TableHead className="font-mono uppercase tracking-widest text-base">Status</TableHead>
+                <TableHead className="font-mono uppercase tracking-widest text-base">Target</TableHead>
+                <TableHead className="text-right font-mono uppercase tracking-widest text-base">Timestamp</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -135,24 +135,24 @@ export function Threats() {
                     <TableCell colSpan={6} className="text-center py-12">
                       <div className="flex flex-col items-center justify-center space-y-4 text-primary animate-pulse">
                         <div className="flex items-center space-x-2">
-                          <div className="w-2 h-2 rounded-full bg-primary animate-ping" />
-                          <div className="w-2 h-2 rounded-full bg-primary animate-ping delay-75" />
-                          <div className="w-2 h-2 rounded-full bg-primary animate-ping delay-150" />
+                          <div className="w-2.5 h-2.5 rounded-full bg-primary animate-ping" />
+                          <div className="w-2.5 h-2.5 rounded-full bg-primary animate-ping delay-75" />
+                          <div className="w-2.5 h-2.5 rounded-full bg-primary animate-ping delay-150" />
                         </div>
-                        <span className="font-mono uppercase tracking-widest text-sm text-glow">Scanning Network...</span>
+                        <span className="font-mono uppercase tracking-widest text-base font-bold text-glow">Scanning Network...</span>
                       </div>
                     </TableCell>
                   </motion.tr>
                 ) : isError ? (
                   <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    <TableCell colSpan={6} className="text-center py-8 text-danger font-mono uppercase tracking-widest bg-danger/5">
-                      <AlertTriangle className="inline-block mr-2 w-5 h-5" />
+                    <TableCell colSpan={6} className="text-center py-8 text-danger font-mono uppercase tracking-widest bg-danger/5 text-base font-bold">
+                      <AlertTriangle className="inline-block mr-2 w-6 h-6" />
                       Failed to establish connection with threat intelligence server.
                     </TableCell>
                   </motion.tr>
                 ) : filteredThreats.length === 0 ? (
                   <motion.tr initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                    <TableCell colSpan={6} className="text-center py-8 text-white/50 font-mono">
+                    <TableCell colSpan={6} className="text-center py-8 text-white/70 font-mono text-base font-medium">
                       No active threats recorded. System is secure.
                     </TableCell>
                   </motion.tr>
@@ -165,11 +165,11 @@ export function Threats() {
                       animate={{ opacity: 1, y: 0, backgroundColor: 'rgba(0,0,0,0)' }}
                       transition={{ duration: 0.5 }}
                     >
-                      <TableCell className="font-medium font-mono text-primary">{threat.id.split('-').slice(0, 3).join('-')}</TableCell>
+                      <TableCell className="font-bold font-mono text-primary text-base">{threat.id.split('-').slice(0, 3).join('-')}</TableCell>
                       <TableCell>
                         <div className="flex flex-col">
-                          <span className="font-rajdhani font-bold text-white tracking-wide">{threat.name}</span>
-                          <span className="text-xs text-white/50 font-mono">{threat.type}</span>
+                          <span className="font-rajdhani font-bold text-white tracking-wide text-base">{threat.name}</span>
+                          <span className="text-sm text-white/70 font-mono font-medium">{threat.type}</span>
                         </div>
                       </TableCell>
                       <TableCell>
@@ -178,29 +178,29 @@ export function Threats() {
                           threat.severity === 'HIGH' ? 'warning' :
                           threat.severity === 'MEDIUM' ? 'info' : 'default'
                         }>
-                          {threat.severity === 'CRITICAL' && <AlertTriangle size={12} className="mr-1 inline-block" />}
+                          {threat.severity === 'CRITICAL' && <AlertTriangle size={15} className="mr-1.5 inline-block" />}
                           {threat.severity}
                         </Badge>
                       </TableCell>
                       <TableCell>
-                        <span className={`text-sm font-mono font-bold ${threat.status === 'BLOCKED' ? 'text-success' : 'text-danger animate-pulse'}`}>
+                        <span className={`text-base font-mono font-extrabold ${threat.status === 'BLOCKED' ? 'text-success' : 'text-danger animate-pulse'}`}>
                           {threat.status}
                         </span>
                       </TableCell>
-                      <TableCell className="text-white/70">
+                      <TableCell className="text-white/80">
                         <div className="flex flex-col gap-1 items-start">
                           {threat.target?.includes('SCRIPTED') ? (
-                            <Badge variant="outline" className="text-primary border-primary/50 text-[10px] px-1 py-0 h-4">SCRIPTED</Badge>
+                            <Badge variant="outline" className="text-primary border-primary/50 text-xs px-2 py-0.5">SCRIPTED</Badge>
                           ) : (
-                            <Badge variant="outline" className="text-success border-success/50 text-[10px] px-1 py-0 h-4">HARDWARE</Badge>
+                            <Badge variant="outline" className="text-success border-success/50 text-xs px-2 py-0.5">HARDWARE</Badge>
                           )}
-                          <span className="truncate max-w-[150px] text-xs font-mono" title={threat.target}>{threat.target}</span>
+                          <span className="truncate max-w-[150px] text-sm font-mono font-medium text-white/80" title={threat.target}>{threat.target}</span>
                         </div>
                       </TableCell>
-                      <TableCell className="text-right text-primary/70 font-mono text-xs">
+                      <TableCell className="text-right text-primary font-mono text-sm font-bold">
                         <div className="flex flex-col items-end">
                           <span>{formatIncidentTime(threat.createdAt)}</span>
-                          <span className="text-[10px] text-white/40">{formatRelativeTime(threat.createdAt)}</span>
+                          <span className="text-xs text-white/60 font-semibold">{formatRelativeTime(threat.createdAt)}</span>
                         </div>
                       </TableCell>
                     </motion.tr>

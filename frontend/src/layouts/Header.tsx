@@ -33,8 +33,8 @@ export function Header() {
   }, []);
 
   return (
-    <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between glass-panel !overflow-visible border-b border-x-0 border-t-0 px-6 backdrop-blur-xl">
-      <div className="flex items-center gap-4 w-1/3">
+    <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between glass-panel !overflow-visible border-b border-x-0 border-t-0 px-4 md:px-6 backdrop-blur-xl">
+      <div className="flex items-center gap-4 w-1/3 min-w-[200px]">
         <motion.div 
           className="w-full relative group"
           whileFocus="focus"
@@ -42,21 +42,21 @@ export function Header() {
         >
           <div className="absolute inset-0 bg-primary/20 blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-full" />
           <Input
-            icon={<Search size={16} className="text-white/50 group-hover:text-primary transition-colors" />}
+            icon={<Search size={20} className="text-white/60 group-hover:text-primary transition-colors" />}
             placeholder="Search endpoints, threats, alerts..."
-            className="w-full max-w-md bg-surface/50 border-white/5 focus:border-primary/50 focus:bg-surface/80 transition-all duration-300 relative z-10 hover:border-primary/30"
+            className="w-full max-w-md bg-surface/50 border-white/10 focus:border-primary/50 focus:bg-surface/80 transition-all duration-300 relative z-10 hover:border-primary/30 text-base py-2.5"
           />
         </motion.div>
       </div>
 
       <div className="flex items-center gap-3">
         {/* Live C2 Backend Connection Status Badge */}
-        <div className={`flex items-center gap-2 px-2.5 py-1 rounded-full text-xs font-mono font-semibold border transition-all ${
+        <div className={`flex items-center gap-2.5 px-3.5 py-1.5 rounded-full text-sm font-mono font-bold border transition-all ${
           isConnected
-            ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/30 shadow-[0_0_10px_rgba(16,185,129,0.2)]'
-            : 'bg-amber-500/10 text-amber-300 border-amber-500/30 animate-pulse shadow-[0_0_12px_rgba(245,158,11,0.25)]'
+            ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/40 shadow-[0_0_12px_rgba(16,185,129,0.3)]'
+            : 'bg-amber-500/15 text-amber-300 border-amber-500/40 animate-pulse shadow-[0_0_15px_rgba(245,158,11,0.3)]'
         }`}>
-          <span className={`h-2 w-2 rounded-full ${isConnected ? 'bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : 'bg-amber-400 animate-ping'}`} />
+          <span className={`h-2.5 w-2.5 rounded-full ${isConnected ? 'bg-emerald-400 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : 'bg-amber-400 animate-ping'}`} />
           <span className="hidden sm:inline">{isConnected ? 'C2 ACTIVE' : 'WAKING UP C2...'}</span>
           <span className="sm:hidden">{isConnected ? 'C2' : 'SYNC'}</span>
         </div>
@@ -67,9 +67,9 @@ export function Header() {
             whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.1)" }}
             whileTap={{ scale: 0.95 }}
             onClick={toggleFullscreen}
-            className="rounded-full p-2 text-white/70 hover:text-white transition-colors border border-transparent hover:border-white/20"
+            className="rounded-full p-2.5 text-white/80 hover:text-white transition-colors border border-white/10 hover:border-white/30"
           >
-            {isFullscreen ? <Minimize size={18} /> : <Maximize size={18} />}
+            {isFullscreen ? <Minimize size={22} /> : <Maximize size={22} />}
           </motion.button>
         </Tooltip>
 
@@ -82,13 +82,14 @@ export function Header() {
               e.stopPropagation();
               window.dispatchEvent(new CustomEvent('trigger-idle-screensaver'));
             }}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-mono font-bold bg-primary/20 text-primary border border-primary/40 hover:bg-primary/30 transition-all shadow-[0_0_15px_rgba(5,217,232,0.25)]"
+            className="flex items-center gap-2 px-3.5 py-2 rounded-full text-sm font-mono font-bold bg-primary/20 text-primary border border-primary/50 hover:bg-primary/30 transition-all shadow-[0_0_15px_rgba(5,217,232,0.3)]"
           >
-            <Globe size={15} className="animate-spin text-primary" style={{ animationDuration: '12s' }} />
-            <span>WORLD THREAT MAP</span>
+            <Globe size={18} className="animate-spin text-primary" style={{ animationDuration: '12s' }} />
+            <span className="hidden sm:inline">WORLD THREAT MAP</span>
+            <span className="sm:hidden">MAP</span>
           </motion.button>
         </Tooltip>
-        <div className="text-sm text-white/50 hidden md:block">
+        <div className="text-base font-mono font-bold text-white/70 hidden md:block">
           {new Date().toLocaleTimeString(navigator.language, {
             hour: '2-digit',
             minute: '2-digit',
@@ -100,13 +101,13 @@ export function Header() {
             whileHover={{ scale: 1.1, backgroundColor: "rgba(0,255,65,0.1)" }}
             whileTap={{ scale: 0.95 }}
             onClick={toggleAssistant}
-            className={`rounded-full p-2 transition-colors border ${
+            className={`rounded-full p-2.5 transition-colors border ${
               isAssistantOpen 
                 ? 'text-primary border-primary bg-primary/10 shadow-[0_0_15px_rgba(0,255,65,0.3)]' 
-                : 'text-white/70 hover:text-primary border-transparent hover:border-primary/50'
+                : 'text-white/80 hover:text-primary border-white/10 hover:border-primary/50'
             }`}
           >
-            <Bot size={20} />
+            <Bot size={24} />
           </motion.button>
         </Tooltip>
 
@@ -115,23 +116,23 @@ export function Header() {
             whileHover={{ scale: 1.1, backgroundColor: "rgba(255,255,255,0.1)" }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/threats')}
-            className="relative rounded-full p-2 text-white/70 hover:text-white transition-colors border border-transparent hover:border-white/20 cursor-pointer"
+            className="relative rounded-full p-2.5 text-white/80 hover:text-white transition-colors border border-white/10 hover:border-white/30 cursor-pointer"
           >
-            <Bell size={20} />
-            <span className="absolute right-1 top-1 h-2 w-2 rounded-full bg-danger animate-pulse shadow-[0_0_8px_rgba(255,61,113,0.8)]" />
+            <Bell size={24} />
+            <span className="absolute right-1.5 top-1.5 h-2.5 w-2.5 rounded-full bg-danger animate-pulse shadow-[0_0_8px_rgba(255,61,113,0.8)]" />
           </motion.button>
         </Tooltip>
 
-        <div className="h-6 w-px bg-white/10 mx-2 shadow-[0_0_10px_rgba(255,255,255,0.2)]" />
+        <div className="h-6 w-px bg-white/15 mx-1 shadow-[0_0_10px_rgba(255,255,255,0.2)]" />
 
         <Tooltip content="Profile & System Settings">
           <motion.button 
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={() => navigate('/settings')}
-            className="flex items-center gap-2 rounded-full hover:ring-2 hover:ring-primary/50 transition-all outline-none shadow-[0_0_15px_rgba(5,217,232,0.1)] hover:shadow-[0_0_20px_rgba(5,217,232,0.3)] cursor-pointer"
+            className="flex items-center gap-2 rounded-full hover:ring-2 hover:ring-primary/50 transition-all outline-none shadow-[0_0_15px_rgba(5,217,232,0.15)] hover:shadow-[0_0_20px_rgba(5,217,232,0.3)] cursor-pointer"
           >
-            <Avatar fallback="AX" size="sm" />
+            <Avatar fallback="AX" size="md" />
           </motion.button>
         </Tooltip>
       </div>

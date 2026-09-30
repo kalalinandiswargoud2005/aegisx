@@ -55,11 +55,11 @@ export function PageHeader({ title, description, children }: PageHeaderProps) {
         whileHover={{ x: 5 }}
         transition={{ type: "spring", stiffness: 300, damping: 20 }}
       >
-        <h1 className="text-3xl font-mono font-bold text-white flex items-center gap-2 uppercase tracking-widest text-glow group-hover:text-primary transition-colors duration-300">
+        <h1 className="text-3xl md:text-4xl font-mono font-extrabold text-white flex items-center gap-2 uppercase tracking-widest text-glow group-hover:text-primary transition-colors duration-300">
           <span className="text-primary mr-2 animate-pulse">{'>'}</span> {title} <span className="animate-pulse text-primary group-hover:text-white transition-colors duration-300">_</span>
         </h1>
         {description && (
-          <p className="text-white/60 font-mono text-sm tracking-wider uppercase mt-2 group-hover:text-white/80 transition-colors duration-300">
+          <p className="text-white/70 font-mono text-base tracking-wider uppercase mt-2 group-hover:text-white/90 transition-colors duration-300">
             {description}
           </p>
         )}

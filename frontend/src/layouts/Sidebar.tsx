@@ -45,7 +45,7 @@ export function Sidebar() {
 
   return (
     <motion.aside
-      animate={{ width: isCollapsed ? 80 : 260 }}
+      animate={{ width: isCollapsed ? 88 : 270 }}
       transition={{ type: "spring", stiffness: 300, damping: 30 }}
       className="relative flex flex-col h-full bg-surface/60 backdrop-blur-xl border-r border-primary/20 shadow-[4px_0_24px_rgba(0,0,0,0.6)] z-40 overflow-visible"
     >
@@ -59,15 +59,15 @@ export function Sidebar() {
               exit={{ opacity: 0, scale: 0.8 }}
               className="flex items-center gap-2"
             >
-              <Link to="/" className="flex items-center gap-2 group cursor-pointer">
+              <Link to="/" className="flex items-center gap-2.5 group cursor-pointer">
                 <motion.div 
-                  className="flex h-8 w-8 items-center justify-center bg-primary/20 text-primary cyber-cut group-hover:bg-primary/40 group-hover:scale-110 transition-all duration-300"
+                  className="flex h-10 w-10 items-center justify-center bg-primary/20 text-primary cyber-cut group-hover:bg-primary/40 group-hover:scale-110 transition-all duration-300"
                   whileHover={{ rotate: 180 }}
                   transition={{ type: "spring", stiffness: 200, damping: 10 }}
                 >
-                  <ShieldAlert size={20} />
+                  <ShieldAlert size={24} />
                 </motion.div>
-                <span className="font-mono font-bold text-lg text-glow text-primary tracking-widest group-hover:text-white transition-colors duration-300">ASTRA</span>
+                <span className="font-mono font-bold text-xl text-glow text-primary tracking-widest group-hover:text-white transition-colors duration-300">ASTRA</span>
               </Link>
             </motion.div>
           )}
@@ -78,19 +78,19 @@ export function Sidebar() {
           whileTap={{ scale: 0.9 }}
           onClick={() => setIsCollapsed(!isCollapsed)}
           className={cn(
-            "flex h-8 w-8 items-center justify-center text-primary/70 hover:text-primary transition-colors rounded-lg hover:bg-primary/10",
+            "flex h-10 w-10 items-center justify-center text-primary/80 hover:text-primary transition-colors rounded-lg hover:bg-primary/10",
             isCollapsed && "mx-auto"
           )}
         >
-          {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
+          {isCollapsed ? <PanelLeftOpen size={24} /> : <PanelLeftClose size={24} />}
         </motion.button>
       </div>
 
       <motion.nav 
         variants={containerVariants} 
         initial="hidden" 
-        animate="show"
-        className="flex-1 space-y-2 px-3 py-6 overflow-y-auto overflow-x-hidden"
+        animate="show" 
+        className="flex-1 space-y-2 px-3 py-4 overflow-y-auto overflow-x-hidden"
       >
         {filteredMenuItems.map((item) => {
           const Icon = item.icon;
@@ -100,21 +100,21 @@ export function Sidebar() {
                 to={item.path}
                 className={({ isActive }) =>
                   cn(
-                    'group relative flex items-center px-3 py-2.5 text-sm font-medium transition-all duration-300',
+                    'group relative flex items-center px-3.5 py-3 text-base font-semibold transition-all duration-300',
                     isActive
-                      ? 'text-primary bg-primary/10 border-l-4 border-primary shadow-[inset_10px_0_20px_-10px_rgba(5,217,232,0.3)]'
-                      : 'text-white/70 hover:bg-white/5 hover:text-white hover:border-l-4 hover:border-primary/50 border-l-4 border-transparent'
+                      ? 'text-primary bg-primary/15 border-l-4 border-primary shadow-[inset_10px_0_20px_-10px_rgba(5,217,232,0.4)]'
+                      : 'text-white/80 hover:bg-white/5 hover:text-white hover:border-l-4 hover:border-primary/50 border-l-4 border-transparent'
                   )
                 }
                 title={isCollapsed ? item.label : undefined}
               >
                 {({ isActive }) => (
                   <motion.div 
-                    className="flex items-center gap-4 w-full"
+                    className="flex items-center gap-3.5 w-full"
                     whileHover={!isActive ? { x: 5 } : {}}
                     transition={{ type: 'spring', stiffness: 300, damping: 20 }}
                   >
-                    <Icon size={20} className={cn("shrink-0", isActive && "text-glow drop-shadow-[0_0_8px_rgba(5,217,232,0.8)]")} />
+                    <Icon size={24} className={cn("shrink-0", isActive && "text-glow drop-shadow-[0_0_8px_rgba(5,217,232,0.8)]")} />
                     <AnimatePresence mode="wait">
                       {!isCollapsed && (
                         <motion.span
@@ -122,7 +122,7 @@ export function Sidebar() {
                           initial={{ opacity: 0, width: 0 }}
                           animate={{ opacity: 1, width: 'auto' }}
                           exit={{ opacity: 0, width: 0 }}
-                          className="whitespace-nowrap overflow-hidden flex items-center"
+                          className="whitespace-nowrap overflow-hidden flex items-center tracking-wide"
                         >
                           {isActive && <span className="mr-2 text-primary animate-pulse">{'>'}</span>}
                           {item.label}

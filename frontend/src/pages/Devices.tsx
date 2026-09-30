@@ -247,33 +247,33 @@ export function Devices() {
                       >
                         <TableCell>
                           <div className="flex items-center gap-3">
-                            <div className="flex h-10 w-10 items-center justify-center rounded-none cyber-cut bg-surface border border-border-color group-hover:border-primary/50 transition-colors">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-none cyber-cut bg-surface border border-border-color group-hover:border-primary/50 transition-colors [&_svg]:w-6 [&_svg]:h-6">
                               {getDeviceIcon(device.type)}
                             </div>
                             <div className="flex flex-col">
-                              <span className="font-rajdhani font-bold text-white tracking-wide flex items-center gap-2">
+                              <span className="font-rajdhani font-bold text-white tracking-wide flex items-center gap-2 text-base">
                                 {device.name}
-                                <Eye size={12} className="text-primary/70 hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <Eye size={16} className="text-primary/70 hover:text-primary opacity-0 group-hover:opacity-100 transition-opacity" />
                               </span>
-                              <span className="text-xs text-white/50 font-mono">{device.type}</span>
+                              <span className="text-sm text-white/70 font-mono font-medium">{device.type}</span>
                             </div>
                           </div>
                         </TableCell>
-                        <TableCell className="text-white/70 font-mono text-sm">{device.os || 'Unknown'}</TableCell>
-                        <TableCell className="text-white/70 font-mono text-sm">{device.ipAddress || device.ip}</TableCell>
-                        <TableCell className="text-white/70 font-mono text-sm">
-                          <span className="px-2 py-0.5 bg-primary/10 border border-primary/30 text-primary text-xs rounded-none">
+                        <TableCell className="text-white/80 font-mono text-base">{device.os || 'Unknown'}</TableCell>
+                        <TableCell className="text-white/80 font-mono text-base">{device.ipAddress || device.ip}</TableCell>
+                        <TableCell className="text-white/80 font-mono text-base">
+                          <span className="px-2.5 py-1 bg-primary/10 border border-primary/30 text-primary text-sm font-semibold rounded-none">
                             {device.agentVersion || 'v1.0.0'}
                           </span>
                         </TableCell>
                         <TableCell>
-                          <div className="flex items-center gap-1.5 text-sm font-mono font-bold">
+                          <div className="flex items-center gap-2 text-base font-mono font-bold">
                             {isDeviceOnline ? (
-                              <CheckCircle size={14} className="text-success" />
+                              <CheckCircle size={18} className="text-success" />
                             ) : (
-                              <XCircle size={14} className="text-white/30" />
+                              <XCircle size={18} className="text-white/40" />
                             )}
-                            <span className={isDeviceOnline ? 'text-success' : 'text-white/50'}>
+                            <span className={isDeviceOnline ? 'text-success' : 'text-white/60'}>
                               {device.status}
                             </span>
                           </div>
@@ -293,9 +293,9 @@ export function Devices() {
                                 e.stopPropagation();
                                 setDeviceToDelete(device);
                               }}
-                              className="inline-flex items-center gap-1.5 px-3 py-1 bg-danger/20 hover:bg-danger/40 text-danger border border-danger/50 text-xs font-mono font-bold transition-all shadow-[0_0_10px_rgba(255,42,109,0.3)] cursor-pointer"
+                              className="inline-flex items-center gap-2 px-3.5 py-1.5 bg-danger/20 hover:bg-danger/40 text-danger border border-danger/50 text-sm font-mono font-bold transition-all shadow-[0_0_10px_rgba(255,42,109,0.3)] cursor-pointer"
                             >
-                              <Trash2 size={13} />
+                              <Trash2 size={16} />
                               <span>Remove</span>
                             </button>
                           ) : (

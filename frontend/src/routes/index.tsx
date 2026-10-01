@@ -18,6 +18,7 @@ const Attacks = React.lazy(() => import('@/pages/Attacks').then(m => ({ default:
 const About = React.lazy(() => import('@/pages/About').then(m => ({ default: m.About })));
 const AssistantPage = React.lazy(() => import('@/features/assistant/AssistantPage').then(m => ({ default: m.AssistantPage })));
 const CollegeLogoPage = React.lazy(() => import('@/pages/CollegeLogoPage').then(m => ({ default: m.CollegeLogoPage })));
+const AstraCinematicDemo = React.lazy(() => import('@/pages/AstraCinematicDemo').then(m => ({ default: m.AstraCinematicDemo })));
 
 function RouteLoadingFallback() {
   return (
@@ -39,6 +40,9 @@ export function AppRoutes() {
         <Route path="/login" element={<Login />} />
         <Route path="/college-logo" element={<CollegeLogoPage />} />
         <Route path="/mru-logo" element={<Navigate to="/college-logo" replace />} />
+        <Route path="/cinematic-demo" element={<AstraCinematicDemo />} />
+        <Route path="/video" element={<AstraCinematicDemo />} />
+        <Route path="/demo-video" element={<AstraCinematicDemo />} />
         
         <Route element={<AuthGuard />}>
           <Route element={<MainLayout />}>
@@ -58,6 +62,7 @@ export function AppRoutes() {
             <Route path="/college-logo" element={<CollegeLogoPage />} />
             <Route path="/mru-logo" element={<Navigate to="/college-logo" replace />} />
             <Route path="/institution" element={<Navigate to="/college-logo" replace />} />
+            <Route path="/cinematic" element={<AstraCinematicDemo />} />
             
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />

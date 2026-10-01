@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Search, Bell, Globe, Bot, Maximize, Minimize, GraduationCap } from 'lucide-react';
+import { Search, Bell, Globe, Bot, Maximize, Minimize, GraduationCap, Film } from 'lucide-react';
 import { Input, Avatar, Tooltip } from '@/components/ui';
 import { useAssistant } from '@/providers/AssistantProvider';
 import { useWebSocket } from '@/providers/WebSocketProvider';
@@ -76,6 +76,20 @@ export function Header() {
             <GraduationCap size={18} className="text-amber-400 animate-pulse" />
             <span className="hidden sm:inline">COLLEGE LOGO</span>
             <span className="sm:hidden">MRU</span>
+          </motion.button>
+        </Tooltip>
+
+        {/* 60s Cinematic Video Showcase Button */}
+        <Tooltip content="Watch 60-Second Cinematic Promo & Hardware Showcase">
+          <motion.button 
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => navigate('/cinematic-demo')}
+            className="flex items-center gap-2 px-3.5 py-1.5 rounded-full text-sm font-mono font-bold bg-cyan-500/15 text-cyan-300 border border-cyan-500/40 hover:bg-cyan-500/30 hover:border-cyan-400 transition-all shadow-[0_0_12px_rgba(6,182,212,0.25)] hover:shadow-[0_0_20px_rgba(6,182,212,0.5)] cursor-pointer"
+          >
+            <Film size={18} className="text-cyan-400" />
+            <span className="hidden sm:inline">60S SHOWCASE</span>
+            <span className="sm:hidden">FILM</span>
           </motion.button>
         </Tooltip>
 

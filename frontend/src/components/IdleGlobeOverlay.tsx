@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
 import { ParticleField, MouseSpotlight, PulseRings } from '@/pages/Landing';
+import { CinematicMetallicAstraLogo } from '@/components/CinematicMetallicAstraLogo';
 
 export function IdleGlobeOverlay() {
   const navigate = useNavigate();
@@ -141,32 +142,13 @@ export function IdleGlobeOverlay() {
         {/* MAIN HERO */}
         <div className="relative z-10 flex flex-col items-center justify-center text-center px-6">
           
-          {/* Title — split into individual letters */}
-          <div
-            className="flex justify-center font-black text-[clamp(7rem,22vw,16rem)] leading-none mb-3"
-            aria-label="ASTRA"
-          >
-            {'ASTRA'.split('').map((ch, i) => (
-              <motion.span
-                key={i}
-                custom={i}
-                variants={letterVariants}
-                initial="hidden"
-                animate="visible"
-                style={{
-                  background: 'linear-gradient(170deg, #ffffff 20%, #05D9E8 55%, #FF007F 100%)',
-                  WebkitBackgroundClip: 'text',
-                  WebkitTextFillColor: 'transparent',
-                  backgroundClip: 'text',
-                  WebkitTextStroke: '1px rgba(5,217,232,0.15)',
-                  filter: 'drop-shadow(0 0 40px rgba(5,217,232,0.6)) drop-shadow(0 0 80px rgba(5,217,232,0.25))',
-                  letterSpacing: '-0.03em',
-                  fontWeight: 900,
-                }}
-              >
-                {ch}
-              </motion.span>
-            ))}
+          {/* Glossy Metallic 3D Logo Centerpiece with Dynamic Light Streaks */}
+          <div className="mb-4">
+            <CinematicMetallicAstraLogo
+              size="idle"
+              showTagline={false}
+              interactive={true}
+            />
           </div>
 
           {/* TAGLINE — DETECT · DEFEND · DEFEAT */}

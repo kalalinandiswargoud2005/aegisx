@@ -8,6 +8,7 @@ import { WebSocketProvider } from './providers/WebSocketProvider';
 import { ThreatSystemProvider } from './providers/ThreatSystemProvider';
 import { ScopedDeviceProvider } from './contexts/ScopedDeviceContext';
 import { IdleGlobeOverlay } from './components/IdleGlobeOverlay';
+import { CollegeLogoShowcaseModal } from './components/CollegeLogoShowcaseModal';
 import { AssistantProvider } from './providers/AssistantProvider';
 import { AppRoutes } from './routes';
 
@@ -41,6 +42,7 @@ export default function App() {
                     </div>
                   </div>
                   <IdleGlobeOverlay />
+                  <CollegeLogoShowcaseModal />
                   <Toaster theme="dark" position="bottom-right" />
                 </ThreatSystemProvider>
                 </BrowserRouter>

@@ -17,6 +17,7 @@ const Settings = React.lazy(() => import('@/pages/Settings').then(m => ({ defaul
 const Attacks = React.lazy(() => import('@/pages/Attacks').then(m => ({ default: m.Attacks })));
 const About = React.lazy(() => import('@/pages/About').then(m => ({ default: m.About })));
 const AssistantPage = React.lazy(() => import('@/features/assistant/AssistantPage').then(m => ({ default: m.AssistantPage })));
+const CollegeLogoPage = React.lazy(() => import('@/pages/CollegeLogoPage').then(m => ({ default: m.CollegeLogoPage })));
 
 function RouteLoadingFallback() {
   return (
@@ -36,6 +37,8 @@ export function AppRoutes() {
       <Routes>
         <Route path="/" element={<Landing />} />
         <Route path="/login" element={<Login />} />
+        <Route path="/college-logo" element={<CollegeLogoPage />} />
+        <Route path="/mru-logo" element={<Navigate to="/college-logo" replace />} />
         
         <Route element={<AuthGuard />}>
           <Route element={<MainLayout />}>
@@ -52,6 +55,9 @@ export function AppRoutes() {
             <Route path="/ai-assistant" element={<AssistantPage isGlobalMode={false} />} />
             <Route path="/docs" element={<Navigate to="/reports" replace />} />
             <Route path="/about" element={<About />} />
+            <Route path="/college-logo" element={<CollegeLogoPage />} />
+            <Route path="/mru-logo" element={<Navigate to="/college-logo" replace />} />
+            <Route path="/institution" element={<Navigate to="/college-logo" replace />} />
             
             {/* Fallback */}
             <Route path="*" element={<Navigate to="/" replace />} />

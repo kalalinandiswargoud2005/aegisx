@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { ShieldAlert, Terminal } from 'lucide-react';
+import { CinematicMetallicAstraLogo } from '@/components/CinematicMetallicAstraLogo';
+import { Terminal } from 'lucide-react';
 import { Button } from '@/components/ui';
 
 // ── Exported Background Utilities (used by IdleGlobeOverlay) ─────────────────
@@ -156,53 +157,32 @@ export function Landing() {
       {/* Cyber Grid */}
       <div className="absolute inset-0 cyber-grid opacity-40 pointer-events-none"></div>
 
-      {/* Main Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center">
+      {/* Main Cinematic Opener Content */}
+      <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
+        {/* Sleek 3D Glossy Metallic Logo Centerpiece with Dynamic Light Streaks */}
+        <CinematicMetallicAstraLogo
+          size="large"
+          showTagline={true}
+          taglineText="Vigilance Beyond Boundaries"
+          interactive={true}
+        />
+
+        {/* Enter System Action */}
         <motion.div
-          initial={{ opacity: 0, scale: 0.8, y: 50 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          transition={{ duration: 1, ease: "easeOut" }}
-          className="flex flex-col items-center"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 1.1, duration: 0.6 }}
+          className="mt-10 sm:mt-12"
         >
-          <div className="mb-6 relative">
-             <ShieldAlert size={100} className="text-primary text-glow drop-shadow-[0_0_25px_rgba(5,217,232,0.8)]" />
-             <motion.div
-               animate={{ opacity: [0, 1, 0] }}
-               transition={{ duration: 2, repeat: Infinity }}
-               className="absolute inset-0 bg-primary/20 blur-xl rounded-full"
-             />
-          </div>
-
-          <h1 className="text-6xl sm:text-7xl md:text-9xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-primary via-white to-primary tracking-[0.2em] uppercase mb-3" style={{ WebkitTextStroke: '2px rgba(5,217,232,0.5)', textShadow: '0 0 20px rgba(5,217,232,0.4)' }}>
-            ASTRA
-          </h1>
-          
-          <motion.p 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.8, duration: 1 }}
-            className="text-lg sm:text-xl md:text-2xl text-primary/80 font-mono tracking-widest mb-8 sm:mb-14 uppercase flex items-center gap-3"
+          <Button 
+            size="lg" 
+            onClick={handleEnter}
+            className="text-lg px-12 py-5 bg-gradient-to-r from-primary/20 via-cyan-400/20 to-primary/20 text-white font-mono font-bold tracking-widest border border-primary/50 hover:border-cyan-300 hover:bg-primary hover:text-black shadow-[0_0_30px_rgba(5,217,232,0.35)] hover:shadow-[0_0_60px_rgba(5,217,232,0.85)] transition-all duration-300 group relative overflow-hidden cyber-cut cursor-pointer"
           >
-            <span className="text-secondary animate-pulse">{'>'}</span> 
-            Vigilance Beyond Boundaries
-            <span className="text-secondary animate-pulse">_</span>
-          </motion.p>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 1.5, duration: 0.5 }}
-          >
-            <Button 
-              size="lg" 
-              onClick={handleEnter}
-              className="text-lg px-10 py-5 bg-primary/10 text-primary border border-primary hover:bg-primary hover:text-[#020204] shadow-[0_0_30px_rgba(5,217,232,0.3)] hover:shadow-[0_0_50px_rgba(5,217,232,0.8)] transition-all duration-300 group relative overflow-hidden cyber-cut cursor-pointer"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
-              <Terminal size={24} className="mr-3" />
-              INITIALIZE SYSTEM
-            </Button>
-          </motion.div>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
+            <Terminal size={22} className="mr-3 text-cyan-300 group-hover:text-black transition-colors" />
+            INITIALIZE SYSTEM
+          </Button>
         </motion.div>
       </div>
       

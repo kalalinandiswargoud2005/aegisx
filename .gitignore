@@ -47,4 +47,8 @@ backend/incident_test.json
 astra_figures/
 page1_extracted_logo.png
 synopsis_page_*.png
+generated_videos/
+last_frame_*.jpg
+build_extended_video.py
+*.mp4
 

@@ -31,7 +31,7 @@ export function MainLayout() {
         <div className="flex flex-1 flex-col relative z-20 w-full min-w-0">
           <Header />
           
-          <main className="flex-1 overflow-x-hidden overflow-y-auto scroll-smooth p-3 sm:p-4 md:p-6">
+          <main className="flex-1 overflow-x-hidden overflow-y-auto scroll-smooth p-3 sm:p-4 md:p-6 gpu-accelerated">
             <Outlet />
           </main>
           

@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useRef, memo } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
 import { CinematicMetallicAstraLogo } from '@/components/CinematicMetallicAstraLogo';
@@ -6,7 +6,7 @@ import { Terminal } from 'lucide-react';
 import { Button } from '@/components/ui';
 
 // ── Exported Background Utilities (used by IdleGlobeOverlay) ─────────────────
-export function ParticleField() {
+export const ParticleField = memo(function ParticleField() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -23,29 +23,40 @@ export function ParticleField() {
       W = canvas.width = window.innerWidth;
       H = canvas.height = window.innerHeight;
     };
-    window.addEventListener('resize', resize);
+    window.addEventListener('resize', resize, { passive: true });
 
-    const count = 70;
+    const count = 35; // Optimized from 70 to eliminate CPU distance check bottleneck
     const particles = Array.from({ length: count }, () => ({
       x: Math.random() * W,
       y: Math.random() * H,
-      vx: (Math.random() - 0.5) * 0.3,
-      vy: (Math.random() - 0.5) * 0.3,
-      r: Math.random() * 1.5 + 0.3,
-      alpha: Math.random() * 0.5 + 0.1,
+      vx: (Math.random() - 0.5) * 0.25,
+      vy: (Math.random() - 0.5) * 0.25,
+      r: Math.random() * 1.5 + 0.5,
+      alpha: Math.random() * 0.4 + 0.1,
       decay: (Math.random() - 0.5) * 0.002,
     }));
 
+    let isVisible = true;
+    const handleVisibility = () => {
+      isVisible = !document.hidden;
+    };
+    document.addEventListener('visibilitychange', handleVisibility);
+
     const draw = () => {
+      if (!isVisible) {
+        animId = requestAnimationFrame(draw);
+        return;
+      }
       ctx.fillStyle = 'rgba(6, 9, 14, 0.25)';
       ctx.fillRect(0, 0, W, H);
 
-      particles.forEach((p, i) => {
+      for (let i = 0; i < particles.length; i++) {
+        const p = particles[i];
         p.x += p.vx;
         p.y += p.vy;
         p.alpha += p.decay;
         if (p.alpha <= 0.05) p.decay = Math.abs(p.decay);
-        if (p.alpha >= 0.55) p.decay = -Math.abs(p.decay);
+        if (p.alpha >= 0.5) p.decay = -Math.abs(p.decay);
         if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
         if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
 
@@ -58,8 +69,8 @@ export function ParticleField() {
           const q = particles[j];
           const dx = p.x - q.x, dy = p.y - q.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 120) {
-            const strength = (1 - dist / 120) * 0.12;
+          if (dist < 110) {
+            const strength = (1 - dist / 110) * 0.12;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(q.x, q.y);
@@ -68,7 +79,7 @@ export function ParticleField() {
             ctx.stroke();
           }
         }
-      });
+      }
 
       animId = requestAnimationFrame(draw);
     };
@@ -77,39 +88,50 @@ export function ParticleField() {
     return () => {
       cancelAnimationFrame(animId);
       window.removeEventListener('resize', resize);
+      document.removeEventListener('visibilitychange', handleVisibility);
     };
   }, []);
 
-  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 pointer-events-none" />;
-}
+  return <canvas ref={canvasRef} className="absolute inset-0 w-full h-full z-0 pointer-events-none will-change-transform" />;
+});
 
-export function MouseSpotlight() {
-  const [pos, setPos] = useState({ x: -1000, y: -1000 });
+export const MouseSpotlight = memo(function MouseSpotlight() {
+  const spotlightRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
-    const move = (e: MouseEvent) => setPos({ x: e.clientX, y: e.clientY });
-    window.addEventListener('mousemove', move);
-    return () => window.removeEventListener('mousemove', move);
+    const move = (e: MouseEvent) => {
+      if (rafRef.current) return;
+      rafRef.current = requestAnimationFrame(() => {
+        if (spotlightRef.current) {
+          spotlightRef.current.style.transform = `translate3d(${e.clientX - 250}px, ${e.clientY - 250}px, 0)`;
+        }
+        rafRef.current = null;
+      });
+    };
+    window.addEventListener('mousemove', move, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', move);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, []);
 
   return (
     <div
-      className="pointer-events-none fixed inset-0 z-[1]"
-      style={{
-        background: `radial-gradient(500px circle at ${pos.x}px ${pos.y}px, rgba(0,229,255,0.04) 0%, transparent 70%)`,
-        transition: 'background 0.1s ease',
-      }}
+      ref={spotlightRef}
+      className="pointer-events-none fixed top-0 left-0 w-[500px] h-[500px] rounded-full bg-cyan-400/10 blur-[80px] z-[1] will-change-transform transition-transform duration-150 ease-out"
+      style={{ transform: 'translate3d(-1000px, -1000px, 0)' }}
     />
   );
-}
+});
 
-export function PulseRings() {
+export const PulseRings = memo(function PulseRings() {
   return (
     <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-[1]">
       {[1, 2, 3].map((i) => (
         <div
           key={i}
-          className="absolute rounded-full border border-cyan-500/10 animate-ping"
+          className="absolute rounded-full border border-cyan-500/10 animate-ping pointer-events-none"
           style={{
             width: `${200 + i * 140}px`,
             height: `${200 + i * 140}px`,
@@ -119,23 +141,30 @@ export function PulseRings() {
       ))}
     </div>
   );
-}
+});
 
 // ── Main Landing Page (Classic App Name Showcase) ───────────────────────────
 export function Landing() {
   const navigate = useNavigate();
-  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const glowRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number | null>(null);
 
   useEffect(() => {
     const handleMouseMove = (e: MouseEvent) => {
-      setMousePosition({
-        x: e.clientX,
-        y: e.clientY,
+      if (rafRef.current) return;
+      rafRef.current = requestAnimationFrame(() => {
+        if (glowRef.current) {
+          glowRef.current.style.transform = `translate3d(${e.clientX - 300}px, ${e.clientY - 300}px, 0)`;
+        }
+        rafRef.current = null;
       });
     };
 
-    window.addEventListener('mousemove', handleMouseMove);
-    return () => window.removeEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
   }, []);
 
   const handleEnter = () => {
@@ -144,18 +173,15 @@ export function Landing() {
 
   return (
     <div className="relative min-h-screen w-full bg-[#020204] overflow-hidden flex flex-col items-center justify-center font-rajdhani">
-      {/* Background Interactive Glow */}
-      <motion.div 
-        className="absolute w-[600px] h-[600px] rounded-full pointer-events-none opacity-20 blur-[100px] bg-primary"
-        animate={{
-          x: mousePosition.x - 300,
-          y: mousePosition.y - 300,
-        }}
-        transition={{ type: "tween", ease: "backOut", duration: 0.5 }}
+      {/* Background Interactive Glow (Direct Hardware Accelerated) */}
+      <div 
+        ref={glowRef}
+        className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full pointer-events-none opacity-20 blur-[100px] bg-primary will-change-transform transition-transform duration-300 ease-out"
+        style={{ transform: 'translate3d(-600px, -600px, 0)' }}
       />
       
       {/* Cyber Grid */}
-      <div className="absolute inset-0 cyber-grid opacity-40 pointer-events-none"></div>
+      <div className="absolute inset-0 cyber-grid opacity-35 pointer-events-none"></div>
 
       {/* Main Cinematic Opener Content */}
       <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
@@ -171,7 +197,7 @@ export function Landing() {
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 1.1, duration: 0.6 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
           className="mt-10 sm:mt-12"
         >
           <Button 
@@ -190,7 +216,7 @@ export function Landing() {
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 2 }}
+        transition={{ delay: 1 }}
         className="absolute bottom-4 sm:bottom-8 text-white/40 font-mono text-xs sm:text-sm flex gap-4"
       >
         <span>v2.0.4-CYBER</span>

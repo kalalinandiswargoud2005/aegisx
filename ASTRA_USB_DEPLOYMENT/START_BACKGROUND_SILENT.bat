@@ -13,7 +13,7 @@ if exist "C:\ProgramData\Astra\agent\device.json" (
 if defined SAVED_BACKEND (
     set "BACKEND_URL=!SAVED_BACKEND!"
 ) else (
-    set "BACKEND_URL=http://192.168.1.44:8080"
+    set "BACKEND_URL=http://192.168.137.110:8080"
 )
 
 echo ====================================================================

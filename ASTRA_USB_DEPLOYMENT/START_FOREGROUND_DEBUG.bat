@@ -11,6 +11,8 @@ echo Starting ASTRA EDR Agent in foreground...
 echo You will see registration and heartbeat logs in real-time.
 echo.
 
+taskkill /F /IM javaw.exe >nul 2>&1
+
 set "SAVED_BACKEND="
 if exist "C:\ProgramData\Astra\agent\device.json" (
     for /f "tokens=2 delims=:, " %%a in ('findstr /i "backendUrl" "C:\ProgramData\Astra\agent\device.json"') do (
@@ -18,7 +20,7 @@ if exist "C:\ProgramData\Astra\agent\device.json" (
     )
 )
 
-set "DEFAULT_BACKEND=http://192.168.1.44:8080"
+set "DEFAULT_BACKEND=http://192.168.137.110:8080"
 if defined SAVED_BACKEND (
     set "DEFAULT_BACKEND=!SAVED_BACKEND!"
 )

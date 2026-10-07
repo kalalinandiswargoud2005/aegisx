@@ -74,12 +74,12 @@ public class AgentController {
 
         // 2. Check by stable Hardware ID if present
         if (device == null && hardwareId != null && !hardwareId.isBlank()) {
-            device = deviceRepository.findByHardwareId(hardwareId).orElse(null);
+            device = deviceRepository.findFirstByHardwareIdOrderByCreatedAtDesc(hardwareId).orElse(null);
         }
 
         // 3. Check by Hostname fallback
         if (device == null && hostname != null && !hostname.isBlank()) {
-            device = deviceRepository.findByHostname(hostname).orElse(null);
+            device = deviceRepository.findFirstByHostnameOrderByCreatedAtDesc(hostname).orElse(null);
         }
 
         // 4. Create new device if first time seeing this endpoint

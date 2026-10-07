@@ -67,7 +67,7 @@ if exist "C:\ProgramData\Astra\agent\device.json" (
     )
 )
 
-set "DEFAULT_BACKEND=http://192.168.1.44:8080"
+set "DEFAULT_BACKEND=http://192.168.137.110:8080"
 if defined SAVED_BACKEND (
     set "DEFAULT_BACKEND=!SAVED_BACKEND!"
 )

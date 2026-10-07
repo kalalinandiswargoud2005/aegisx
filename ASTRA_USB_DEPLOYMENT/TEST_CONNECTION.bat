@@ -15,7 +15,7 @@ if exist "C:\ProgramData\Astra\agent\device.json" (
     )
 )
 
-set "DEFAULT_IP=192.168.1.44"
+set "DEFAULT_IP=192.168.137.110"
 if defined SAVED_BACKEND (
     for /f "tokens=2 delims=/: " %%i in ("!SAVED_BACKEND!") do set "DEFAULT_IP=%%i"
 )

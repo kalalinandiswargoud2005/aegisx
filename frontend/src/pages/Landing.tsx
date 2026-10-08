@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, memo } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
+import { CinematicMetallicAstraLogo } from '@/components/CinematicMetallicAstraLogo';
 import { Terminal } from 'lucide-react';
 import { Button } from '@/components/ui';
 
@@ -24,14 +25,14 @@ export const ParticleField = memo(function ParticleField() {
     };
     window.addEventListener('resize', resize, { passive: true });
 
-    const count = 45;
+    const count = 35;
     const particles = Array.from({ length: count }, () => ({
       x: Math.random() * W,
       y: Math.random() * H,
       vx: (Math.random() - 0.5) * 0.25,
       vy: (Math.random() - 0.5) * 0.25,
       r: Math.random() * 1.5 + 0.5,
-      alpha: Math.random() * 0.5 + 0.2,
+      alpha: Math.random() * 0.4 + 0.1,
       decay: (Math.random() - 0.5) * 0.002,
     }));
 
@@ -46,7 +47,7 @@ export const ParticleField = memo(function ParticleField() {
         animId = requestAnimationFrame(draw);
         return;
       }
-      ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+      ctx.fillStyle = 'rgba(6, 9, 14, 0.25)';
       ctx.fillRect(0, 0, W, H);
 
       for (let i = 0; i < particles.length; i++) {
@@ -54,16 +55,14 @@ export const ParticleField = memo(function ParticleField() {
         p.x += p.vx;
         p.y += p.vy;
         p.alpha += p.decay;
-        if (p.alpha <= 0.1) p.decay = Math.abs(p.decay);
-        if (p.alpha >= 0.8) p.decay = -Math.abs(p.decay);
+        if (p.alpha <= 0.05) p.decay = Math.abs(p.decay);
+        if (p.alpha >= 0.5) p.decay = -Math.abs(p.decay);
         if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
         if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(5, 217, 232, ${p.alpha})`;
-        ctx.shadowColor = '#05D9E8';
-        ctx.shadowBlur = 8;
+        ctx.fillStyle = `rgba(0, 229, 255, ${p.alpha})`;
         ctx.fill();
 
         for (let j = i + 1; j < particles.length; j++) {
@@ -71,12 +70,12 @@ export const ParticleField = memo(function ParticleField() {
           const dx = p.x - q.x, dy = p.y - q.y;
           const dist = Math.sqrt(dx * dx + dy * dy);
           if (dist < 110) {
-            const strength = (1 - dist / 110) * 0.15;
+            const strength = (1 - dist / 110) * 0.12;
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(q.x, q.y);
-            ctx.strokeStyle = `rgba(5, 217, 232, ${strength})`;
-            ctx.lineWidth = 0.6;
+            ctx.strokeStyle = `rgba(0, 229, 255, ${strength})`;
+            ctx.lineWidth = 0.5;
             ctx.stroke();
           }
         }
@@ -120,7 +119,7 @@ export const MouseSpotlight = memo(function MouseSpotlight() {
   return (
     <div
       ref={spotlightRef}
-      className="pointer-events-none fixed top-0 left-0 w-[500px] h-[500px] rounded-full bg-cyan-400/15 blur-[90px] z-[1] will-change-transform transition-transform duration-150 ease-out"
+      className="pointer-events-none fixed top-0 left-0 w-[500px] h-[500px] rounded-full bg-cyan-400/10 blur-[80px] z-[1] will-change-transform transition-transform duration-150 ease-out"
       style={{ transform: 'translate3d(-1000px, -1000px, 0)' }}
     />
   );
@@ -132,7 +131,7 @@ export const PulseRings = memo(function PulseRings() {
       {[1, 2, 3].map((i) => (
         <div
           key={i}
-          className="absolute rounded-full border border-cyan-500/15 animate-ping pointer-events-none"
+          className="absolute rounded-full border border-cyan-500/10 animate-ping pointer-events-none"
           style={{
             width: `${200 + i * 140}px`,
             height: `${200 + i * 140}px`,
@@ -144,116 +143,69 @@ export const PulseRings = memo(function PulseRings() {
   );
 });
 
-// ── Main Landing / First Home Page ──────────────────────────────────────────
+// ── Main Landing Page (Classic App Name Showcase) ───────────────────────────
 export function Landing() {
   const navigate = useNavigate();
+  const glowRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (rafRef.current) return;
+      rafRef.current = requestAnimationFrame(() => {
+        if (glowRef.current) {
+          glowRef.current.style.transform = `translate3d(${e.clientX - 300}px, ${e.clientY - 300}px, 0)`;
+        }
+        rafRef.current = null;
+      });
+    };
+
+    window.addEventListener('mousemove', handleMouseMove, { passive: true });
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, []);
 
   const handleEnter = () => {
     navigate('/dashboard'); 
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-black overflow-hidden flex flex-col items-center justify-center font-mono select-none">
-      <style>{`
-        @keyframes highGlowPulse {
-          0%, 100% {
-            filter: drop-shadow(0 0 35px #05D9E8) drop-shadow(0 0 70px #00E5FF) drop-shadow(0 0 110px rgba(5,217,232,0.85));
-            transform: scale(1);
-          }
-          50% {
-            filter: drop-shadow(0 0 50px #05D9E8) drop-shadow(0 0 95px #00E5FF) drop-shadow(0 0 140px rgba(0,229,255,1));
-            transform: scale(1.02);
-          }
-        }
-        .astra-highlight-title {
-          background: linear-gradient(180deg, #FFFFFF 0%, #E0F2FE 20%, #38BDF8 55%, #05D9E8 85%, #0284C7 100%);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          animation: highGlowPulse 3s ease-in-out infinite alternate;
-        }
-      `}</style>
-
-      {/* Space Starry Particle Field */}
-      <ParticleField />
-      <MouseSpotlight />
-      <PulseRings />
-
-      {/* Deep ambient radial glow */}
-      <div
-        className="absolute inset-0 pointer-events-none z-[1]"
-        style={{
-          background: 'radial-gradient(circle at 50% 50%, rgba(5,217,232,0.2) 0%, rgba(0,229,255,0.06) 45%, rgba(0,0,0,0.92) 80%)',
-        }}
+    <div className="relative min-h-screen w-full bg-[#020204] overflow-hidden flex flex-col items-center justify-center font-rajdhani">
+      {/* Background Interactive Glow (Direct Hardware Accelerated) */}
+      <div 
+        ref={glowRef}
+        className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full pointer-events-none opacity-20 blur-[100px] bg-primary will-change-transform transition-transform duration-300 ease-out"
+        style={{ transform: 'translate3d(-600px, -600px, 0)' }}
       />
-
+      
       {/* Cyber Grid */}
-      <div className="absolute inset-0 cyber-grid opacity-25 pointer-events-none"></div>
+      <div className="absolute inset-0 cyber-grid opacity-35 pointer-events-none"></div>
 
-      {/* Main Centerpiece Content */}
-      <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 max-w-6xl">
-        {/* ASTRA Title - Super Highlighted */}
-        <motion.h1
-          initial={{ scale: 0.85, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
-          className="text-8xl sm:text-9xl md:text-[11rem] font-black tracking-[0.24em] uppercase astra-highlight-title leading-none select-none my-3"
-          style={{
-            WebkitTextStroke: '2px rgba(255, 255, 255, 0.6)',
-          }}
-        >
-          ASTRA
-        </motion.h1>
+      {/* Main Cinematic Opener Content */}
+      <div className="relative z-10 flex flex-col items-center justify-center text-center px-4">
+        {/* Sleek 3D Glossy Metallic Logo Centerpiece with Dynamic Light Streaks */}
+        <CinematicMetallicAstraLogo
+          size="large"
+          showTagline={true}
+          taglineText="Vigilance Beyond Boundaries"
+          interactive={true}
+        />
 
-        {/* Super Highlighted Tagline */}
+        {/* Enter System Action */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 0.7 }}
-          className="mt-6 sm:mt-8 mb-10 sm:mb-12 flex items-center justify-center gap-3 sm:gap-6 flex-wrap"
-        >
-          <span
-            className="text-xl sm:text-3xl md:text-4xl font-black tracking-[0.18em] uppercase px-3 py-1"
-            style={{
-              color: '#05D9E8',
-              textShadow: '0 0 20px #05D9E8, 0 0 40px #05D9E8, 0 0 70px rgba(5,217,232,0.9)',
-            }}
-          >
-            AI-POWERED
-          </span>
-          <span className="text-white/40 text-2xl hidden sm:inline">•</span>
-          <span
-            className="text-xl sm:text-3xl md:text-4xl font-black tracking-[0.18em] uppercase px-3 py-1"
-            style={{
-              color: '#FF007F',
-              textShadow: '0 0 20px #FF007F, 0 0 40px #FF007F, 0 0 70px rgba(255,0,127,0.9)',
-            }}
-          >
-            CYBER DEFENSE
-          </span>
-          <span className="text-white/40 text-2xl hidden sm:inline">•</span>
-          <span
-            className="text-xl sm:text-3xl md:text-4xl font-black tracking-[0.18em] uppercase px-3 py-1"
-            style={{
-              color: '#F3E600',
-              textShadow: '0 0 20px #F3E600, 0 0 40px #F3E600, 0 0 70px rgba(243,230,0,0.9)',
-            }}
-          >
-            SYSTEM
-          </span>
-        </motion.div>
-
-        {/* Enter System Action Button */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 0.5 }}
+          transition={{ delay: 0.5, duration: 0.5 }}
+          className="mt-10 sm:mt-12"
         >
           <Button 
             size="lg" 
             onClick={handleEnter}
-            className="text-base sm:text-lg px-10 sm:px-14 py-5 sm:py-6 bg-gradient-to-r from-primary/30 via-cyan-400/40 to-primary/30 text-white font-mono font-black tracking-widest border-2 border-primary hover:border-cyan-200 hover:bg-primary hover:text-black shadow-[0_0_35px_rgba(5,217,232,0.6)] hover:shadow-[0_0_70px_rgba(5,217,232,1)] transition-all duration-300 group relative overflow-hidden cyber-cut cursor-pointer uppercase rounded-md"
+            className="text-lg px-12 py-5 bg-gradient-to-r from-primary/20 via-cyan-400/20 to-primary/20 text-white font-mono font-bold tracking-widest border border-primary/50 hover:border-cyan-300 hover:bg-primary hover:text-black shadow-[0_0_30px_rgba(5,217,232,0.35)] hover:shadow-[0_0_60px_rgba(5,217,232,0.85)] transition-all duration-300 group relative overflow-hidden cyber-cut cursor-pointer"
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/50 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent -translate-x-[100%] group-hover:translate-x-[100%] transition-transform duration-700 ease-in-out"></div>
             <Terminal size={22} className="mr-3 text-cyan-300 group-hover:text-black transition-colors" />
             INITIALIZE SYSTEM
           </Button>
@@ -265,9 +217,11 @@ export function Landing() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1 }}
-        className="absolute bottom-4 sm:bottom-6 text-white/50 font-mono text-xs sm:text-sm flex gap-3 tracking-widest uppercase font-bold"
+        className="absolute bottom-4 sm:bottom-8 text-white/40 font-mono text-xs sm:text-sm flex gap-4"
       >
-        <span>PRESS ANY KEY OR CLICK TO ENTER SOC</span>
+        <span>v2.0.4-CYBER</span>
+        <span>|</span>
+        <span className="animate-pulse">SECURE CONNECTION ESTABLISHED</span>
       </motion.div>
     </div>
   );

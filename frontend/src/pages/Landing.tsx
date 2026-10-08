@@ -172,7 +172,7 @@ export function Landing() {
   };
 
   return (
-    <div className="relative min-h-screen w-full bg-[#020204] overflow-hidden flex flex-col items-center justify-center font-rajdhani">
+    <div className="relative min-h-screen w-full bg-black overflow-hidden flex flex-col items-center justify-center font-rajdhani">
       {/* Background Interactive Glow (Direct Hardware Accelerated) */}
       <div 
         ref={glowRef}

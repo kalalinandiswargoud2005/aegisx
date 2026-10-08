@@ -71,7 +71,7 @@ export function IdleGlobeOverlay() {
         exit={{ opacity: 0 }}
         transition={{ duration: 0.5 }}
         onClick={handleExitToDashboard}
-        className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#02020a] text-white font-mono select-none overflow-hidden cursor-pointer"
+        className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black text-white font-mono select-none overflow-hidden cursor-pointer"
       >
         {/* Layered background */}
         <ParticleField />

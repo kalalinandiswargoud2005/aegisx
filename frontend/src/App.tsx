@@ -9,6 +9,7 @@ import { ThreatSystemProvider } from './providers/ThreatSystemProvider';
 import { ScopedDeviceProvider } from './contexts/ScopedDeviceContext';
 import { IdleGlobeOverlay } from './components/IdleGlobeOverlay';
 import { CollegeLogoShowcaseModal } from './components/CollegeLogoShowcaseModal';
+import { VideoShowcaseModal } from './components/VideoShowcaseModal';
 import { AssistantProvider } from './providers/AssistantProvider';
 import { AppRoutes } from './routes';
 
@@ -43,6 +44,7 @@ export default function App() {
                   </div>
                   <IdleGlobeOverlay />
                   <CollegeLogoShowcaseModal />
+                  <VideoShowcaseModal />
                   <Toaster theme="dark" position="bottom-right" />
                 </ThreatSystemProvider>
                 </BrowserRouter>
@@ -54,3 +56,4 @@ export default function App() {
     </ThemeProvider>
   );
 }
+

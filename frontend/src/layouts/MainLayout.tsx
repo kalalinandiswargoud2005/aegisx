@@ -2,7 +2,6 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import { Sidebar } from './Sidebar';
 import { Header } from './Header';
-import { Footer } from './Footer';
 import { ImmediateActionOverlay } from '@/components/ImmediateActionOverlay';
 import { CyberBackground } from '@/components/ui/CyberBackground';
 import { GlobalAssistantDrawer } from '@/components/GlobalAssistantDrawer';
@@ -34,11 +33,10 @@ export function MainLayout() {
           <main className="flex-1 overflow-x-hidden overflow-y-auto scroll-smooth p-3 sm:p-4 md:p-6 gpu-accelerated">
             <Outlet />
           </main>
-          
-          <Footer />
         </div>
       </div>
       <GlobalAssistantDrawer />
     </div>
   );
 }
+

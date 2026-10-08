@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { NavLink, Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 import { cn } from '@/utils/cn';
 import { 
   LayoutDashboard, ShieldAlert, Laptop, Eye,
-  RotateCcw, Activity, FileText, 
-  Bot, BookOpen, Settings, Info, Zap,
+  RotateCcw, FileText, 
+  Bot, Settings, Info, Zap,
   PanelLeftClose, PanelLeftOpen
 } from 'lucide-react';
 
@@ -22,121 +22,72 @@ const menuItems = [
   { icon: Info, label: 'About', path: '/about' },
 ];
 
-const containerVariants = {
-  hidden: { opacity: 0 },
-  show: {
-    opacity: 1,
-    transition: { staggerChildren: 0.05 }
-  }
-};
-
-const itemVariants = {
-  hidden: { opacity: 0, x: -20 },
-  show: { opacity: 1, x: 0 }
-};
-
-import { useScopedDevice } from '@/contexts/ScopedDeviceContext';
-
 export function Sidebar() {
   const [isCollapsed, setIsCollapsed] = useState(false);
-  const { isScoped } = useScopedDevice();
-
-  const filteredMenuItems = menuItems;
 
   return (
-    <motion.aside
-      animate={{ width: isCollapsed ? 88 : 270 }}
-      transition={{ type: "spring", stiffness: 300, damping: 30 }}
-      className="relative flex flex-col h-full bg-surface/60 backdrop-blur-xl border-r border-primary/20 shadow-[4px_0_24px_rgba(0,0,0,0.6)] z-40 overflow-visible"
+    <aside
+      className={cn(
+        "relative flex flex-col h-full bg-surface/80 backdrop-blur-xl border-r border-primary/20 shadow-[4px_0_24px_rgba(0,0,0,0.6)] z-40 transition-[width] duration-200 ease-out select-none",
+        isCollapsed ? "w-[76px]" : "w-[260px]"
+      )}
     >
-      <div className="flex h-16 items-center justify-between px-4 border-b border-primary/10">
-        <AnimatePresence mode="wait">
-          {!isCollapsed && (
-            <motion.div
-              key="logo-full"
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              className="flex items-center gap-2"
-            >
-              <Link to="/" className="flex items-center gap-2.5 group cursor-pointer">
-                <motion.div 
-                  className="flex h-10 w-10 items-center justify-center bg-primary/20 text-primary cyber-cut group-hover:bg-primary/40 group-hover:scale-110 transition-all duration-300"
-                  whileHover={{ rotate: 180 }}
-                  transition={{ type: "spring", stiffness: 200, damping: 10 }}
-                >
-                  <ShieldAlert size={24} />
-                </motion.div>
-                <span className="font-mono font-bold text-xl text-glow text-primary tracking-widest group-hover:text-white transition-colors duration-300">ASTRA</span>
-              </Link>
-            </motion.div>
-          )}
-        </AnimatePresence>
+      <div className="flex h-16 items-center justify-between px-3.5 border-b border-primary/10">
+        {!isCollapsed && (
+          <Link to="/" className="flex items-center gap-2.5 group cursor-pointer">
+            <div className="flex h-9 w-9 items-center justify-center bg-primary/20 text-primary cyber-cut group-hover:bg-primary/30 transition-all duration-200">
+              <ShieldAlert size={22} />
+            </div>
+            <span className="font-mono font-bold text-lg text-glow text-primary tracking-widest group-hover:text-white transition-colors duration-200">ASTRA</span>
+          </Link>
+        )}
 
-        <motion.button
-          whileHover={{ scale: 1.1, backgroundColor: "rgba(5,217,232,0.2)" }}
-          whileTap={{ scale: 0.9 }}
+        <button
           onClick={() => setIsCollapsed(!isCollapsed)}
           className={cn(
-            "flex h-10 w-10 items-center justify-center text-primary/80 hover:text-primary transition-colors rounded-lg hover:bg-primary/10",
+            "flex h-9 w-9 items-center justify-center text-primary/80 hover:text-primary transition-colors rounded-lg hover:bg-primary/10 cursor-pointer",
             isCollapsed && "mx-auto"
           )}
+          title={isCollapsed ? "Expand Sidebar" : "Collapse Sidebar"}
         >
-          {isCollapsed ? <PanelLeftOpen size={24} /> : <PanelLeftClose size={24} />}
-        </motion.button>
+          {isCollapsed ? <PanelLeftOpen size={20} /> : <PanelLeftClose size={20} />}
+        </button>
       </div>
 
-      <motion.nav 
-        variants={containerVariants} 
-        initial="hidden" 
-        animate="show" 
-        className="flex-1 space-y-2 px-3 py-4 overflow-y-auto overflow-x-hidden"
-      >
-        {filteredMenuItems.map((item) => {
+      <nav className="flex-1 space-y-1.5 px-2.5 py-3 overflow-y-auto overflow-x-hidden">
+        {menuItems.map((item) => {
           const Icon = item.icon;
           return (
-            <motion.div key={item.path} variants={itemVariants}>
-              <NavLink
-                to={item.path}
-                className={({ isActive }) =>
-                  cn(
-                    'group relative flex items-center px-3.5 py-3 text-base font-semibold transition-all duration-300',
-                    isActive
-                      ? 'text-primary bg-primary/15 border-l-4 border-primary shadow-[inset_10px_0_20px_-10px_rgba(5,217,232,0.4)]'
-                      : 'text-white/80 hover:bg-white/5 hover:text-white hover:border-l-4 hover:border-primary/50 border-l-4 border-transparent'
-                  )
-                }
-                title={isCollapsed ? item.label : undefined}
-              >
-                {({ isActive }) => (
-                  <motion.div 
-                    className="flex items-center gap-3.5 w-full"
-                    whileHover={!isActive ? { x: 5 } : {}}
-                    transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-                  >
-                    <Icon size={24} className={cn("shrink-0", isActive && "text-glow drop-shadow-[0_0_8px_rgba(5,217,232,0.8)]")} />
-                    <AnimatePresence mode="wait">
-                      {!isCollapsed && (
-                        <motion.span
-                          key="label"
-                          initial={{ opacity: 0, width: 0 }}
-                          animate={{ opacity: 1, width: 'auto' }}
-                          exit={{ opacity: 0, width: 0 }}
-                          className="whitespace-nowrap overflow-hidden flex items-center tracking-wide"
-                        >
-                          {isActive && <span className="mr-2 text-primary animate-pulse">{'>'}</span>}
-                          {item.label}
-                          {isActive && <span className="ml-1 text-primary animate-pulse">_</span>}
-                        </motion.span>
-                      )}
-                    </AnimatePresence>
-                  </motion.div>
-                )}
-              </NavLink>
-            </motion.div>
+            <NavLink
+              key={item.path}
+              to={item.path}
+              className={({ isActive }) =>
+                cn(
+                  'group relative flex items-center px-3 py-2.5 rounded-lg text-sm font-semibold transition-all duration-150',
+                  isActive
+                    ? 'text-primary bg-primary/15 border-l-4 border-primary shadow-[inset_10px_0_20px_-10px_rgba(5,217,232,0.4)]'
+                    : 'text-white/80 hover:bg-white/5 hover:text-white hover:border-l-4 hover:border-primary/50 border-l-4 border-transparent'
+                )
+              }
+              title={isCollapsed ? item.label : undefined}
+            >
+              {({ isActive }) => (
+                <div className="flex items-center gap-3 w-full">
+                  <Icon size={20} className={cn("shrink-0 transition-colors", isActive ? "text-primary drop-shadow-[0_0_8px_rgba(5,217,232,0.8)]" : "text-white/70 group-hover:text-white")} />
+                  {!isCollapsed && (
+                    <span className="whitespace-nowrap overflow-hidden text-ellipsis tracking-wide flex items-center">
+                      {isActive && <span className="mr-1.5 text-primary">{'>'}</span>}
+                      {item.label}
+                      {isActive && <span className="ml-1 text-primary animate-pulse">_</span>}
+                    </span>
+                  )}
+                </div>
+              )}
+            </NavLink>
           );
         })}
-      </motion.nav>
-    </motion.aside>
+      </nav>
+    </aside>
   );
 }
+

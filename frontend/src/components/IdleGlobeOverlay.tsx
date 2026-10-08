@@ -2,8 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { X } from 'lucide-react';
-import { ParticleField, MouseSpotlight, PulseRings } from '@/pages/Landing';
-import { CinematicMetallicAstraLogo } from '@/components/CinematicMetallicAstraLogo';
+import { ParticleField } from '@/pages/Landing';
 
 export function IdleGlobeOverlay() {
   const navigate = useNavigate();
@@ -23,7 +22,7 @@ export function IdleGlobeOverlay() {
     navigate('/dashboard');
   };
 
-  // 1. Inactivity & Manual Trigger Listener
+  // Inactivity & Manual Trigger Listener
   useEffect(() => {
     const handleKeyDown = () => {
       if (isIdle) {
@@ -61,138 +60,119 @@ export function IdleGlobeOverlay() {
 
   if (!isIdle) return null;
 
-  const tagline = ['DETECT', 'DEFEND', 'DEFEAT'];
-  const letterVariants: any = {
-    hidden: { opacity: 0, y: 80 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: { delay: 0.2 + i * 0.06, duration: 0.7, ease: [0.22, 1, 0.36, 1] },
-    }),
-  };
-
   return (
     <AnimatePresence>
       <motion.div
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.3 }}
         onClick={handleExitToDashboard}
-        className="fixed inset-0 z-50 flex flex-col items-center justify-center bg-[#02020a] text-white font-mono select-none overflow-hidden cursor-pointer"
+        className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-black text-white font-mono select-none overflow-hidden cursor-pointer"
       >
-        {/* Layered background */}
-        <ParticleField />
-        <MouseSpotlight />
-        <PulseRings />
+        <style>{`
+          @keyframes highGlowPulse {
+            0%, 100% {
+              filter: drop-shadow(0 0 35px #05D9E8) drop-shadow(0 0 70px #00E5FF) drop-shadow(0 0 110px rgba(5,217,232,0.85));
+              transform: scale(1);
+            }
+            50% {
+              filter: drop-shadow(0 0 50px #05D9E8) drop-shadow(0 0 95px #00E5FF) drop-shadow(0 0 140px rgba(0,229,255,1));
+              transform: scale(1.02);
+            }
+          }
+          .astra-highlight-title {
+            background: linear-gradient(180deg, #FFFFFF 0%, #E0F2FE 20%, #38BDF8 55%, #05D9E8 85%, #0284C7 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            animation: highGlowPulse 3s ease-in-out infinite alternate;
+          }
+        `}</style>
 
-        {/* Deep radial glow in center */}
+        {/* Space Starry Particle Field */}
+        <ParticleField />
+
+        {/* Powerful Center Volumetric Neon Glow */}
         <div
           className="absolute inset-0 pointer-events-none z-[1]"
           style={{
-            background:
-              'radial-gradient(ellipse 80% 60% at 50% 50%, rgba(5,217,232,0.06) 0%, rgba(255,0,127,0.03) 50%, transparent 80%)',
+            background: 'radial-gradient(circle at 50% 50%, rgba(5,217,232,0.22) 0%, rgba(0,229,255,0.08) 45%, rgba(0,0,0,0.92) 80%)',
           }}
         />
 
-        {/* Corner decorations */}
-        {/* TL */}
-        <div className="absolute top-0 left-0 z-10 pointer-events-none">
-          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
-            <path d="M2 60 L2 2 L60 2" stroke="rgba(5,217,232,0.25)" strokeWidth="1.5" fill="none"/>
-            <circle cx="2" cy="2" r="3" fill="#05D9E8" opacity="0.5"/>
-          </svg>
-        </div>
-        {/* TR */}
-        <div className="absolute top-0 right-0 z-10 pointer-events-none">
-          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
-            <path d="M118 60 L118 2 L60 2" stroke="rgba(5,217,232,0.25)" strokeWidth="1.5" fill="none"/>
-            <circle cx="118" cy="2" r="3" fill="#05D9E8" opacity="0.5"/>
-          </svg>
-        </div>
-        {/* BL */}
-        <div className="absolute bottom-0 left-0 z-10 pointer-events-none">
-          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
-            <path d="M2 60 L2 118 L60 118" stroke="rgba(255,0,127,0.2)" strokeWidth="1.5" fill="none"/>
-            <circle cx="2" cy="118" r="3" fill="#FF007F" opacity="0.4"/>
-          </svg>
-        </div>
-        {/* BR */}
-        <div className="absolute bottom-0 right-0 z-10 pointer-events-none">
-          <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
-            <path d="M118 60 L118 118 L60 118" stroke="rgba(255,0,127,0.2)" strokeWidth="1.5" fill="none"/>
-            <circle cx="118" cy="118" r="3" fill="#FF007F" opacity="0.4"/>
-          </svg>
-        </div>
-
-        {/* Top Right Exit Button */}
-        <div className="absolute top-0 right-0 z-30 flex justify-end p-6 pointer-events-auto">
+        {/* Top Right Highlighted Exit Button */}
+        <div className="absolute top-4 right-4 sm:top-6 sm:right-6 z-30 pointer-events-auto">
           <button
             onClick={(e) => {
               e.stopPropagation();
               handleExitToDashboard();
             }}
-            className="flex items-center gap-2 px-3 py-1.5 bg-black/60 hover:bg-primary/20 border border-primary/40 text-primary text-xs font-mono font-bold transition-all cursor-pointer shadow-[0_0_15px_rgba(5,217,232,0.2)]"
+            className="flex items-center gap-2 px-4 py-2 bg-black/80 hover:bg-primary/30 border-2 border-primary text-primary hover:text-white text-xs sm:text-sm font-mono font-black tracking-widest transition-all cursor-pointer shadow-[0_0_20px_rgba(5,217,232,0.6)] hover:shadow-[0_0_35px_rgba(5,217,232,1)] uppercase rounded-md"
           >
-            <X size={14} />
+            <X size={16} className="text-primary animate-pulse" />
             <span>RETURN TO DASHBOARD</span>
           </button>
         </div>
 
-        {/* MAIN HERO */}
-        <div className="relative z-10 flex flex-col items-center justify-center text-center px-6">
-          
-          {/* Glossy Metallic 3D Logo Centerpiece with Dynamic Light Streaks */}
-          <div className="mb-4">
-            <CinematicMetallicAstraLogo
-              size="idle"
-              showTagline={false}
-              interactive={true}
-            />
-          </div>
+        {/* Main Centerpiece Highlighted Container */}
+        <div className="relative z-10 flex flex-col items-center justify-center text-center px-4 max-w-6xl">
+          {/* ASTRA Title - Super Highlighted */}
+          <motion.h1
+            initial={{ scale: 0.85, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 0.7, ease: 'easeOut' }}
+            className="text-8xl sm:text-9xl md:text-[11rem] font-black tracking-[0.24em] uppercase astra-highlight-title leading-none select-none my-3"
+            style={{
+              WebkitTextStroke: '2px rgba(255, 255, 255, 0.6)',
+            }}
+          >
+            ASTRA
+          </motion.h1>
 
-          {/* TAGLINE — DETECT · DEFEND · DEFEAT */}
+          {/* Super Highlighted Tagline */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.8, duration: 0.9 }}
-            className="mb-14 flex flex-col items-center gap-4"
+            transition={{ delay: 0.3, duration: 0.7 }}
+            className="mt-6 sm:mt-8 mb-12 sm:mb-16 flex items-center justify-center gap-3 sm:gap-6 flex-wrap"
           >
-            <div className="flex items-center gap-4 md:gap-8">
-              {tagline.map((word, idx) => (
-                <React.Fragment key={word}>
-                  <motion.span
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 1.0 + idx * 0.15, duration: 0.6 }}
-                    className="text-xl md:text-3xl font-black tracking-[0.15em] uppercase"
-                    style={{
-                      color: ['#05D9E8', '#FF007F', '#F3E600'][idx],
-                      textShadow: `0 0 20px ${['rgba(5,217,232,0.5)', 'rgba(255,0,127,0.5)', 'rgba(243,230,0,0.5)'][idx]}`,
-                    }}
-                  >
-                    {word}
-                  </motion.span>
-                  {idx < 2 && (
-                    <motion.span
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ delay: 1.1 + idx * 0.15 }}
-                      className="text-white/15 text-3xl font-thin"
-                    >
-                      ·
-                    </motion.span>
-                  )}
-                </React.Fragment>
-              ))}
-            </div>
+            <span
+              className="text-xl sm:text-3xl md:text-4xl font-black tracking-[0.18em] uppercase px-3 py-1"
+              style={{
+                color: '#05D9E8',
+                textShadow: '0 0 20px #05D9E8, 0 0 40px #05D9E8, 0 0 70px rgba(5,217,232,0.9)',
+              }}
+            >
+              AI-POWERED
+            </span>
+            <span className="text-white/40 text-2xl hidden sm:inline">•</span>
+            <span
+              className="text-xl sm:text-3xl md:text-4xl font-black tracking-[0.18em] uppercase px-3 py-1"
+              style={{
+                color: '#FF007F',
+                textShadow: '0 0 20px #FF007F, 0 0 40px #FF007F, 0 0 70px rgba(255,0,127,0.9)',
+              }}
+            >
+              CYBER DEFENSE
+            </span>
+            <span className="text-white/40 text-2xl hidden sm:inline">•</span>
+            <span
+              className="text-xl sm:text-3xl md:text-4xl font-black tracking-[0.18em] uppercase px-3 py-1"
+              style={{
+                color: '#F3E600',
+                textShadow: '0 0 20px #F3E600, 0 0 40px #F3E600, 0 0 70px rgba(243,230,0,0.9)',
+              }}
+            >
+              SYSTEM
+            </span>
           </motion.div>
 
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 2.0, duration: 1 }}
-            className="mt-8 inline-block px-4 py-2 bg-black/80 border border-primary/40 text-[11px] font-mono font-bold text-white/60 tracking-[0.2em] uppercase animate-pulse"
+          {/* Super Highlighted Bottom Prompt Box */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.6, duration: 0.6 }}
+            className="px-6 sm:px-8 py-3 bg-black/90 border-2 border-primary text-xs sm:text-sm md:text-base font-mono font-black text-white tracking-[0.25em] uppercase animate-pulse shadow-[0_0_30px_rgba(5,217,232,0.75)] rounded-md"
           >
             PRESS ANY KEY OR CLICK TO RETURN TO DASHBOARD
           </motion.div>
@@ -201,3 +181,5 @@ export function IdleGlobeOverlay() {
     </AnimatePresence>
   );
 }
+
+export default IdleGlobeOverlay;

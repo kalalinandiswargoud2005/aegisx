@@ -26,9 +26,11 @@ import {
   BellOff,
   SlidersHorizontal,
   Square,
+  Keyboard as KeyboardIcon,
 } from 'lucide-react';
 
 import { useAudioAlerts } from '@/hooks/useAudioAlerts';
+import { VirtualKeyboard } from './components/VirtualKeyboard';
 
 import { useWebSocket } from '@/providers/WebSocketProvider';
 import { GoogleGenAI } from '@google/genai';
@@ -234,6 +236,7 @@ What would you like to know?`,
   ]);
 
   const [input, setInput] = useState('');
+  const [showVirtualKeyboard, setShowVirtualKeyboard] = useState(false);
 
   const [isThinking, setIsThinking] =
     useState(false);
@@ -1702,16 +1705,19 @@ Prevention
           </div>
 
           {/* =================================================
-              INPUT
+              INPUT & ON-SCREEN KEYBOARD
           ================================================= */}
 
-          <div className="p-4 border-t border-border-color flex-shrink-0 bg-surface/80 backdrop-blur">
+          <div className="p-3 sm:p-4 border-t border-border-color flex-shrink-0 bg-surface/80 backdrop-blur">
 
-            <div className="flex gap-3 items-center">
+            <div className="flex gap-2 sm:gap-3 items-center">
 
               <input
                 ref={inputRef}
                 value={input}
+                onFocus={() => {
+                  // Optional convenience: focus can be typed into directly
+                }}
                 onChange={(event) =>
                   setInput(
                     event.target
@@ -1733,11 +1739,33 @@ Prevention
                   }
                 }}
                 placeholder="Ask about threats, alerts, or active defense..."
-                className="flex-1 bg-surface border border-border-color rounded-none px-4 py-3 text-white text-sm outline-none focus:border-primary placeholder:text-white/30 transition-all font-mono"
+                className="flex-1 bg-surface border border-border-color rounded-none px-3 sm:px-4 py-2.5 sm:py-3 text-white text-xs sm:text-sm outline-none focus:border-primary placeholder:text-white/30 transition-all font-mono"
                 disabled={
                   isThinking
                 }
               />
+
+              {/* On-Screen Touch Keyboard Toggle */}
+              <button
+                type="button"
+                onClick={() =>
+                  setShowVirtualKeyboard(
+                    !showVirtualKeyboard
+                  )
+                }
+                className={`w-10 h-10 sm:w-11 sm:h-11 rounded-none flex items-center justify-center transition-all cyber-cut shrink-0 cursor-pointer ${
+                  showVirtualKeyboard
+                    ? 'bg-primary text-black shadow-lg shadow-primary/30 border border-primary font-bold'
+                    : 'bg-surface border border-border-color text-white/70 hover:text-primary hover:border-primary/50'
+                }`}
+                title={
+                  showVirtualKeyboard
+                    ? 'Close Touch Keyboard'
+                    : 'Open On-Screen Touch Keyboard'
+                }
+              >
+                <KeyboardIcon className="w-4 h-4 sm:w-5 sm:h-5" />
+              </button>
 
               {/* Microphone */}
 
@@ -1746,7 +1774,7 @@ Prevention
                 onClick={
                   toggleListening
                 }
-                className={`w-11 h-11 rounded-none flex items-center justify-center transition-all cyber-cut ${
+                className={`w-10 h-10 sm:w-11 sm:h-11 rounded-none flex items-center justify-center transition-all cyber-cut shrink-0 cursor-pointer ${
                   isListening
                     ? 'bg-danger text-white animate-pulse shadow-lg shadow-danger/20 border-none'
                     : 'bg-surface border border-border-color text-white/50 hover:text-primary hover:border-primary/50'
@@ -1773,7 +1801,7 @@ Prevention
                   !input.trim() ||
                   isThinking
                 }
-                className="w-11 h-11 rounded-none bg-primary text-black flex items-center justify-center hover:bg-primary/80 transition-all disabled:opacity-40 disabled:cursor-not-allowed cyber-cut flex-shrink-0"
+                className="w-10 h-10 sm:w-11 sm:h-11 rounded-none bg-primary text-black flex items-center justify-center hover:bg-primary/80 transition-all disabled:opacity-40 disabled:cursor-not-allowed cyber-cut shrink-0 cursor-pointer"
               >
                 <Send className="w-4 h-4" />
               </button>
@@ -1782,6 +1810,19 @@ Prevention
 
           </div>
 
+          {/* Virtual Keyboard */}
+          <VirtualKeyboard
+            isOpen={showVirtualKeyboard}
+            onClose={() => setShowVirtualKeyboard(false)}
+            value={input}
+            onChange={(val) => setInput(val)}
+            onSend={() => {
+              unlockAudio();
+              sendMessage(input);
+            }}
+            disabled={isThinking}
+          />
+
         </div>
 
       </div>
@@ -1789,3 +1830,4 @@ Prevention
     </div>
   );
 }
+
